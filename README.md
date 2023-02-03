@@ -12,6 +12,12 @@ This repo uses [nx](https://nx.dev), to execute some commands either prefix with
 
 e.g. `npx nx $CMD` can be shortened to `nx $CMD` with a single execution of `npm i -g nx`
 
+### Docker Compose
+
+A docker-compose environment is provided. Use `docker compose up` to start a local developer environment
+
+Use `cp .env.sample .env`, and then edit `.env` to control the environment
+
 ### Understand this workspace
 
 Run `nx graph` to see a diagram of the dependencies of the projects.
@@ -19,4 +25,3 @@ Run `nx graph` to see a diagram of the dependencies of the projects.
 ### Remote caching
 
 Run `npx nx connect-to-nx-cloud` to enable [remote caching](https://nx.app) and make CI faster.
-

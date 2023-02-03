@@ -1,0 +1,18 @@
+services:
+  alice:
+      image: ${CHAIN_IMAGE}
+      init: true # Faster shutdown by container process not be PID 1
+      restart: always
+      ports: # expose ports to localhost
+        - '9944:9944' # ws://
+        - '9933:9933' # http://
+        - '30333:30333' # for other nodes
+      extra_hosts:
+        - 'host.docker.internal:host-gateway'
+      volumes:
+        - './chain-entry.sh:/chain-entry.sh'
+      entrypoint: '/chain-entry.sh'
+      command:
+        [
+          '--alice --chain dev',
+        ]
