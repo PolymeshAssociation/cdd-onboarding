@@ -7,7 +7,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "packages/cdd-backend-e2e/jest.config.ts",
+        "jestConfig": "apps/cdd-backend-e2e/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -15,7 +15,7 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/cdd-backend-e2e/**/*.{js,ts}"]
+        "lintFilePatterns": ["apps/cdd-backend-e2e/**/*.{js,ts}"]
       }
     }
   }
