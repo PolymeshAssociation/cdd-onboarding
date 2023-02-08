@@ -6,5 +6,6 @@
         "nestjs",
         "netki",
         "polymeshassociation"
-    ]
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

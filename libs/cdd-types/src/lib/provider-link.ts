@@ -4,7 +4,7 @@ import { createZodDto } from '@anatine/zod-nestjs';
 import { addressZ } from './utils';
 import { ApiProperty } from '@nestjs/swagger';
 
-export const GenerateLinkZ = extendApi(
+export const ProviderLinkZ = extendApi(
   z.object({
     address: addressZ,
     provider: z.enum(['jumio', 'netki']),
@@ -12,9 +12,9 @@ export const GenerateLinkZ = extendApi(
   { title: 'Generate Link Request' }
 );
 
-export class GenerateLinkDto extends createZodDto(GenerateLinkZ) {}
+export class ProviderLinkDto extends createZodDto(ProviderLinkZ) {}
 
-export class GenerateLinkResponse {
+export class ProviderLinkResponse {
   @ApiProperty({
     type: 'string',
     description: 'Deep link to the provider the user should follow',

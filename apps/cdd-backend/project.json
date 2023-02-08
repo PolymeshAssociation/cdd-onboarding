@@ -11,7 +11,27 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/cdd-backend",
-        "main": "apps/cdd-backend/src/main.ts",
+        "main": "apps/cdd-backend/src/server.ts",
+        "tsConfig": "apps/cdd-backend/tsconfig.app.json",
+        "assets": ["apps/cdd-backend/src/assets"],
+        "webpackConfig": "apps/cdd-backend/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
+        }
+      }
+    },
+    "buildWorker": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/cdd-backend",
+        "main": "apps/cdd-backend/src/worker.ts",
         "tsConfig": "apps/cdd-backend/tsconfig.app.json",
         "assets": ["apps/cdd-backend/src/assets"],
         "webpackConfig": "apps/cdd-backend/webpack.config.js"
@@ -28,6 +48,17 @@
       "executor": "@nrwl/js:node",
       "options": {
         "buildTarget": "cdd-backend:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "cdd-backend:build:production"
+        }
+      }
+    },
+    "work": {
+      "executor": "@nrwl/js:node",
+      "options": {
+        "buildTarget": "cdd-backend:buildWorker"
       },
       "configurations": {
         "production": {
