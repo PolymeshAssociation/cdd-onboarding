@@ -5,6 +5,7 @@ import { PolymeshModule } from '../polymesh/polymesh.module';
 import { BullModule } from '@nestjs/bull';
 import { AppBullModule } from '../app-bull/app-bull.module';
 import { AppRedisModule } from '../app-redis/app-redis.module';
+import { JumioModule } from '../jumio/jumio.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AppRedisModule } from '../app-redis/app-redis.module';
     AppRedisModule,
     AppBullModule,
     BullModule.registerQueue({ name: 'cdd' }),
+    JumioModule,
   ],
   providers: [CddService],
   controllers: [CddController],

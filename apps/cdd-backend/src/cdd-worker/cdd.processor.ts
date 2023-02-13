@@ -8,15 +8,15 @@ import Redis from 'ioredis';
 export class CddProcessor {
   constructor(
     private readonly polymesh: Polymesh,
-    private readonly logger: Logger,
-    private readonly redis: Redis
+    private readonly redis: Redis,
+    private readonly logger: Logger
   ) {}
 
   @Process('cdd')
   async generateCdd(job: Job) {
     const { id, address } = job.data;
 
-    this.logger.log('processing CDD job', { id, address });
+    this.logger.log(`[START] Job ${id} for address: ${address}`);
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity({
       targetAccount: address,
@@ -25,7 +25,7 @@ export class CddProcessor {
 
     await registerIdentityTx.run().catch((error) => {
       this.logger.error(
-        `could not create cdd claim for ${address}: ${error.message}`,
+        `[ERROR] Job ${id} could not create cdd claim for ${address}: ${error.message}`,
         error.stack
       );
 
@@ -34,11 +34,13 @@ export class CddProcessor {
 
     await this.redis.del(address).catch((error) => {
       this.logger.error(
-        `could not remove previous links for ${address}`,
+        `[ERROR] Job ${id} could not remove previous links for ${address}`,
         error.stack
       );
 
       throw error; //  it might be better to swallow the error - the CDD claim was already made
     });
+
+    this.logger.log(`[DONE] Job: ${id} processed successfully`);
   }
 }

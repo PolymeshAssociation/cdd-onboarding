@@ -1,9 +1,7 @@
 import {
   ProviderLinkDto,
-  GenerateCddResponse,
   VerifyAddressParamDto,
   VerifyAddressResponse,
-  GenerateCddDto,
   ProviderLinkResponse,
 } from '@cdd-onboarding/cdd-types';
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
@@ -36,12 +34,5 @@ export class CddController {
     const link = await this.cddService.generateProviderLink(body);
 
     return new ProviderLinkResponse(link);
-  }
-
-  @Post('/cdd')
-  async generateCdd(@Body() body: GenerateCddDto) {
-    const id = await this.cddService.queueCddRequest(body);
-
-    return new GenerateCddResponse(id);
   }
 }

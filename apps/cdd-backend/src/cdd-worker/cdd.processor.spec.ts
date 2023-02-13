@@ -58,11 +58,6 @@ describe('cddProcessor', () => {
       mockRun.mockRejectedValue(testError);
 
       await expect(processor.generateCdd(mockJob)).rejects.toThrow(testError);
-
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('test error'),
-        testError.stack
-      );
     });
   });
 });

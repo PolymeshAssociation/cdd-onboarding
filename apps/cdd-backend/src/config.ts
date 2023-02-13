@@ -11,6 +11,13 @@ const configZ = z.object({
     port: z.coerce.number().positive().max(65535).default(6379),
     password: z.string().optional(),
   }),
+  jumio: z.object({
+    apiKey: z.string().default(''),
+    generateLinkUrl: z
+      .string()
+      .url()
+      .default('https://netverify.com/api/v4/initiate'),
+  }),
 });
 
 export type AppConfig = ReturnType<typeof configZ.parse>;
@@ -41,6 +48,10 @@ export default (): AppConfig => {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
       password: process.env.REDIS_PASSWORD,
+    },
+    jumio: {
+      apiKey: Buffer.from(process.env.JUMIO_API_KEY!).toString('base64'),
+      generateLinkUrl: process.env.JUMIO_GENERATE_LINK_URL,
     },
   };
 
