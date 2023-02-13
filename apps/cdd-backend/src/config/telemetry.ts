@@ -11,39 +11,40 @@ import { z } from 'zod';
 
 const telemetryZ = z
   .object({
-    telemetry: z
-      .object({
-        hostname: z.string().default(os.hostname()),
-        url: z.string().url().default(''),
-        service: z.string().default('PolymeshCdd'),
-      })
-      .optional(),
+    hostname: z.string().default(os.hostname()),
+    url: z.string().url().default(''),
+    service: z.string().default('PolymeshCdd'),
   })
+  .optional()
   .describe('config for telemetry data');
 
 type TelemetryConfig = ReturnType<typeof telemetryZ.parse>;
 
-const telemetryEnvConfig = (): TelemetryConfig => {
+const telemetryEnvConfig = (): TelemetryConfig | undefined => {
   const rawConfig = {
     url: process.env.OTLP_EXPORT_URL,
     hostname: process.env.OTLP_HOSTNAME,
     service: process.env.OTLP_SERVICE,
   };
+  
 
-  return telemetryZ.parse(rawConfig);
+  if (rawConfig.url) {
+    return telemetryZ.parse(rawConfig);
+  } else {
+    return;
+  }
 };
 
 /**
  * starts telemetry service if env `OTLP_EXPORT_URL` is set
  */
 export const startTelemetry = (logger: Logger) => {
-  const { telemetry } = telemetryEnvConfig();
+  const telemetry = telemetryEnvConfig();
 
   if (!telemetry) {
     logger.info(
       'OTLP_EXPORT_URL was unset - open telemetry export was not started'
     );
-
     return;
   }
 
