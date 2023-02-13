@@ -11,7 +11,7 @@ import { AxiosResponse } from 'axios';
 import { Queue } from 'bull';
 import { firstValueFrom } from 'rxjs';
 import { CddJob } from '../cdd-worker/types';
-import { JumioCallbackDto } from './types';
+import { JumioCallbackDto, JumioGenerateLinkResponse } from './types';
 
 @Injectable()
 export class JumioService {
@@ -34,7 +34,7 @@ export class JumioService {
   public async generateLink(
     transactionId: string,
     address: string
-  ): Promise<Record<string, unknown>> {
+  ): Promise<JumioGenerateLinkResponse> {
     const headers = {
       ...this.baseHeaders,
       Authorization: `Basic ${this.config.getOrThrow('jumio.apiKey')}`,
@@ -73,9 +73,8 @@ export class JumioService {
 
   public async queueApplication(request: JumioCallbackDto): Promise<void> {
     const job: CddJob = {
-      address: request.customerId,
-      externalId: request.jumioIdScanReference,
-      jumio: request,
+      type: 'jumio',
+      value: request,
     };
 
     // maybe save the raw request to redis for audit purposes?

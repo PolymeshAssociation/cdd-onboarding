@@ -1,18 +1,24 @@
+import { CddProvider } from '@cdd-onboarding/cdd-types';
 import { JumioCallbackDto } from '../jumio/types';
+import { NetkiCallbackDto } from '../netki/types';
 
 export interface CddApplication {
   id: string;
   address: string;
-  link: string;
+  url: string;
   provider: CddProvider;
-  timestamp: Date;
-  externalReference: string;
-}
-
-export interface CddJob {
-  address: string;
+  timestamp: string;
   externalId: string;
-  jumio: JumioCallbackDto;
 }
 
-export type CddProvider = 'jumio' | 'netki';
+export type CddJob = JumioCddJob | NetkiCddJob;
+
+export interface JumioCddJob {
+  value: JumioCallbackDto;
+  type: 'jumio';
+}
+
+export interface NetkiCddJob {
+  value: NetkiCallbackDto;
+  type: 'netki';
+}

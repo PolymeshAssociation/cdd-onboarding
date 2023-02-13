@@ -31,7 +31,7 @@ export class CddController {
   async providerLink(
     @Body() body: ProviderLinkDto
   ): Promise<ProviderLinkResponse> {
-    const link = await this.cddService.generateProviderLink(body);
+    const link = await this.cddService.getProviderLink(body);
 
     return new ProviderLinkResponse(link);
   }

@@ -4,10 +4,14 @@ import { createZodDto } from '@anatine/zod-nestjs';
 import { addressZ } from './utils';
 import { ApiProperty } from '@nestjs/swagger';
 
+const CddProviderZEnum = z.enum(['netki', 'jumio']);
+
+export type CddProvider = z.TypeOf<typeof CddProviderZEnum>;
+
 export const ProviderLinkZ = extendApi(
   z.object({
     address: addressZ,
-    provider: z.enum(['jumio', 'netki']),
+    provider: CddProviderZEnum,
   }),
   { title: 'Generate Link Request' }
 );

@@ -45,9 +45,7 @@ describe('CddController', () => {
 
   describe('generateProviderLink', () => {
     it('should call the service and return the result', async () => {
-      mockCddService.generateProviderLink.mockResolvedValue(
-        'https://example.com'
-      );
+      mockCddService.getProviderLink.mockResolvedValue('https://example.com');
 
       const response = await controller.providerLink({
         address,
