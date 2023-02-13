@@ -1,13 +1,13 @@
 // TODO validate config with zod
 export default () => ({
   /**
-   * port the app will listen on
+   * port the server will listen on
    */
   port: parseInt(process.env.PORT || '3333'),
   /**
    * config for the Polymesh SDK
    */
-  sdk: {
+  polymesh: {
     /**
      * websocket URL of the Polymesh node to use
      */
@@ -22,6 +22,7 @@ export default () => ({
    */
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6378'),
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+    keyPrefix: process.env.REDIS_KEY_PREFIX || 'cdd',
   },
 });
