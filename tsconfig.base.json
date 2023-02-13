@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@cdd-onboarding/cdd-types": ["libs/cdd-types/src/index.ts"],
+      "@cdd-onboarding/types/types": ["libs/types/types/src/index.ts"]
+    },
+    "strict": true
   },
   "exclude": ["node_modules", "tmp"]
 }

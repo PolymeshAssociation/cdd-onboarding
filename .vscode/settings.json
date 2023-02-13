@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
         "nestjs",
+        "anatine",
+        "jumio",
+        "nestjs",
+        "netki",
         "polymeshassociation"
-    ]
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib"
 }
