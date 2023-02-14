@@ -3,7 +3,7 @@ services:
     image: 'bitnami/redis:latest'
     restart: unless-stopped
     ports:
-      - '6378:6379'
+      - '6379:6379'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
 
