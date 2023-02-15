@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 
-import PolymeshTheme from './polymesh-theme';
+import PolymeshTheme from './theme-provider';
 
 describe('PolymeshTheme', () => {
   it('should render successfully', () => {

@@ -1,1 +1,1 @@
-export * from './lib/polymesh-theme';
+export * from './lib/theme-provider';
