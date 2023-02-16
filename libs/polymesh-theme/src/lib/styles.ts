@@ -15,6 +15,10 @@ export const styles = {
       bg: mode(colors.bg.light, colors.bg.dark)(props),
       color: mode(colors.text.light, colors.text.dark)(props),
       fontSize: "16px",
+      minHeight: "100vh",
+      height: 'auto',
+      maxHeight: '100vh',
+      lineHeight: '1.5',
     },
   }),
 };
