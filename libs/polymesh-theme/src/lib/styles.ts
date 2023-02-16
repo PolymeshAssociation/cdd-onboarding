@@ -1,20 +1,20 @@
 import { mode } from '@chakra-ui/theme-tools';
 import type { StyleFunctionProps } from '@chakra-ui/styled-system';
+import { colors } from './colors/colors';
+
+const fontFamily = `'Poppins', sans-serif`;
 
 export const styles = {
   fonts: {
-    body: 'Poppins, sans-serif',
+    html: fontFamily,
+    body: fontFamily,
+    heading: fontFamily,   
   },
   global: (props: StyleFunctionProps) => ({
     'html, body': {
-      bg: mode('bg.light', 'bg.dark')(props),
-      color: mode('text.light', 'text.dark')(props),
-    },
-    a: {
-      color: 'teal.500',
-      _hover: {
-        textDecoration: 'underline',
-      },
+      bg: mode(colors.bg.light, colors.bg.dark)(props),
+      color: mode(colors.text.light, colors.text.dark)(props),
+      fontSize: "16px",
     },
   }),
 };
