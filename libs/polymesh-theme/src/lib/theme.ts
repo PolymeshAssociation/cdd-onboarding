@@ -6,7 +6,13 @@ import { Heading } from "./components/heading"
 import { Text } from "./components/text"
 import { styles } from "./styles"
 
+const config = {
+  initialColorMode: 'light',
+  useSystemColorMode: false,
+}
+
 export const theme = extendTheme({
+    config,
     ...styles,
     colors,
     components: {
