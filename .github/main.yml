@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+          cache: 'yarn'
+      - name: install dependencies
+        run: yarn --frozen-lockfile
+      - name: lint
+        run: nx run-many --target=lint --all
+
+  build:
+    name: Building
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+          cache: 'yarn'
+      - name: install dependencies
+        run: yarn --frozen-lockfile
+      - name: build
+        run: nx run-many --target=build --all
+
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+          cache: 'yarn'
+      - name: install dependencies
+        run: yarn --frozen-lockfile
+      - name: test
+        run: nx run-many --target=test --all
