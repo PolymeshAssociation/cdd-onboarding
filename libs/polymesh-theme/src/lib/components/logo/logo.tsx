@@ -5,7 +5,7 @@ import Light from './light';
 import Dark from './dark';
 
 export type LogoProps = {
-  variant?: 'light' | 'dark';
+  variant?: 'light' | 'dark' | 'grey';
 };
 
 function roundToTwo(num: number) {
@@ -101,9 +101,14 @@ const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
   );
   const { colorMode } = useColorMode();
 
-  if (variant === 'dark' || (colorMode === 'dark' && !variant)) {
-    return <Dark height={computedHeight} width={computedWidth} {...rest} />;
+  if (variant === 'grey') {
+    return <Dark height={computedHeight} width={computedWidth} color="#565656" {...rest} />;
   }
+
+  if (variant === 'dark' || (colorMode === 'dark' && !variant)) {
+    return <Dark height={computedHeight} width={computedWidth} color="white" {...rest} />;
+  }
+  
 
   return <Light height={computedHeight} width={computedWidth} {...rest} />;
 };

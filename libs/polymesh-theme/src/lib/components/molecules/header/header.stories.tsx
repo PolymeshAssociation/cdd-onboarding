@@ -1,4 +1,4 @@
-import { PolymeshTheme } from '../../theme-provider';
+import { PolymeshTheme } from '../../../theme-provider';
 
 import HeaderComponent from './header';
 

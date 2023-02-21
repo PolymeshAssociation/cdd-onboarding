@@ -7,6 +7,7 @@ export const colors = {
       light: '#565656',
       dark: '#fff'
     },
+    link: '#ff2e72',
     pink: {
       '50': '#fde9ee',
       '100': '#f9c8d5',

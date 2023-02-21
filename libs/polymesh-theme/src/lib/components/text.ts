@@ -3,10 +3,6 @@ import { ComponentStyleConfig } from '@chakra-ui/react';
 export const Text: ComponentStyleConfig = {
   baseStyle: {
     display: 'block',
-    marginBlockStart: '1em',
-    marginBlockEnd: '1em',
-    marginInlineStart: '0em',
-    marginInlineEnd: '0em',
   },
   sizes: {
     '4xl': {

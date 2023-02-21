@@ -1,6 +1,6 @@
 import { Box, HStack } from '@chakra-ui/react'
 
-import Logo from '../logo/logo'
+import Logo from '../../logo/logo'
 
 export type HeaderProps = {
     center?: React.ReactNode,
