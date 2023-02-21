@@ -1,7 +1,7 @@
 import { Box, DarkMode, Heading } from '@chakra-ui/react';
-import { PolymeshTheme } from '../../theme-provider';
+import { PolymeshTheme } from '../../../ThemeProvider';
 
-import LogoComponent from './logo';
+import LogoComponent from './Logo';
 
 export default {
   title: 'atoms/Logo',

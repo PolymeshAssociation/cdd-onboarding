@@ -1,9 +1,9 @@
 import { Box, Button, Heading, HStack, VStack } from '@chakra-ui/react';
 import type { ComponentMeta } from '@storybook/react';
-import { PolymeshTheme } from '../theme-provider';
+import { PolymeshTheme } from '../../ThemeProvider';
 
 export default {
-  title: 'Button',
+  title: 'Atoms/Button',
   component: Button,
   decorators: [
     (Story) => (

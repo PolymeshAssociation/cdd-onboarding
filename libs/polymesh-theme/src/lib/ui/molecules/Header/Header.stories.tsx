@@ -1,6 +1,6 @@
-import { PolymeshTheme } from '../../../theme-provider';
+import { PolymeshTheme } from '../../../ThemeProvider';
 
-import HeaderComponent from './header';
+import HeaderComponent from './Header';
 
 export default {
   title: 'molecules/Header',

@@ -1,9 +1,9 @@
 import { VStack, Heading as HeadingComponent } from '@chakra-ui/react';
 
-import { PolymeshTheme } from '../theme-provider';
+import { PolymeshTheme } from '../../ThemeProvider';
 
 export default {
-  title: 'Heading',
+  title: 'Typography/Heading',
 };
 
 export const Heading: React.FC = () => (

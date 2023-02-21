@@ -1,6 +1,6 @@
 import { Box, StackProps, HStack, Link, VStack, Text } from '@chakra-ui/react'
 
-import Logo from '../../logo/logo'
+import Logo from '../../atoms/Logo/Logo'
 
 const FooterContainer: React.FC<StackProps> = ({ children, ...rest }) => {
 

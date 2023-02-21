@@ -3,7 +3,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import "@fontsource/poppins"
 
-import { theme } from './theme';
+import theme from './theme';
 /* eslint-disable-next-line */
 export interface PolymeshThemeProps {}
 

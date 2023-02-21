@@ -1,8 +1,8 @@
 import React from 'react';
 import { IconProps, useColorMode } from '@chakra-ui/react';
 
-import Light from './light';
-import Dark from './dark';
+import Light from './LogoLight';
+import Dark from './LogoDark';
 
 export type LogoProps = {
   variant?: 'light' | 'dark' | 'grey';
@@ -40,6 +40,7 @@ const getHeight = (width: IconProps['width']): IconProps['height'] => {
   if (typeof width === 'object') {
     const computed: any = {};
     Object.keys(width).forEach((key) => {
+      // @ts-expect-error index
       const { value, unit } = extractUnits(width[key]);
       computed[key] = calculateHeight(value) + unit;
     });
@@ -61,6 +62,7 @@ const getWidth = (height: IconProps['height']): IconProps['width'] => {
   if (typeof height === 'object') {
     const computed: any = {};
     Object.keys(height).forEach((key) => {
+      // @ts-expect-error index
       const { value, unit } = extractUnits(height[key]);
       computed[key] = calculateHeight(value) + unit;
     });
@@ -86,7 +88,7 @@ const extractResponsiveValues = ({
   return {};
 };
 
-const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
+export const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
   variant,
   viewBox,
   h,

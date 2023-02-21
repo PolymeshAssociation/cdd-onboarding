@@ -1,6 +1,6 @@
-import { PolymeshTheme } from '../../../theme-provider';
+import { PolymeshTheme } from '../../../ThemeProvider';
 
-import FooterComponent from './footer';
+import FooterComponent from './Footer';
 
 export default {
   title: 'molecules/Footer',

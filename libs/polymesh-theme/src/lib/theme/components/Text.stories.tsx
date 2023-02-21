@@ -1,9 +1,9 @@
 import { VStack, Text as TextComponent } from '@chakra-ui/react';
 
-import { PolymeshTheme } from '../theme-provider';
+import { PolymeshTheme } from '../../ThemeProvider';
 
 export default {
-  title: 'Text',
+  title: 'Typography/Text',
 };
 
 export const Text: React.FC = () => (

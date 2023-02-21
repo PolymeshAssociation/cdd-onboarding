@@ -19,7 +19,8 @@
       "@cdd-onboarding/types/types": ["libs/types/types/src/index.ts"],
       "@polymeshassociation/polymesh-theme": [
         "libs/polymesh-theme/src/index.ts"
-      ]
+      ],
+      "@polymeshassociation/polymesh-theme/*": ["libs/polymesh-theme/src/lib/*"]
     },
     "strict": true
   },

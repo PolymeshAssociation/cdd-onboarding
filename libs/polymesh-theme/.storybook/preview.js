@@ -8,7 +8,14 @@ export const parameters = {
   },
   options: {
     storySort: {
-      order: ['atoms', 'molecules'],
+      order: [
+        'theme',
+        'typography',
+        'atoms',
+        'molecules',
+        'organisms',
+        'templates',
+      ],
     },
   },
 };

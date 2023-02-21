@@ -1,7 +1,7 @@
 import React from 'react';
 import {  VStack, Box, Flex, HStack, Square, Text, Heading } from '@chakra-ui/react';
 
-import { PolymeshTheme } from '../theme-provider';
+import { PolymeshTheme } from '../../ThemeProvider';
 
 import { colors } from './colors';
 
