@@ -26,9 +26,7 @@ export class CddController {
   async verifyAddress(
     @Param() { address }: VerifyAddressParamDto
   ): Promise<VerifyAddressResponse> {
-    const valid = await this.cddService.verifyAddress(address);
-
-    return new VerifyAddressResponse(valid);
+    return this.cddService.verifyAddress(address);
   }
 
   @Post('/provider-link')

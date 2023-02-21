@@ -7,7 +7,6 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
   imports: [ConfigModule],
   providers: [
     {
-      // Provide Polymesh SDK
       provide: Polymesh,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {

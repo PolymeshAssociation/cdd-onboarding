@@ -1,11 +1,13 @@
 {
     "cSpell.words": [
-        "nestjs",
         "anatine",
+        "golevelup",
         "jumio",
         "nestjs",
         "netki",
-        "polymeshassociation"
+        "polymeshassociation",
+        "sadd",
+        "smembers"
     ],
     "typescript.tsdk": "node_modules/typescript/lib"
 }
