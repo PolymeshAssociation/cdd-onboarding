@@ -1,6 +1,6 @@
 import { Box, StackProps, HStack, Link, VStack, Text } from '@chakra-ui/react'
 
-import Logo from '../../atoms/Logo/Logo'
+import { Logo } from '../../atoms'
 
 const FooterContainer: React.FC<StackProps> = ({ children, ...rest }) => {
 
@@ -21,8 +21,8 @@ const FooterTop: React.FC<FooterProps> = ({ center, right }) => {
     <FooterContainer>
       <HStack w="100%" justifyContent="space-between">
       <Logo height={{ base: '19px', lg: '16px', xl: '19px', }} variant="grey" />
-      <Box>{center} a</Box>
-      <Box>{right} b</Box>
+      <Box>{center}</Box>
+      <Box>{right}</Box>
       </HStack>
     </FooterContainer>
   )
@@ -32,7 +32,7 @@ const FooterCopy = () => {
 
   return (
     <FooterContainer fontSize="0.8rem" alignItems="flex-start">
-      <Text padding={0} m={0}>© 2022 Polymesh Association. All Right Reserved</Text>
+      <Text padding={0} m={0}>© {new Date().getFullYear()} Polymesh Association. All Right Reserved</Text>
       <Text marginTop="0px"><Link>Privacy Policy</Link> | <Link>Terms Of Service</Link></Text>
     </FooterContainer>
   )
@@ -43,7 +43,7 @@ const FooterCopy = () => {
 export const Footer: React.FC<FooterProps> = ({ center, right }) => {
   return (
     <Box>
-      <FooterTop />
+      <FooterTop center={center} right={right} />
       <FooterCopy />
     </Box>
   )
