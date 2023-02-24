@@ -6,7 +6,7 @@ type LandingImageProps = {
   alt: string;
 };
 
-const LandingImage: React.FC<LandingImageProps> = ({ src, alt }) => {
+export const LandingImage: React.FC<LandingImageProps> = ({ src, alt }) => {
   return (
     <Box
       w="50vw"

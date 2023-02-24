@@ -17,6 +17,7 @@
         "tsConfig": "apps/cdd-frontend/tsconfig.app.json",
         "assets": [
           "apps/cdd-frontend/src/favicon.ico",
+          "apps/cdd-frontend/src/site.webmanifest",
           "apps/cdd-frontend/src/assets"
         ],
         "styles": [],

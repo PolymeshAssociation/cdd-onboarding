@@ -1,22 +1,24 @@
 import { Button } from '@chakra-ui/react';
 import { PolymeshTheme } from '../../../ThemeProvider';
+import LandingImage from '../../atoms/LandingImage/LandingImage';
 import { Hero, QuestionsAnswers } from '../../organisms';
 
-import LandingPageComponent from './Main';
+import MainTemplateComponent from './MainTemplate';
 
 export default {
-  title: 'templates/Landing',
+  title: 'templates/MainTemplate',
   parameters: {
     layout: 'fullscreen',
   },
 };
 
-export const Landing: React.FC = () => (
+export const MainTemplate: React.FC = () => (
   <PolymeshTheme>
-    <LandingPageComponent>
+    <MainTemplateComponent>
+      <LandingImage src='blocks.svg' alt="Blockchain image" />
       <Hero title="Hero component" subtitle="Subtitle" cta={<Button variant="solid" colorScheme="navy">Some Action</Button>} />
       <QuestionsAnswers title="Frequently asked questions" items={[{ question: 'What is onboarding', answer: 'It is easy'}]} />
-    </LandingPageComponent>
+    </MainTemplateComponent>
   </PolymeshTheme>
 );
 

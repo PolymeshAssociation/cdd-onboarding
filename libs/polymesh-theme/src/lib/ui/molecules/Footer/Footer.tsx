@@ -33,7 +33,7 @@ const FooterCopy = () => {
   return (
     <FooterContainer fontSize="0.8rem" alignItems="flex-start">
       <Text padding={0} m={0}>© {new Date().getFullYear()} Polymesh Association. All Right Reserved</Text>
-      <Text marginTop="0px"><Link>Privacy Policy</Link> | <Link>Terms Of Service</Link></Text>
+      <Text marginTop="0px"><Link href="https://polymesh.network/privacy-policy" isExternal>Privacy Policy</Link> | <Link href="https://polymesh.network/terms-of-service" isExternal>Terms Of Service</Link></Text>
     </FooterContainer>
   )
 }
