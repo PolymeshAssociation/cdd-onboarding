@@ -7,16 +7,17 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
   imports: [ConfigModule],
   providers: [
     {
-      // Provide Polymesh SDK
       provide: Polymesh,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const signingManager = await LocalSigningManager.create({
-          accounts: [{ mnemonic: configService.getOrThrow('sdk.mnemonic') }],
+          accounts: [
+            { mnemonic: configService.getOrThrow('polymesh.mnemonic') },
+          ],
         });
 
         return Polymesh.connect({
-          ...configService.getOrThrow('sdk'),
+          ...configService.getOrThrow('polymesh'),
           signingManager,
         });
       },
