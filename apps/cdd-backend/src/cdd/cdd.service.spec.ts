@@ -19,7 +19,7 @@ describe('CddService', () => {
       providers: [
         CddService,
         { provide: Polymesh, useValue: mockPolymesh },
-        { provide: getQueueToken('cdd'), useValue: mockQueue },
+        { provide: getQueueToken(), useValue: mockQueue },
         { provide: Redis, useValue: mockRedis },
         { provide: JumioService, useValue: mockJumioService },
       ],

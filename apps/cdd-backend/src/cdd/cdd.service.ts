@@ -8,6 +8,7 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Queue } from 'bull';
 import Redis from 'ioredis';
 import crypto from 'node:crypto';
+import { CddApplication } from '../cdd-worker/types';
 import { JumioService } from '../jumio/jumio.service';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class CddService {
   constructor(
     private readonly polymesh: Polymesh,
     private readonly jumioService: JumioService,
-    @InjectQueue('cdd') private readonly queue: Queue,
+    @InjectQueue() private readonly queue: Queue,
     private readonly redis: Redis
   ) {}
 
@@ -63,7 +64,7 @@ export class CddService {
 
     const id = crypto.randomUUID();
 
-    const application = {
+    const application: CddApplication = {
       id,
       address,
       link: `http://example.com/${address}/${provider}`,

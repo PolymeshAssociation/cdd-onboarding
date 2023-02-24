@@ -3,6 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JumioController } from './jumio.controller';
 import { JumioService } from './jumio.service';
 
+import { JumioCallbackDto } from './types';
+
+import mockRequest from '../test-utils/jumio-http/webhook-approved-verified.json';
+
 describe('JumioController', () => {
   let controller: JumioController;
   const mockService = createMock<JumioService>();
@@ -27,18 +31,9 @@ describe('JumioController', () => {
 
   describe('processCddApplication', () => {
     it('should call the service', async () => {
-      mockService.queueApplication.mockResolvedValue(true);
+      mockService.queueApplication.mockResolvedValue(undefined);
 
-      const mockRequest = {
-        idScanStatus: 'APPROVED_VERIFIED',
-        jumioIdScanReference: 'someUUID',
-        idScanSource: 'WEB',
-        verificationStatus: 'APPROVED_VERIFIED',
-        callbackDate: new Date(),
-        transactionDate: new Date(),
-      } as const;
-
-      await controller.processCddApplication(mockRequest);
+      await controller.processCddApplication(mockRequest as JumioCallbackDto);
 
       expect(mockService.queueApplication).toHaveBeenCalledWith(mockRequest);
     });

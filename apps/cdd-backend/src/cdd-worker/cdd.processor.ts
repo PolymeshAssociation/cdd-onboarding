@@ -3,8 +3,9 @@ import { Logger } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
 import Redis from 'ioredis';
+import { CddJob } from './types';
 
-@Processor('cdd')
+@Processor()
 export class CddProcessor {
   constructor(
     private readonly polymesh: Polymesh,
@@ -12,35 +13,48 @@ export class CddProcessor {
     private readonly logger: Logger
   ) {}
 
-  @Process('cdd')
-  async generateCdd(job: Job) {
-    const { id, address } = job.data;
+  @Process()
+  async generateCdd(job: Job<CddJob>) {
+    const { address, externalId, jumio } = job.data;
 
-    this.logger.log(`[START] Job ${id} for address: ${address}`);
+    this.logger.log(
+      `[START] job: ${externalId} for address: ${address} - Provider: jumio`
+    );
+
+    if (jumio.verificationStatus !== 'APPROVED_VERIFIED') {
+      this.logger.log(
+        `[DONE] job: ${externalId} jumio status ${jumio.verificationStatus} was not equal to "APPROVED_VERIFIED", no action taken`
+      );
+      return;
+    }
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity({
       targetAccount: address,
       createCdd: true,
     });
 
-    await registerIdentityTx.run().catch((error) => {
+    const createdIdentity = await registerIdentityTx.run().catch((error) => {
       this.logger.error(
-        `[ERROR] Job ${id} could not create cdd claim for ${address}: ${error.message}`,
+        `[ERROR] job: ${externalId} could not create cdd claim for ${address} Error: ${error.message}`,
         error.stack
       );
 
       throw error;
     });
 
+    this.logger.log(
+      `[INFO] Job: ${externalId} created Identity ${createdIdentity.did} with ${address} as its primary key`
+    );
+
     await this.redis.del(address).catch((error) => {
       this.logger.error(
-        `[ERROR] Job ${id} could not remove previous links for ${address}`,
+        `[ERROR] could not remove applications for ${address} after processing ${externalId}`,
         error.stack
       );
 
-      throw error; //  it might be better to swallow the error - the CDD claim was already made
+      return; //  swallow the error - the CDD claim was already made
     });
 
-    this.logger.log(`[DONE] Job: ${id} processed successfully`);
+    this.logger.log(`[DONE] Job: ${externalId} processed successfully`);
   }
 }

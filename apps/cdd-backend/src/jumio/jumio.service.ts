@@ -7,8 +7,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AxiosResponse } from 'axios';
 import { Queue } from 'bull';
 import { firstValueFrom } from 'rxjs';
+import { CddJob } from '../cdd-worker/types';
 import { JumioCallbackDto } from './types';
 
 @Injectable()
@@ -22,7 +24,7 @@ export class JumioService {
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
-    @InjectQueue('cdd') private readonly queue: Queue,
+    @InjectQueue('') private readonly queue: Queue,
     private readonly logger: Logger
   ) {}
 
@@ -38,9 +40,11 @@ export class JumioService {
       Authorization: `Basic ${this.config.getOrThrow('jumio.apiKey')}`,
     };
 
-    const response = await firstValueFrom(
+    const url = this.config.getOrThrow('jumio.generateLinkUrl');
+
+    const response = (await firstValueFrom(
       this.http.post(
-        this.config.getOrThrow('jumio.generateLinkUrl'),
+        url,
         JSON.stringify({
           customerInternalReference: transactionId,
           userReference: address,
@@ -54,7 +58,7 @@ export class JumioService {
       );
 
       throw new InternalServerErrorException();
-    });
+    })) as AxiosResponse;
 
     if (response.status !== HttpStatus.OK) {
       this.logger.error(
@@ -67,13 +71,14 @@ export class JumioService {
     return response.data;
   }
 
-  public async queueApplication(request: JumioCallbackDto): Promise<boolean> {
-    const job = {
+  public async queueApplication(request: JumioCallbackDto): Promise<void> {
+    const job: CddJob = {
+      address: request.customerId,
+      externalId: request.jumioIdScanReference,
       jumio: request,
     };
 
+    // maybe save the raw request to redis for audit purposes?
     await this.queue.add(job);
-
-    return true;
   }
 }

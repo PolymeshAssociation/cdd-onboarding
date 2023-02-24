@@ -8,7 +8,7 @@ export class JumioController {
   constructor(private readonly service: JumioService) {}
 
   @ApiBody({
-    type: JumioCallbackDto,
+    // type: JumioCallbackDto,
     description: 'The expected information to be received from the callback',
   })
   @ApiOkResponse()

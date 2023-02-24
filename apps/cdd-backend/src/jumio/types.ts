@@ -5,8 +5,12 @@ import { z } from 'zod';
 //From: https://github.com/Jumio/implementation-guides/blob/master/netverify/callback.md#parameters
 const JumioCallbackZ = extendApi(
   z.object({
-    idScanStatus: z.enum(['APPROVED_VERIFIED', 'ERROR']),
-
+    idScanStatus: z.enum(['SUCCESS', 'ERROR']),
+    customerId: z
+      .string()
+      .describe(
+        'expected to be ss58 address we passed when generating the initial link'
+      ),
     idScanSource: z.enum(['WEB', 'WEB_CAM', 'WEB_UPLOAD', 'API', 'SDK']),
     jumioIdScanReference: z.string(),
     verificationStatus: z.enum([
@@ -17,8 +21,8 @@ const JumioCallbackZ = extendApi(
       'ERROR_NOT_READABLE_ID',
       'NO_ID_UPLOADED',
     ]),
-    callbackDate: z.date(),
-    transactionDate: z.date(),
+    callbackDate: z.string(),
+    transactionDate: z.string(),
   })
 );
 

@@ -1,17 +1,18 @@
 import { createMock } from '@golevelup/ts-jest';
 import { HttpService } from '@nestjs/axios';
-import { getQueueToken } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosHeaders, AxiosResponse } from 'axios';
-import { Queue } from 'bull';
 import { of } from 'rxjs';
 import { JumioService } from './jumio.service';
 import { JumioGenerateLinkResponse } from './types';
 
-import v4OKResponse from './recorded-responses/v4-initiate-ok.json';
-import unauthorizedResponse from './recorded-responses/unauthorized.json';
 import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { getQueueToken } from '@nestjs/bull';
+import { Queue } from 'bull';
+
+import v4OKResponse from '../test-utils/jumio-http/v4-initiate-ok.json';
+import unauthorizedResponse from '../test-utils/jumio-http/unauthorized.json';
 
 describe('JumioService', () => {
   let service: JumioService;
@@ -28,7 +29,7 @@ describe('JumioService', () => {
         JumioService,
         { provide: HttpService, useValue: mockHttp },
         { provide: ConfigService, useValue: mockConfig },
-        { provide: getQueueToken('cdd'), useValue: mockQueue },
+        { provide: getQueueToken(), useValue: mockQueue },
         { provide: Logger, useValue: mockLogger },
       ],
     }).compile();

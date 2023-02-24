@@ -11,10 +11,13 @@ import { JumioService } from './jumio.service';
     HttpModule,
     ConfigModule,
     AppBullModule,
-    BullModule.registerQueue({ name: 'cdd' }),
+    BullModule.registerQueue({}),
   ],
   controllers: [JumioController],
-  providers: [JumioService, { provide: Logger, useValue: new Logger('Jumio') }],
+  providers: [
+    JumioService,
+    { provide: Logger, useValue: new Logger(JumioModule.name) },
+  ],
   exports: [JumioService],
 })
 export class JumioModule {}

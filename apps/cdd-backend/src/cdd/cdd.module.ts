@@ -12,7 +12,7 @@ import { JumioModule } from '../jumio/jumio.module';
     PolymeshModule,
     AppRedisModule,
     AppBullModule,
-    BullModule.registerQueue({ name: 'cdd' }),
+    BullModule.registerQueue({}),
     JumioModule,
   ],
   providers: [CddService],
