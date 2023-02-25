@@ -1,3 +1,4 @@
+import { PolymeshTheme } from '@polymeshassociation/polymesh-theme';
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
@@ -8,6 +9,8 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StrictMode>
-    <App />
+    <PolymeshTheme>
+      <App />
+    </PolymeshTheme>
   </StrictMode>
 );
