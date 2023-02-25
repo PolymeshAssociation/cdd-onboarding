@@ -6,4 +6,9 @@ export const parameters = {
   chakra: {
     theme,
   },
+  options: {
+    storySort: {
+      order: ['atoms', 'molecules'],
+    },
+  },
 };
