@@ -42,6 +42,7 @@ export class MockPolymesh {
     isIdentityValid: jest.fn(),
     getIdentity: jest.fn(),
     createPortfolio: jest.fn(),
+    registerIdentity: jest.fn(),
   };
 
   public settlements = {
