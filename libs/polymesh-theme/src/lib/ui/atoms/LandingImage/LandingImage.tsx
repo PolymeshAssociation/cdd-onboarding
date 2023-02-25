@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 
 type LandingImageProps = {
   src: string;
@@ -8,19 +8,18 @@ type LandingImageProps = {
 
 export const LandingImage: React.FC<LandingImageProps> = ({ src, alt }) => {
   return (
-    <Box
-      w="50vw"
-      h="500px"
-      position="absolute"
-      top={0}
-      right={0}
-      zIndex={-100}
-      bgImage={src}
-      bgSize="100%"
-      overflow="hidden"
-      bgRepeat="no-repeat"
-      bgPosition="right top"
-    />
+    <Flex w="100vw" h="700px" top={0} left={0} overflow="hidden" zIndex={-100} position="absolute">
+      <Box
+        ml="50%"
+        w="50%"
+        h="100%"
+        zIndex={-100}
+        bgImage={src}
+        bgRepeat="no-repeat"
+        bgPosition="right top"
+        bgSize="contain"
+      />
+    </Flex>
   );
 };
 
