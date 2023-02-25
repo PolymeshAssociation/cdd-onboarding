@@ -33,11 +33,14 @@ describe('CddController', () => {
 
   describe('verifyAddress', () => {
     it('should call the service and return the result', async () => {
-      mockCddService.verifyAddress.mockResolvedValue(true);
+      mockCddService.verifyAddress.mockResolvedValue({
+        valid: true,
+        previousLinks: [],
+      });
 
       const response = await controller.verifyAddress({ address });
 
-      expect(response).toEqual(new VerifyAddressResponse(true));
+      expect(response).toEqual(new VerifyAddressResponse(true, []));
     });
   });
 

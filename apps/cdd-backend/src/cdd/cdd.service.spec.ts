@@ -3,20 +3,22 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { CddService } from './cdd.service';
 import { getQueueToken } from '@nestjs/bull';
 import { MockPolymesh, mockQueue } from '../test-utils/mocks';
-
-const address = 'some-address';
-
-const mockSdk = new MockPolymesh();
+import { createMock } from '@golevelup/ts-jest';
+import Redis from 'ioredis';
 
 describe('CddService', () => {
+  const address = 'some-address';
+  const mockPolymesh = new MockPolymesh();
+  const mockRedis = createMock<Redis>();
   let service: CddService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CddService,
-        { provide: Polymesh, useValue: mockSdk },
+        { provide: Polymesh, useValue: mockPolymesh },
         { provide: getQueueToken('cdd'), useValue: mockQueue },
+        { provide: Redis, useValue: mockRedis },
       ],
     }).compile();
 
@@ -29,23 +31,23 @@ describe('CddService', () => {
 
   describe('verifyAddress', () => {
     it('should return `true` if the address does not have an associated Identity', async () => {
-      mockSdk.accountManagement.getAccount.mockResolvedValue({
+      mockPolymesh.accountManagement.getAccount.mockResolvedValue({
         getIdentity: jest.fn().mockResolvedValue(null),
       });
 
-      const valid = await service.verifyAddress(address);
+      const result = await service.verifyAddress(address);
 
-      expect(valid).toBe(true);
+      expect(result).toEqual({ valid: true, previousLinks: [] });
     });
 
     it('should return `false` if the address does have an associated Identity', async () => {
-      mockSdk.accountManagement.getAccount.mockResolvedValue({
+      mockPolymesh.accountManagement.getAccount.mockResolvedValue({
         getIdentity: jest.fn().mockResolvedValue('someIdentity'),
       });
 
-      const valid = await service.verifyAddress(address);
+      const result = await service.verifyAddress(address);
 
-      expect(valid).toBe(false);
+      expect(result).toEqual({ valid: false, previousLinks: [] });
     });
   });
 
