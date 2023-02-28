@@ -6,6 +6,12 @@ import { Job } from 'bull';
 import Redis from 'ioredis';
 import { MockPolymesh } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
+import { CddJob } from './types';
+import { JumioCallbackDto } from '../jumio/types';
+
+import jumioVerifiedData from '../test-utils/jumio-http/webhook-approved-verified.json';
+import jumioCannotReadData from '../test-utils/jumio-http/webhook-cannot-read.json';
+import { GenerateCddDto } from '@cdd-onboarding/cdd-types';
 
 describe('cddProcessor', () => {
   const mockRedis = createMock<Redis>();
@@ -15,10 +21,17 @@ describe('cddProcessor', () => {
   let mockPolymesh: MockPolymesh;
   let processor: CddProcessor;
   let mockRun: jest.Mock;
-  let mockJob: Job;
+  let mockJob: Job<CddJob>;
 
   beforeEach(async () => {
-    mockJob = { ...createMock<Job>(), data: { address, id: '1' } };
+    mockJob = {
+      ...createMock<Job>(),
+      data: {
+        address,
+        externalId: '1',
+        jumio: jumioVerifiedData as JumioCallbackDto,
+      },
+    };
     mockPolymesh = await MockPolymesh.create();
     mockRun = jest.fn().mockResolvedValue('test-tx-result');
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
@@ -41,7 +54,7 @@ describe('cddProcessor', () => {
     expect(processor).toBeDefined();
   });
 
-  describe('processCdd', () => {
+  describe('generateCdd', () => {
     it('should create CDD claim and clear previous link attempts', async () => {
       await processor.generateCdd(mockJob);
 
@@ -58,11 +71,14 @@ describe('cddProcessor', () => {
       mockRun.mockRejectedValue(testError);
 
       await expect(processor.generateCdd(mockJob)).rejects.toThrow(testError);
-
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('test error'),
-        testError.stack
-      );
     });
+  });
+
+  it('should perform no operation if status is not "VERIFIED_APPROVED"', async () => {
+    mockJob.data.jumio = jumioCannotReadData as JumioCallbackDto;
+
+    await processor.generateCdd(mockJob);
+
+    expect(mockRun).not.toHaveBeenCalled();
   });
 });
