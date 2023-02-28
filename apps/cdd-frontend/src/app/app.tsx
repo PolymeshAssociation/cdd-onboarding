@@ -1,12 +1,8 @@
-import NxWelcome from './nx-welcome';
+import { Box } from '@chakra-ui/react';
 
 export function App() {
   return (
-    <>
-      <NxWelcome title="cdd-frontend" />
-
-      <div />
-    </>
+    <Box h="500" bg="fucsia.200">Test</Box>
   );
 }
 
