@@ -9,13 +9,10 @@ import {
   Stack,
   Text,
   Heading,
-  keyframes,
-  useDimensions,
-  BoxProps,
 } from '@chakra-ui/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { MdKeyboardBackspace } from 'react-icons/md';
-import React, { useEffect, useRef, createContext, useContext } from 'react';
+import React, { useEffect, createContext, useContext } from 'react';
 import { Logo } from '../../atoms';
 import { BsCheck2Square, BsSquare } from 'react-icons/bs';
 import { FooterCopy } from '../../molecules';
@@ -26,6 +23,11 @@ export type StepProps = {
   children: React.ReactNode;
   index?: number;
   nextStepLabel?: React.ReactNode;
+  showFormNavigation?: boolean;
+  nextLoadingLabel?: React.ReactNode;
+  nextIsLoading?: boolean;
+  nextIsDisabled?: boolean;
+  nextIsError?: boolean;
 };
 
 type FromContextValue = {
@@ -37,9 +39,17 @@ type FromContextValue = {
   onBack: () => void;
 };
 
-export const FormContext = createContext<FromContextValue>({} as FromContextValue);
+export const FormContext = createContext<FromContextValue>(
+  {} as FromContextValue
+);
 
-const FormContextProvider = ({ children, initialStep = 0 }: { children: React.ReactNode, initialStep?: number }) => {
+const FormContextProvider = ({
+  children,
+  initialStep = 0,
+}: {
+  children: React.ReactNode;
+  initialStep?: number;
+}) => {
   const [activeStep, setActiveStep] = React.useState(initialStep);
   const [steps, setSteps] = React.useState<Pick<StepProps, 'title'>[]>([]);
 
@@ -53,11 +63,11 @@ const FormContextProvider = ({ children, initialStep = 0 }: { children: React.Re
 
   const addStep = (step: Pick<StepProps, 'title'>) => {
     setSteps((prev) => {
-        if(prev.some((s) => s.title === step.title)) {
-            return prev;
-        }
+      if (prev.some((s) => s.title === step.title)) {
+        return prev;
+      }
 
-        return [...prev, step]
+      return [...prev, step];
     });
   };
 
@@ -72,6 +82,7 @@ export const Step: React.FC<StepProps> = ({
   index,
   children,
   nextStepLabel = 'Next Step',
+  showFormNavigation = false,
 }) => {
   const { addStep, activeStep } = useContext(FormContext);
 
@@ -99,7 +110,7 @@ export const Step: React.FC<StepProps> = ({
       </Heading>
       {subTitle && <Heading>{subTitle}</Heading>}
       {children}
-      <FormNavigation nextStepLabel={nextStepLabel} />
+      {showFormNavigation && <FormNavigation nextStepLabel={nextStepLabel} />}
     </Box>
   );
 };
@@ -135,7 +146,22 @@ export const StepFormNavigation: React.FC = () => {
   );
 };
 
-export const FormNavigation: React.FC<Pick<StepProps, 'nextStepLabel'>> = ({nextStepLabel}) => {
+export const FormNavigation: React.FC<
+  Pick<
+    StepProps,
+    | 'nextStepLabel'
+    | 'nextIsLoading'
+    | 'nextIsDisabled'
+    | 'nextIsError'
+    | 'nextLoadingLabel'
+  >
+> = ({
+  nextStepLabel,
+  nextLoadingLabel,
+  nextIsDisabled = false,
+  nextIsLoading = false,
+  nextIsError = false,
+}) => {
   const { onBack, activeStep, steps } = useContext(FormContext);
 
   return (
@@ -150,13 +176,18 @@ export const FormNavigation: React.FC<Pick<StepProps, 'nextStepLabel'>> = ({next
         </Button>
       )}
       <Button
-        isDisabled={activeStep === steps.length - 1}
+        isDisabled={
+          activeStep === steps.length - 1 ||
+          nextIsDisabled ||
+          nextIsLoading ||
+          nextIsError
+        }
         colorScheme="navy"
         size="lg"
         type="submit"
         form="stepForm"
       >
-        {nextStepLabel}
+        {nextIsLoading && nextLoadingLabel ? nextLoadingLabel : nextStepLabel}
       </Button>
     </Stack>
   );
@@ -206,22 +237,6 @@ export const StepForm: React.FC<StepFromProps> = ({
           justify="center"
           overflow="hidden"
         >
-          {/* <AnimatePresence>
-            {steps.map((step, index) =>
-              index === activeStep ? (
-                <Box
-                  as={motion.div}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  key={step.title}
-                  w="100%"
-                >
-                  <Step {...step} />
-                </Box>
-              ) : null
-            )}
-          </AnimatePresence> */}
           {React.Children.map(children, (child, index) => {
             return React.cloneElement(child as unknown as React.ReactElement, {
               index,
