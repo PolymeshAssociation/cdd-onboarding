@@ -1,0 +1,5 @@
+{
+  "message": "Unauthorized: Bad credentials",
+  "httpStatus": 401,
+  "requestURI": "http://netverify.com/api/v4/initiate"
+}

@@ -15,9 +15,6 @@ import { BullModule, BullModuleOptions } from '@nestjs/bull';
         configService: ConfigService
       ): Promise<BullModuleOptions> => ({
         redis: configService.getOrThrow('redis'),
-        defaultJobOptions: {
-          removeOnComplete: true,
-        },
       }),
       inject: [ConfigService],
     }),

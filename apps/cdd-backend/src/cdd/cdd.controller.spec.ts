@@ -3,7 +3,6 @@ import { CddController } from './cdd.controller';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CddService } from './cdd.service';
 import {
-  GenerateCddResponse,
   ProviderLinkResponse,
   VerifyAddressResponse,
 } from '@cdd-onboarding/cdd-types';
@@ -56,16 +55,6 @@ describe('CddController', () => {
       });
 
       expect(response).toEqual(new ProviderLinkResponse('https://example.com'));
-    });
-  });
-
-  describe('generateCdd', () => {
-    it('should call the service and return the result', async () => {
-      mockCddService.queueCddRequest.mockResolvedValue('some-id');
-
-      const response = await controller.generateCdd({ address });
-
-      expect(response).toEqual(new GenerateCddResponse('some-id'));
     });
   });
 });

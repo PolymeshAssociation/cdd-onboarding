@@ -5,11 +5,13 @@ import { getQueueToken } from '@nestjs/bull';
 import { MockPolymesh, mockQueue } from '../test-utils/mocks';
 import { createMock } from '@golevelup/ts-jest';
 import Redis from 'ioredis';
+import { JumioService } from '../jumio/jumio.service';
 
 describe('CddService', () => {
   const address = 'some-address';
   const mockPolymesh = new MockPolymesh();
   const mockRedis = createMock<Redis>();
+  const mockJumioService = createMock<JumioService>();
   let service: CddService;
 
   beforeEach(async () => {
@@ -17,8 +19,9 @@ describe('CddService', () => {
       providers: [
         CddService,
         { provide: Polymesh, useValue: mockPolymesh },
-        { provide: getQueueToken('cdd'), useValue: mockQueue },
+        { provide: getQueueToken(), useValue: mockQueue },
         { provide: Redis, useValue: mockRedis },
+        { provide: JumioService, useValue: mockJumioService },
       ],
     }).compile();
 
@@ -52,21 +55,30 @@ describe('CddService', () => {
   });
 
   describe('generateCddLink', () => {
-    it('should generate a link', async () => {
-      const link = await service.generateProviderLink({
-        address,
-        provider: 'jumio',
+    describe('when jumio is selected', () => {
+      it('should generate a link and save a record of it', async () => {
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue({
+          getIdentity: jest.fn().mockResolvedValue(null),
+        });
+
+        const expectedLink = 'https://example.com/';
+
+        mockJumioService.generateLink.mockResolvedValue({
+          redirectUrl: expectedLink,
+        });
+
+        const link = await service.generateProviderLink({
+          address,
+          provider: 'jumio',
+        });
+
+        expect(link).toEqual(expectedLink);
+
+        expect(mockRedis.sadd).toHaveBeenCalledWith(
+          address,
+          expect.stringContaining(expectedLink)
+        );
       });
-
-      expect(() => new URL(link)).not.toThrow();
-    });
-  });
-
-  describe('queueCddRequest', () => {
-    it('should call queue.add', async () => {
-      await service.queueCddRequest({ address });
-
-      expect(mockQueue.add).toHaveBeenCalled();
     });
   });
 });
