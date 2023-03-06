@@ -20,10 +20,6 @@ const FooterTop: React.FC<FooterProps> = ({ center, right }) => {
   )
 }
 
-
-
-
-
 export const Footer: React.FC<FooterProps> = ({ center, right }) => {
   return (
     <Box>

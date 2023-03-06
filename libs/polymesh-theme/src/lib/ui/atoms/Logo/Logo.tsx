@@ -102,8 +102,6 @@ export const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
     [h, height, w, width]
   );
 
-  console.log({ computedHeight, computedWidth })
-
   const { colorMode } = useColorMode();
 
   if (variant === 'grey') {
