@@ -24,7 +24,7 @@ const questionsAnswers: QuestionItem[] = [
     question:
       'Why does Polymesh require users to have their identities validated through CDD?',
     answer:
-      'Identity validation ensures each Polymesh user is who they say they are and acts as the backbone to Polymesh uID. On Polymesh, users can have only a single unique identity (uID), which ensures they cannot subvert securities regulation with multiple profiles.',
+      'Identity validation ensures each Polymesh user has performed some form of KYC check. Specific securities may require further verification from a specific provider.',
   },
   {
     question: 'Why am I getting rejected during CDD?',

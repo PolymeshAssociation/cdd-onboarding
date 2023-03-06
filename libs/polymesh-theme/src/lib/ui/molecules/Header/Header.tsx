@@ -1,7 +1,7 @@
 import { Box, HStack, useColorModeValue } from '@chakra-ui/react';
+import useScrollPosition from '../../hooks/useScrollPosition';
 
 import { Logo } from '../../atoms';
-import useScrollPosition from '../../hooks/useScrollPosition';
 
 export type HeaderProps = {
   center?: React.ReactNode;
@@ -10,8 +10,8 @@ export type HeaderProps = {
 
 export const Header: React.FC<HeaderProps> = ({ center, right }) => {
   const bgColor = useColorModeValue('bg.light', 'bg.dark');
-  const scrollPos = useScrollPosition();
-
+  const { scrollY } = useScrollPosition();
+  
   return (
     <HStack
       maxW="100%"
@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ center, right }) => {
       py="1rem"
       px="3.125rem"
       justifyContent="space-between"
-      bg={scrollPos > 10 ? bgColor : 'unset'}
+      bg={scrollY > 10 ? bgColor : 'unset'}
       transition="all 0.3s ease-in-out"
       zIndex={1000}
     >

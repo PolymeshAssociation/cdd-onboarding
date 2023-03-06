@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from 'react';
+import { useScroll, useMotionValueEvent } from 'framer-motion';
 
 const useScrollPosition = () => {
-    const [scrollPosition, setScrollPosition] = useState(0);
-  
-    useEffect(() => {
-      const updatePosition = () => {
-        setScrollPosition(window.pageYOffset);
-      }
-      window.addEventListener("scroll", updatePosition);
-      updatePosition();
-      return () => window.removeEventListener("scroll", updatePosition);
-    }, []);
-  
-    return scrollPosition;
-  };
-  
-  export default useScrollPosition;
+  const [scrollY, setScrollY] = useState(0);
+  const [scrollX, setScrollX] = useState(0);
+
+  const { scrollY: scrollYMotion, scrollX: scrollXMotion } = useScroll();
+
+  useMotionValueEvent(scrollYMotion, 'change', (latest) => {
+    setScrollY(latest);
+  });
+  useMotionValueEvent(scrollXMotion, 'change', (latest) => {
+    setScrollX(latest);
+  });
+
+  return { scrollY, scrollX };
+};
+
+export default useScrollPosition;

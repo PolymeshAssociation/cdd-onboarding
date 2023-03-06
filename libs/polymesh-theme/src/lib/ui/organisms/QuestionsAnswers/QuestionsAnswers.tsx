@@ -30,7 +30,7 @@ export const QuestionsAnswers: React.FC<QuestionsAnswersProps> = ({
     <Section title={title}>
       <Accordion allowToggle w={{ base: '100%', md: "60%" }}>
         {items.map(({ question, answer }) => (
-          <AccordionItem>
+          <AccordionItem key={question}>
             <Heading as="h4" size="xl" fontWeight="bold">
               <AccordionButton _expanded={{ color: 'link' }}>
                 <Box as="span" flex="1" textAlign="left" fontWeight="600" color={textColor} pl="1rem" lineHeight="2em">

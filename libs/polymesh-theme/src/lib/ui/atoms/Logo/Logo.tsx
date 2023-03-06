@@ -13,11 +13,11 @@ function roundToTwo(num: number) {
 }
 
 const calculateWidth = (height: number): number => {
-  return roundToTwo(height * 0.123);
+  return roundToTwo(height * 8.105);
 };
 
 const calculateHeight = (width: number): number => {
-  return roundToTwo(width * 8.125);
+  return roundToTwo(width * 0.123);
 };
 
 const extractUnits = (property: string): { value: number; unit: string } => {
@@ -51,12 +51,12 @@ const getHeight = (width: IconProps['width']): IconProps['height'] => {
 
 const getWidth = (height: IconProps['height']): IconProps['width'] => {
   if (typeof height === 'number') {
-    return calculateHeight(height);
+    return calculateWidth(height);
   }
 
   if (typeof height === 'string') {
     const { value, unit } = extractUnits(height);
-    return calculateHeight(value) + unit;
+    return calculateWidth(value) + unit;
   }
 
   if (typeof height === 'object') {
@@ -64,7 +64,7 @@ const getWidth = (height: IconProps['height']): IconProps['width'] => {
     Object.keys(height).forEach((key) => {
       // @ts-expect-error index
       const { value, unit } = extractUnits(height[key]);
-      computed[key] = calculateHeight(value) + unit;
+      computed[key] = calculateWidth(value) + unit;
     });
 
     return computed;
@@ -82,7 +82,7 @@ const extractResponsiveValues = ({
   }
 
   if (w || width) {
-    return { height: getWidth(w || width), width: w || width };
+    return { height: getHeight(w || width), width: w || width };
   }
 
   return {};
@@ -101,6 +101,9 @@ export const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
     () => extractResponsiveValues({ h, height, w, width }),
     [h, height, w, width]
   );
+
+  console.log({ computedHeight, computedWidth })
+
   const { colorMode } = useColorMode();
 
   if (variant === 'grey') {
