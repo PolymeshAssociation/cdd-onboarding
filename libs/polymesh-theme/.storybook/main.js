@@ -9,6 +9,7 @@ module.exports = {
     '@nrwl/react/plugins/storybook',
     '@chakra-ui/storybook-addon',
   ],
+  staticDirs: ['../src/lib/assets'],
   features: {
     emotionAlias: false,
   },
