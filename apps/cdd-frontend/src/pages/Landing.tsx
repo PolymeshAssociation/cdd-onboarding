@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { MainTemplate } from '@polymeshassociation/polymesh-theme/ui/templates';
 import {
   Hero,
   QuestionsAnswers,
@@ -104,33 +103,33 @@ const questionsAnswers: QuestionItem[] = [
 
 const LandingCta = () => {
   return (
-    <Box>
-      <Flex gap="1rem" mb="1rem">
+    <Box textAlign="center">
+      <Flex gap="1rem" mb="2rem">
         <Button colorScheme="navy" size="lg" as="a" href="/verification">
           New Application
         </Button>
-        <Button
-          colorScheme="navy"
-          size="lg"
-          variant="outline"
-          bg="#fff"
-          as="a"
-          href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
-          target="_blank"
-        >
-          New Application
-        </Button>
-      </Flex>
-      <Button colorScheme="navy" size="lg" variant="outline" bg="#fff" as="a" href="/login">
+        
+        <Button colorScheme="navy" size="lg" variant="ghost" bg="#fff" as="a" href="/login">
         View an existing application
       </Button>
+      </Flex>
+      <Link
+          color="navy"
+          variant="ghost"
+          bg="#fff"
+          href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
+          target="_blank"
+          isExternal
+        >          
+          I don't have a Polymesh Wallet yet
+        </Link>
     </Box>
   );
 };
 
 const Landing = () => {
   return (
-    <MainTemplate>
+    <>
       <LandingImage src="/assets/img/blocks.svg" alt="Blockchain image" />
 
       <Hero
@@ -142,7 +141,7 @@ const Landing = () => {
         title="Frequently Asked Questions"
         items={questionsAnswers}
       />
-    </MainTemplate>
+    </>
   );
 };
 
