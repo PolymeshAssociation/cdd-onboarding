@@ -41,16 +41,10 @@ export class CddService {
 
     const identity = await account.getIdentity();
     if (identity) {
-      return { valid: false, previousLinks: [] };
+      return { valid: false };
     }
 
-    const rawApplications = await this.redis.smembers(address);
-
-    const previousLinks = rawApplications.map(
-      (rawApp) => JSON.parse(rawApp).link
-    );
-
-    return { valid: true, previousLinks };
+    return { valid: true };
   }
 
   public async getProviderLink({
@@ -60,7 +54,7 @@ export class CddService {
     const verify = await this.verifyAddress(address);
     if (!verify.valid) {
       throw new BadRequestException(
-        `Address: ${address} is not valid to be onboarded. Perhaps it is already linked to an Identity`
+        `Address: ${address} cannot be onboarded. Perhaps it is already linked to an Identity`
       );
     }
 

@@ -13,7 +13,9 @@ export const ProviderLinkZ = extendApi(
     address: addressZ,
     provider: CddProviderZEnum,
   }),
-  { title: 'Generate Link Request' }
+  {
+    title: 'Generate Onboarding Link',
+  }
 );
 
 export class ProviderLinkDto extends createZodDto(ProviderLinkZ) {}

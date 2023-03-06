@@ -116,7 +116,7 @@ describe('NetkiService', () => {
 
       const result = await service.fetchAccessCodes();
 
-      expect(result).toEqual({ totalCount: 3, fetchCount: 1 });
+      expect(result).toEqual({ fetched: 1, total: 3 });
     });
   });
 

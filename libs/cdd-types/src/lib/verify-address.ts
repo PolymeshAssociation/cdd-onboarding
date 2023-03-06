@@ -21,16 +21,7 @@ export class VerifyAddressResponse {
   })
   readonly valid: boolean;
 
-  @ApiProperty({
-    type: 'string',
-    description:
-      'Previous links generated for this address. New links can still be requested. The records will be removed when onboarding is complete',
-    isArray: true,
-  })
-  readonly previousLinks: string[];
-
-  constructor(valid: boolean, previousLinks: string[]) {
+  constructor(valid: boolean) {
     this.valid = valid;
-    this.previousLinks = previousLinks;
   }
 }

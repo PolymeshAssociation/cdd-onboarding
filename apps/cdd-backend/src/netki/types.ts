@@ -51,3 +51,8 @@ export const allocatedCodesPrefix = 'netki-allocated-codes:' as const;
 
 export const netkiAllocatedPrefixer = (id: string) =>
   `${allocatedCodesPrefix}${id}`;
+
+export interface NetkiFetchCodesResponse {
+  fetched: number;
+  total: number;
+}

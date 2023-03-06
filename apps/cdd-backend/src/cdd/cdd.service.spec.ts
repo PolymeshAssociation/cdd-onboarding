@@ -46,7 +46,7 @@ describe('CddService', () => {
 
       const result = await service.verifyAddress(address);
 
-      expect(result).toEqual({ valid: true, previousLinks: [] });
+      expect(result).toEqual({ valid: true });
     });
 
     it('should return `false` if the address does have an associated Identity', async () => {
@@ -56,7 +56,7 @@ describe('CddService', () => {
 
       const result = await service.verifyAddress(address);
 
-      expect(result).toEqual({ valid: false, previousLinks: [] });
+      expect(result).toEqual({ valid: false });
     });
   });
 

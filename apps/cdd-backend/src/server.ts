@@ -13,19 +13,25 @@ async function bootstrap() {
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
 
-  const openApiConfig = new DocumentBuilder()
-    .setTitle('Polymesh CDD Backend')
-    .setDescription(
-      'Backend for providing Polymesh Customer Due Diligence claims (CDD)'
-    )
-    .setVersion('1.0')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, openApiConfig);
-  SwaggerModule.setup('/', app, document);
-
   const config = app.get(ConfigService);
-  const port = config.getOrThrow('port');
+  const port = config.getOrThrow('server.port');
+  const routePrefix = config.getOrThrow('server.routePrefix');
+  if (routePrefix) {
+    app.setGlobalPrefix(routePrefix);
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    const openApiConfig = new DocumentBuilder()
+      .setTitle('Polymesh CDD Backend')
+      .setDescription(
+        'Backend for providing Polymesh Customer Due Diligence claims (CDD)'
+      )
+      .setVersion('1.0')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, openApiConfig);
+    SwaggerModule.setup('/', app, document);
+  }
 
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/`);

@@ -17,6 +17,7 @@ import {
   NetkiAccessCode,
   NetkiAccessCodePageResponse,
   NetkiCallbackDto,
+  NetkiFetchCodesResponse,
 } from './types';
 
 // not strictly necessary but netki adds a note saying not found if not sent
@@ -61,7 +62,7 @@ export class NetkiService {
     return accessCode;
   }
 
-  public async fetchAccessCodes() {
+  public async fetchAccessCodes(): Promise<NetkiFetchCodesResponse> {
     await this.refreshAccessToken();
 
     const { businessId, headers } = this;
@@ -97,11 +98,10 @@ export class NetkiService {
         })
       );
 
-    const fetchCount = await this.redis.sadd(availableCodesSetName, newLinks);
+    const fetched = await this.redis.sadd(availableCodesSetName, newLinks);
+    const total = await this.redis.scard(availableCodesSetName);
 
-    const totalCount = await this.redis.scard(availableCodesSetName);
-
-    return { fetchCount, totalCount };
+    return { fetched, total };
   }
 
   private async allocateCode(code: string, address: string): Promise<void> {
@@ -129,6 +129,7 @@ export class NetkiService {
   }
 
   private async refreshAccessToken() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Authorization, ...headers } = this.headers;
 
     const url = this.pathToUrl('token-refresh/');
