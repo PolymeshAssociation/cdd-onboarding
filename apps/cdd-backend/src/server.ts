@@ -22,6 +22,8 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const port = config.getOrThrow('port');
 
+  app.enableCors({ origin: ['http://localhost:4200']});
+
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/`);
 }
