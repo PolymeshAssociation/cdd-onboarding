@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { ConfigModule } from '@nestjs/config';
-import config from '../config';
+import config from '../config/worker';
 import { CddWorkerModule } from '../cdd-worker/cdd-worker.module';
 
 /**

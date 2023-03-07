@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import config from '../config';
+import config from '../config/server';
 import { BullModule, BullModuleOptions } from '@nestjs/bull';
 
 @Module({

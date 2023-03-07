@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { ConfigModule } from '@nestjs/config';
-import config from '../config';
+import config from '../config/server';
 import { CddModule } from '../cdd/cdd.module';
 import { NetkiModule } from '../netki/netki.module';
 
