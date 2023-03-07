@@ -23,7 +23,7 @@ export class ProviderLinkDto extends createZodDto(ProviderLinkZ) {}
 export class ProviderLinkResponse {
   @ApiProperty({
     type: 'string',
-    description: 'Deep link to the provider the user should follow',
+    description: 'Deep link to the provider for the user to follow',
   })
   link: string;
 
