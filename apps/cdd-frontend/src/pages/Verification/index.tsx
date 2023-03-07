@@ -4,16 +4,24 @@ import {
   Step,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
 
-import EnterAddress from './steps/EnterAddress';
+import { EnterAddress, SelectCddProvider, GoToCddProvider } from './steps';
+import { VerificationState } from './steps/index.d';
+
 
 export const Verification: React.FC = () => {
+  const [state, setState] = React.useState<VerificationState>({})
+
   return (
     <StepForm title="Onboarding">
-      <Step title="First Step" nextStepLabel="Get Started">
-        <EnterAddress />
+      <Step title="Verify Address">
+        <EnterAddress setState={setState} />
       </Step>
-      <Step title="Second Step">test</Step>
-      <Step title="Third Step">test</Step>
+      <Step title="Select CDD Provider">
+        <SelectCddProvider state={state} setState={setState} />
+      </Step>
+      <Step title="Get Verified">
+        <GoToCddProvider {...state} />
+      </Step>
     </StepForm>
   );
 };

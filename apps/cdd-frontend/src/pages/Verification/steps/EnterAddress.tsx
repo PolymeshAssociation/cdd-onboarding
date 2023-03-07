@@ -8,6 +8,7 @@ import { FormContext, FormNavigation } from '@polymeshassociation/polymesh-theme
 import { addressZ } from "@cdd-onboarding/cdd-types/utils";
 
 import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation'
+import { VerificationState } from './index.d';
 
 const schema = z.object({
   address: addressZ
@@ -15,7 +16,11 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export const FirstStep: React.FC = () => {
+type EnterAddressProps = {
+  setState: (state: VerificationState) => void;
+}
+
+export const EnterAddress: React.FC<EnterAddressProps> = ({ setState }) => {
   const {
     register,
     handleSubmit,
@@ -25,6 +30,7 @@ export const FirstStep: React.FC = () => {
   const { mutate, isLoading, isSuccess } = useVerifyAddressMutation();
 
   const onSubmit = ({ address }: FormValues) => {
+    setState({ address })
     mutate(address)    
   };
 
@@ -50,4 +56,4 @@ export const FirstStep: React.FC = () => {
   );
 };
 
-export default FirstStep;
+export default EnterAddress;

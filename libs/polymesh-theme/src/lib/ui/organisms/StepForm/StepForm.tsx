@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 import { MdKeyboardBackspace } from 'react-icons/md';
 import React, { useEffect, createContext, useContext } from 'react';
 import { Logo } from '../../atoms';
-import { BsCheck2Square, BsSquare } from 'react-icons/bs';
+import { BsCheck2Square, BsArrowRight, BsSquare } from 'react-icons/bs';
 import { FooterCopy } from '../../molecules';
 
 export type StepProps = {
@@ -28,6 +28,7 @@ export type StepProps = {
   nextIsLoading?: boolean;
   nextIsDisabled?: boolean;
   nextIsError?: boolean;
+  onNext?: () => void;
 };
 
 type FromContextValue = {
@@ -82,7 +83,7 @@ export const Step: React.FC<StepProps> = ({
   index,
   children,
   nextStepLabel = 'Next Step',
-  showFormNavigation = false,
+  showFormNavigation,
 }) => {
   const { addStep, activeStep } = useContext(FormContext);
 
@@ -128,12 +129,30 @@ export const StepFormNavigation: React.FC = () => {
           py="0.5rem"
           fontSize="1rem"
         >
-          <ListIcon
-            as={index < activeStep ? BsCheck2Square : BsSquare}
-            color="green.500"
-            mr="1rem"
-            boxSize="1rem"
-          />
+          {index < activeStep && (
+            <ListIcon
+              as={BsCheck2Square}
+              color="green.500"
+              mr="1rem"
+              boxSize="1rem"
+            />
+          )}
+          {index === activeStep && (
+            <ListIcon
+              as={BsArrowRight}
+              color="text.light"
+              mr="1rem"
+              boxSize="1rem"
+            />
+          )}
+          {index > activeStep && (
+            <ListIcon
+              as={BsSquare}
+              color="gray.300"
+              mr="1rem"
+              boxSize="1rem"
+            />
+          )}
           <Text
             fontWeight={index === activeStep ? 'bold' : 'unset'}
             color={index === activeStep ? 'gray.900' : 'gray.400'}
@@ -154,6 +173,7 @@ export const FormNavigation: React.FC<
     | 'nextIsDisabled'
     | 'nextIsError'
     | 'nextLoadingLabel'
+    | 'onNext'
   >
 > = ({
   nextStepLabel,
@@ -161,6 +181,7 @@ export const FormNavigation: React.FC<
   nextIsDisabled = false,
   nextIsLoading = false,
   nextIsError = false,
+  onNext,
 }) => {
   const { onBack, activeStep, steps } = useContext(FormContext);
 
@@ -175,20 +196,23 @@ export const FormNavigation: React.FC<
           Back
         </Button>
       )}
-      <Button
-        isDisabled={
-          activeStep === steps.length - 1 ||
-          nextIsDisabled ||
-          nextIsLoading ||
-          nextIsError
-        }
-        colorScheme="navy"
-        size="lg"
-        type="submit"
-        form="stepForm"
-      >
-        {nextIsLoading && nextLoadingLabel ? nextLoadingLabel : nextStepLabel}
-      </Button>
+      {Boolean(nextStepLabel) && (
+        <Button
+          isDisabled={
+            activeStep === steps.length - 1 ||
+            nextIsDisabled ||
+            nextIsLoading ||
+            nextIsError
+          }
+          colorScheme="navy"
+          size="lg"
+          type={onNext ? 'button' : 'submit'}
+          onClick={onNext}
+          form="stepForm"
+        >
+          {nextIsLoading && nextLoadingLabel ? nextLoadingLabel : nextStepLabel}
+        </Button>
+      )}
     </Stack>
   );
 };
@@ -215,6 +239,7 @@ export const StepForm: React.FC<StepFromProps> = ({
           minW="25rem"
           direction="column"
           justify="space-between"
+          align="center"
           px="2rem"
           pt="1.5rem"
           pb="1rem"
@@ -229,13 +254,14 @@ export const StepForm: React.FC<StepFromProps> = ({
         </Flex>
 
         <Flex
-          h="100%"
+          h="100vh"
           direction="column"
-          py="2rem"
+          py="5rem"
           flexGrow={1}
           px="5rem"
           justify="center"
           overflow="hidden"
+          overflowY="scroll"
         >
           {React.Children.map(children, (child, index) => {
             return React.cloneElement(child as unknown as React.ReactElement, {
