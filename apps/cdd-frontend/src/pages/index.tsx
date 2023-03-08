@@ -5,6 +5,7 @@ import { MainTemplate } from '@polymeshassociation/polymesh-theme/ui/templates';
 import Landing from "./Landing";
 import NotFound from "./NotFound";
 import Verification from "./Verification";
+import Result from "./Result";
 
 export const router = createBrowserRouter([
     {
@@ -14,6 +15,10 @@ export const router = createBrowserRouter([
         {
           path: "/",
           element: <Landing />,
+        },
+        {
+          path: "/result/:provider/:status",
+          element: <Result />
         },
         {
           path: "*",
