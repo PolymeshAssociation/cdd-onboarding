@@ -5,39 +5,59 @@ import { LocalSigningManager } from '@polymeshassociation/local-signing-manager'
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { polymeshFactory } from './polymesh.factory';
 
-jest.mock('@polymeshassociation/polymesh-sdk');
-jest.mock('@polymeshassociation/hashicorp-vault-signing-manager');
+/**
+ jest auto mock causes polkadot to print a multiple version warning. These are manually implemented to avoid the issue
+*/
+jest.mock('@polymeshassociation/polymesh-sdk', () => ({
+  Polymesh: createMock<Polymesh>(),
+}));
+
+const getVaultKeyStub = jest.fn();
+const mockHashicorpSigningManager = Object.create(
+  HashicorpVaultSigningManager.prototype
+);
+Object.assign(mockHashicorpSigningManager, {
+  ...createMock<HashicorpVaultSigningManager>(),
+  getVaultKeys: getVaultKeyStub,
+});
+
+jest.mock('@polymeshassociation/hashicorp-vault-signing-manager', () => ({
+  HashicorpVaultSigningManager: function () {
+    return mockHashicorpSigningManager;
+  },
+}));
 
 describe('polymesh factory', () => {
-  const mockPolymesh = createMock<Polymesh>();
+  let mockPolymesh: DeepMocked<Polymesh>;
+  beforeEach(() => {
+    mockPolymesh = createMock<Polymesh>();
+  });
 
   let configService: DeepMocked<ConfigService>;
   const connectSpy = jest.spyOn(Polymesh, 'connect');
-  const getVaultKeysSpy = jest.spyOn(
-    HashicorpVaultSigningManager.prototype,
-    'getVaultKeys'
-  );
 
   beforeEach(() => {
     connectSpy.mockResolvedValue(mockPolymesh);
     configService = createMock<ConfigService>();
   });
 
-  describe('with no signer', () => {
+  describe('with no configured signer', () => {
     beforeEach(() => {
       configService.get.mockReturnValue(undefined);
     });
 
-    it('should call Polymesh.connect with `undefined` SigningManager', async () => {
+    it('should call Polymesh.connect with LocalSigningManager with no keys added', async () => {
       const polymesh = await polymeshFactory(configService);
 
       expect(polymesh).toEqual(mockPolymesh);
 
       expect(connectSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          signingManager: undefined,
+          signingManager: expect.any(LocalSigningManager),
         })
       );
+
+      // await expect(polymesh.getSigningIdentity()).rejects.toThrowError();
     });
   });
 
@@ -75,7 +95,7 @@ describe('polymesh factory', () => {
     });
 
     it('should call Polymesh.connect with a HashicorpVaultSigningManager', async () => {
-      getVaultKeysSpy.mockResolvedValue([
+      getVaultKeyStub.mockResolvedValue([
         {
           address: 'test-address',
           name: signingKeyName,
@@ -90,7 +110,7 @@ describe('polymesh factory', () => {
 
       expect(connectSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          signingManager: expect.any(HashicorpVaultSigningManager),
+          signingManager: mockHashicorpSigningManager,
         })
       );
 
@@ -100,7 +120,7 @@ describe('polymesh factory', () => {
     });
 
     it('should throw an error if the signing key is not found', async () => {
-      getVaultKeysSpy.mockResolvedValue([]);
+      getVaultKeyStub.mockResolvedValue([]);
 
       await expect(polymeshFactory(configService)).rejects.toThrowError();
     });

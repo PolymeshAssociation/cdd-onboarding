@@ -8,20 +8,20 @@ import { SigningManager } from '@polymeshassociation/signing-manager-types';
 export const polymeshFactory = async (
   configService: ConfigService
 ): Promise<Polymesh> => {
-  let signingManager: SigningManager | undefined = undefined;
+  let signingManager: SigningManager;
 
-  const signer = configService.get('signer');
-  if (signer) {
-    if (signer.mnemonic) {
-      signingManager = await LocalSigningManager.create({
-        accounts: [{ mnemonic: signer.mnemonic }],
-      });
-    } else if (signer.vault) {
-      signingManager = new HashicorpVaultSigningManager({
-        url: signer.vault.url,
-        token: signer.vault.token,
-      });
-    }
+  const signer = configService.get('signer') || {};
+
+  if (signer.vault) {
+    signingManager = new HashicorpVaultSigningManager({
+      url: signer.vault.url,
+      token: signer.vault.token,
+    });
+  } else {
+    const accounts = signer.mnemonic ? [{ mnemonic: signer.mnemonic }] : [];
+    signingManager = await LocalSigningManager.create({
+      accounts,
+    });
   }
 
   const sdk = await Polymesh.connect({
@@ -29,7 +29,7 @@ export const polymeshFactory = async (
     signingManager,
   });
 
-  if (signingManager instanceof HashicorpVaultSigningManager) {
+  if (isVaultSigner(signingManager)) {
     const key = signer.vault.key;
     const availableKeys = await signingManager.getVaultKeys();
     const signerKey = availableKeys.find(
@@ -45,3 +45,11 @@ export const polymeshFactory = async (
 
   return sdk;
 };
+
+function isVaultSigner(
+  signingManager: SigningManager | undefined
+): signingManager is HashicorpVaultSigningManager {
+  return (
+    !!signingManager && signingManager instanceof HashicorpVaultSigningManager
+  );
+}
