@@ -3,8 +3,7 @@ import { useMutation } from 'react-query';
 import axios from '../services/axios';
 
 export type ServiceResponse = {
-    valid: boolean;
-    previousLinks: string[];
+    link: string;
 }
 
 type Payload = {

@@ -183,7 +183,7 @@ export const FormNavigation: React.FC<
   nextIsError = false,
   onNext,
 }) => {
-  const { onBack, activeStep, steps } = useContext(FormContext);
+  const { onBack, activeStep } = useContext(FormContext);
 
   return (
     <Stack mt="2rem" gap="1rem" direction="row" alignItems="center">
@@ -199,7 +199,6 @@ export const FormNavigation: React.FC<
       {Boolean(nextStepLabel) && (
         <Button
           isDisabled={
-            activeStep === steps.length - 1 ||
             nextIsDisabled ||
             nextIsLoading ||
             nextIsError
@@ -226,7 +225,6 @@ export type StepFromProps = {
 };
 
 export const StepForm: React.FC<StepFromProps> = ({
-  showNavigation,
   title,
   initialStep = 0,
   children,
