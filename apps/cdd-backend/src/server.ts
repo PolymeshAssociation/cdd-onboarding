@@ -1,12 +1,18 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
-import { AppModule } from './entry-points/server.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { ServerModule } from './entry-points/server.module';
+import { openTelemetrySdk, setTelemetryServiceName } from './telemetry';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  if (openTelemetrySdk) {
+    setTelemetryServiceName('CddServer');
+    await openTelemetrySdk.start();
+  }
+
+  const app = await NestFactory.create(ServerModule);
 
   const openApiConfig = new DocumentBuilder()
     .setTitle('Polymesh CDD Backend')
@@ -21,6 +27,8 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   const port = config.getOrThrow('port');
+
+  app.enableCors({ origin: ['http://localhost:4200'] });
 
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/`);
