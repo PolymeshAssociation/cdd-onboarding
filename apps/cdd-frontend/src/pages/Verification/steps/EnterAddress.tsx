@@ -17,10 +17,11 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 type EnterAddressProps = {
+  state: VerificationState;
   setState: (state: VerificationState) => void;
 }
 
-export const EnterAddress: React.FC<EnterAddressProps> = ({ setState }) => {
+export const EnterAddress: React.FC<EnterAddressProps> = ({ state, setState }) => {
   const {
     register,
     handleSubmit,
@@ -28,6 +29,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({ setState }) => {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
   const { onNext } = useContext(FormContext);
   const { mutate, isLoading, isSuccess } = useVerifyAddressMutation();
+  const { address } = state;
 
   const onSubmit = ({ address }: FormValues) => {
     setState({ address })
@@ -48,7 +50,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({ setState }) => {
         <Text mb="0.5rem" fontSize="sm" >
           Polymesh Address
         </Text>
-        <Input placeholder="Polymesh Address" size="lg" {...register("address")} />
+        <Input placeholder="Polymesh Address" size="lg" {...register("address")} value={address} />
         {errors.address?.message && <Text>{errors.address?.message.toString()}</Text>}
       </Box>
       <FormNavigation nextStepLabel="Get started" nextIsLoading={isLoading} nextLoadingLabel={<><CircularProgress size="1.5rem" isIndeterminate color='white' mr="1rem" /> Verifying...</>} />

@@ -14,7 +14,7 @@ export const Verification: React.FC = () => {
   return (
     <StepForm title="Onboarding">
       <Step title="Verify Address">
-        <EnterAddress setState={setState} />
+        <EnterAddress setState={setState} state={state} />
       </Step>
       <Step title="Select CDD Provider">
         <SelectCddProvider state={state} setState={setState} />

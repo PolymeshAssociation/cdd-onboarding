@@ -19,19 +19,52 @@ import QRCode from 'react-qr-code';
 import { FormNavigation } from '@polymeshassociation/polymesh-theme/ui/organisms';
 import { VerificationState } from './index.d';
 
-export const QRCodeView: React.FC<{ link: string }> = ({ link }) => {
+export const QRCodeView: React.FC<{ link: string; provider: string }> = ({
+  link,
+  provider,
+}) => {
   return (
-    <Box p="1rem" bg="white" my="1rem">
-      <QRCode value={link} />
-    </Box>
+    <>
+      <Text textAlign="justify">
+        Please use the QR code to continue verification with{' '}
+        <Code>{provider.toUpperCase()}</Code> on your phone.
+      </Text>
+      <Box p="1rem" bg="white" my="1rem" ml="auto" mr="auto">
+        <QRCode value={link} />
+      </Box>
+    </>
   );
 };
+
+export const OrDivider = () => {
+  return (
+    <Box w="100%" position="relative" my="1rem">
+        <Divider my="1rem" borderColor="gray.600" />
+        <Box
+          fontSize="1rem"
+          position="absolute"
+          top="0.25rem"
+          left={0.25}
+          right={0}
+          w="2rem"
+          ml="auto"
+          mr="auto"
+          bg="white"
+          textAlign="center"
+        >
+          OR
+        </Box>
+      </Box>
+  )
+}
 
 export const CopyLink = ({ link }: { link: string }) => {
   const { onCopy, hasCopied } = useClipboard(link);
 
   return (
-    <InputGroup size="md" >
+    <>
+    <Text textAlign="justify" mb="1rem">Copy the link to verification page and copy that in a new browser window.</Text>
+    <InputGroup size="md">
       <Input
         pr="7.6rem"
         type="text"
@@ -41,9 +74,12 @@ export const CopyLink = ({ link }: { link: string }) => {
         value={link}
       />
       <InputRightElement width="7rem" mr="0.1rem">
-        <Button size="md" onClick={onCopy} borderLeftRadius={0}>{hasCopied ? 'Copied' : 'Copy link'}</Button>
+        <Button size="md" onClick={onCopy} borderLeftRadius={0}>
+          {hasCopied ? 'Copied' : 'Copy link'}
+        </Button>
       </InputRightElement>
     </InputGroup>
+    </>
   );
 };
 
@@ -52,11 +88,8 @@ const OnboardingContainer: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   return (
     <Flex
-      py="1rem"
-      bg="white"
       maxW="500px"
       direction="column"
-      align="center"
       children={children}
     />
   );
@@ -71,15 +104,10 @@ export const JumioView: React.FC<{ link: string }> = ({ link }) => {
 
   return (
     <OnboardingContainer>
-      <Text textAlign="justify">
-      Please use the QR code or copy link to continue verification with Jumio on your phone.
-      </Text>
-      <QRCodeView link={link} />
+      <QRCodeView link={link} provider="jumio" />
+      <OrDivider />
       <CopyLink link={link} />
-      <Box w="100%" position="relative" my="1rem">
-        <Divider my="1rem" borderColor="gray.600" />
-        <Box fontSize="1rem" position="absolute" top="0.25rem" left={0.25} right={0} w="2rem" ml="auto" mr="auto" bg="white" textAlign="center">OR</Box>
-      </Box>
+      <OrDivider />
       <Text textAlign="justify">
         Click on the <Code>Go to Jumio</Code> button to be redirected to Jumio.
       </Text>
@@ -97,9 +125,11 @@ export const NetkiView: React.FC<{ link: string }> = ({ link }) => {
     <>
       <OnboardingContainer>
         <Text textAlign="justify">
-          Please use the QR code or copy link to continue verification with Netki on your phone.
+          Please use the QR code or copy link to continue verification with
+          Netki on your phone.
         </Text>
-        <QRCodeView link={link} />
+        <QRCodeView link={link} provider="netki" />
+        <OrDivider />
         <CopyLink link={link} />
       </OnboardingContainer>
       <FormNavigation />
