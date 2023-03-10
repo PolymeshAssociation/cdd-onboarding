@@ -11,7 +11,7 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/cdd-backend",
-        "main": "apps/cdd-backend/src/server.ts",
+        "main": "apps/cdd-backend/src/entry/server.ts",
         "tsConfig": "apps/cdd-backend/tsconfig.app.json",
         "assets": ["apps/cdd-backend/src/assets"],
         "webpackConfig": "apps/cdd-backend/webpack.config.js"
@@ -31,7 +31,7 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/cdd-backend",
-        "main": "apps/cdd-backend/src/worker.ts",
+        "main": "apps/cdd-backend/src/entry/worker.ts",
         "tsConfig": "apps/cdd-backend/tsconfig.app.json",
         "assets": ["apps/cdd-backend/src/assets"],
         "webpackConfig": "apps/cdd-backend/webpack.config.js"

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 
 import { ConfigModule } from '@nestjs/config';
-import config from '../config/worker';
+import { loggerConfig } from '../config/logger';
+import { workerEnvConfig } from '../config/worker';
 import { CddWorkerModule } from '../cdd-worker/cdd-worker.module';
+import { WinstonModule } from 'nest-winston';
 
 /**
  * Module for initializing the app in "worker" mode
@@ -10,8 +12,9 @@ import { CddWorkerModule } from '../cdd-worker/cdd-worker.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [config],
+      load: [workerEnvConfig],
     }),
+    WinstonModule.forRoot(loggerConfig.console()),
     CddWorkerModule,
   ],
 })

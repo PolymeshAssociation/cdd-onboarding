@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { redisEnvConfig } from '../config/redis';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule.forFeature(() => redisEnvConfig())],
   providers: [
     {
       provide: Redis,

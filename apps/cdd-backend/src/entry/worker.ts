@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
-import { WorkerModule } from './entry-points/worker.module';
+import { WorkerModule } from './worker.module';
 
 /**
  * Bootstrap a background worker
