@@ -57,7 +57,6 @@ describe('NetkiService', () => {
     mockHttp = module.get<typeof mockHttp>(HttpService);
     mockQueue = module.get<typeof mockQueue>(getQueueToken(''));
 
-    mockConfig.getOrThrow.mockReturnValue('http://example.com/');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exposedService = service as any;
     exposedService.businessId = 'mesh-test';

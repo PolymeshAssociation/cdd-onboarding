@@ -24,7 +24,7 @@ export class LoggingInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler
   ): Observable<unknown> {
-    const requestId = randomUUID(); // TODO check for X-Request-Id header
+    const requestId = randomUUID();
     const req: Request = context.switchToHttp().getRequest();
 
     const { method, url, body: reqBody } = req;

@@ -48,7 +48,7 @@ export class CddProcessor {
       this.recordError(jobId, provider, error, { netkiAccessCodeKey });
     }
 
-    this.info(jobId, provider, 'retrieved address', { address });
+    this.logInfo(jobId, provider, 'retrieved address', { address });
 
     if (state === 'restarted') {
       await this.handleNetkiRestart(jobId, provider, address, netki);
@@ -57,7 +57,7 @@ export class CddProcessor {
 
       await this.clearAddressApplications(jobId, provider, address);
     } else {
-      this.info(
+      this.logInfo(
         jobId,
         provider,
         'state did not have a handler - no action taken',
@@ -88,14 +88,14 @@ export class CddProcessor {
 
     if (!childCode) {
       const error = new Error(
-        '`child_codes` not found in restart webhook payload'
+        'property `child_codes` was not found in restart webhook payload'
       );
       this.recordError(jobId, provider, error, { address });
     }
 
     const newCodeKey = netkiAllocatedPrefixer(childCode.code);
 
-    this.info(jobId, provider, 'allocating restart access code', {
+    this.logInfo(jobId, provider, 'allocating restart access code', {
       address,
       accessCode: childCode.code,
     });
@@ -114,7 +114,7 @@ export class CddProcessor {
 
       await this.clearAddressApplications(jobId, provider, address);
     } else {
-      this.info(
+      this.logInfo(
         jobId,
         provider,
         'Jumio verification status was not equal to `APPROVED_VERIFIED` - no action taken',
@@ -130,7 +130,7 @@ export class CddProcessor {
     provider: CddProvider,
     address: string
   ): Promise<number | void> {
-    this.info(jobId, provider, 'clearing application records', { address });
+    this.logInfo(jobId, provider, 'clearing application records', { address });
 
     return this.redis.del(address).catch((error) => {
       this.recordError(jobId, provider, error, {
@@ -144,7 +144,9 @@ export class CddProcessor {
     provider: CddProvider,
     address: string
   ): Promise<void> {
-    this.info(jobId, provider, 'attempting to create CDD claim', { address });
+    this.logInfo(jobId, provider, 'attempting to create CDD claim', {
+      address,
+    });
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity({
       targetAccount: address,
@@ -155,7 +157,7 @@ export class CddProcessor {
       this.recordError(jobId, provider, error, { address });
     });
 
-    this.info(jobId, provider, 'created CDD claim', {
+    this.logInfo(jobId, provider, 'created CDD claim', {
       did: createdIdentity.did,
       address,
     });
@@ -168,7 +170,7 @@ export class CddProcessor {
     });
   }
 
-  private info(
+  private logInfo(
     jobId: string,
     provider: CddProvider,
     message: string,
