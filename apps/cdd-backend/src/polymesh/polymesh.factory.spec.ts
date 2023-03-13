@@ -29,16 +29,13 @@ jest.mock('@polymeshassociation/hashicorp-vault-signing-manager', () => ({
 
 describe('polymesh factory', () => {
   let mockPolymesh: DeepMocked<Polymesh>;
-  beforeEach(() => {
-    mockPolymesh = createMock<Polymesh>();
-  });
-
   let configService: DeepMocked<ConfigService>;
   const connectSpy = jest.spyOn(Polymesh, 'connect');
 
   beforeEach(() => {
-    connectSpy.mockResolvedValue(mockPolymesh);
+    mockPolymesh = createMock<Polymesh>();
     configService = createMock<ConfigService>();
+    connectSpy.mockResolvedValue(mockPolymesh);
   });
 
   describe('with no configured signer', () => {
@@ -56,8 +53,6 @@ describe('polymesh factory', () => {
           signingManager: expect.any(LocalSigningManager),
         })
       );
-
-      // await expect(polymesh.getSigningIdentity()).rejects.toThrowError();
     });
   });
 

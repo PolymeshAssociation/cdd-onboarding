@@ -1,14 +1,16 @@
 import { HttpService } from '@nestjs/axios';
 import { InjectQueue } from '@nestjs/bull';
 import {
+  Inject,
   Injectable,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bull';
 import Redis from 'ioredis';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { catchError, firstValueFrom } from 'rxjs';
+import { Logger } from 'winston';
 import { CddJob } from '../cdd-worker/types';
 import {
   allocatedCodesPrefix,
@@ -34,7 +36,7 @@ export class NetkiService {
   constructor(
     private readonly redis: Redis,
     private readonly http: HttpService,
-    private readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectQueue('') private readonly queue: Queue,
     config: ConfigService
   ) {

@@ -1,46 +1,48 @@
-import { createMock } from '@golevelup/ts-jest';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { HttpService } from '@nestjs/axios';
 import { getQueueToken } from '@nestjs/bull';
-import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosResponse } from 'axios';
 import { Job, Queue } from 'bull';
 import Redis from 'ioredis';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { of } from 'rxjs';
+import { Logger } from 'winston';
 import { CddJob } from '../cdd-worker/types';
 import { NetkiService } from './netki.service';
 import { netkiAllocatedPrefixer, NetkiCallbackDto } from './types';
 
 describe('NetkiService', () => {
   let service: NetkiService;
-  const mockRedis = createMock<Redis>();
-  const mockHttp = createMock<HttpService>();
-  const mockLogger = createMock<Logger>();
-  const mockQueue = createMock<Queue>();
-  const mockConfig = createMock<ConfigService>();
+  let mockRedis: DeepMocked<Redis>;
+  let mockHttp: DeepMocked<HttpService>;
+  let mockQueue: DeepMocked<Queue>;
+
+  const mockConfig = createMock<ConfigService>(); // mock for constructor
+  mockConfig.getOrThrow.mockReturnValue('https://example.com');
 
   const address = 'test-address';
 
   beforeEach(async () => {
-    mockConfig.getOrThrow.mockReturnValue('http://example.com/');
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
           provide: Redis,
-          useValue: mockRedis,
+          useValue: createMock<Redis>(),
         },
         {
           provide: HttpService,
-          useValue: mockHttp,
+          useValue: createMock<HttpService>(),
         },
         {
-          provide: Logger,
-          useValue: mockLogger,
+          provide: WINSTON_MODULE_PROVIDER,
+          useValue: createMock<Logger>(),
         },
         {
           provide: getQueueToken(''),
-          useValue: mockQueue,
+          useValue: createMock<Queue>(),
         },
         {
           provide: ConfigService,
@@ -51,7 +53,11 @@ describe('NetkiService', () => {
     }).compile();
 
     service = module.get<NetkiService>(NetkiService);
+    mockRedis = module.get<typeof mockRedis>(Redis);
+    mockHttp = module.get<typeof mockHttp>(HttpService);
+    mockQueue = module.get<typeof mockQueue>(getQueueToken(''));
 
+    mockConfig.getOrThrow.mockReturnValue('http://example.com/');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exposedService = service as any;
     exposedService.businessId = 'mesh-test';

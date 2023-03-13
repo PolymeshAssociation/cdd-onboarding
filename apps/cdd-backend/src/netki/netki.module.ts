@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppRedisModule } from '../app-redis/app-redis.module';
 import { NetkiService } from './netki.service';
 import { NetkiController } from './netki.controller';
@@ -15,10 +15,7 @@ import { BullModule } from '@nestjs/bull';
     AppBullModule,
     BullModule.registerQueue({}),
   ],
-  providers: [
-    NetkiService,
-    { provide: Logger, useValue: new Logger(NetkiModule.name) },
-  ],
+  providers: [NetkiService],
   controllers: [NetkiController],
   exports: [NetkiService],
 })

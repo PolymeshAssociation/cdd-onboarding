@@ -1,4 +1,4 @@
-import { createMock } from '@golevelup/ts-jest';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -7,19 +7,19 @@ import { of } from 'rxjs';
 import { JumioService } from './jumio.service';
 import { JumioGenerateLinkResponse } from './types';
 
-import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { getQueueToken } from '@nestjs/bull';
 import { Queue } from 'bull';
 
 import v4OKResponse from '../test-utils/jumio-http/v4-initiate-ok.json';
 import unauthorizedResponse from '../test-utils/jumio-http/unauthorized.json';
+import { Logger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 describe('JumioService', () => {
   let service: JumioService;
-  const mockHttp = createMock<HttpService>();
-  const mockConfig = createMock<ConfigService>();
-  const mockQueue = createMock<Queue>();
-  const mockLogger = createMock<Logger>();
+  let mockHttp: DeepMocked<HttpService>;
+  let mockConfig: DeepMocked<ConfigService>;
 
   const address = 'someAddress';
 
@@ -27,14 +27,16 @@ describe('JumioService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JumioService,
-        { provide: HttpService, useValue: mockHttp },
-        { provide: ConfigService, useValue: mockConfig },
-        { provide: getQueueToken(), useValue: mockQueue },
-        { provide: Logger, useValue: mockLogger },
+        { provide: HttpService, useValue: createMock<HttpService>() },
+        { provide: ConfigService, useValue: createMock<ConfigService>() },
+        { provide: getQueueToken(), useValue: createMock<Queue>() },
+        { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
       ],
     }).compile();
 
     service = module.get<JumioService>(JumioService);
+    mockHttp = module.get<typeof mockHttp>(HttpService);
+    mockConfig = module.get<typeof mockConfig>(ConfigService);
   });
 
   it('should be defined', () => {

@@ -13,17 +13,18 @@ describe('CddController', () => {
   let mockCddService: DeepMocked<CddService>;
 
   beforeEach(async () => {
-    mockCddService = createMock<CddService>();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
           provide: CddService,
-          useValue: mockCddService,
+          useValue: createMock<CddService>(),
         },
       ],
       controllers: [CddController],
     }).compile();
+
     controller = module.get<CddController>(CddController);
+    mockCddService = module.get<typeof mockCddService>(CddService);
   });
 
   it('should be defined', () => {

@@ -13,7 +13,7 @@ const redisZ = z
       password: z.string().optional().describe('redis password'),
     }),
   })
-  .describe('config needed for redis');
+  .describe('redis config');
 
 export type RedisConfig = ReturnType<typeof redisZ.parse>;
 

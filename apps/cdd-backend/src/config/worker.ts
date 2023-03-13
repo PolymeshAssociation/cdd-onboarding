@@ -18,7 +18,8 @@ const configZ = z
       .refine(
         (data) => !data.mnemonic !== !data.vault,
         'Exactly one of `signer.mnemonic` or `signer.vault` must be configured'
-      ),
+      )
+      .describe('config values needed to access the CDD provider key'),
 
     polymesh: z
       .object({

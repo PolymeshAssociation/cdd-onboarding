@@ -5,11 +5,15 @@ const loggerSettingsZ = z
   .object({
     type: z.enum(['text', 'json']),
   })
-  .describe('config needed for logging');
+  .describe(
+    `the format the log will be written in:
+    1. 'text' will destructure and colorize common JSON properties for a better developer experience
+    2. 'json' will write a true JSON object`
+  );
 
 type LoggerSettings = ReturnType<typeof loggerSettingsZ.parse>;
 
-const loggerSettings = (): LoggerSettings => {
+const loggerEnvSettings = (): LoggerSettings => {
   const rawSettings = {
     type: process.env.NODE_ENV === 'production' ? 'json' : 'text',
   };
@@ -18,12 +22,13 @@ const loggerSettings = (): LoggerSettings => {
 };
 
 class LoggerConfig {
-  public settings: LoggerSettings = loggerSettings();
+  public settings: LoggerSettings = loggerEnvSettings();
   private readonly options: winston.LoggerOptions;
 
-  constructor() {
+  constructor(context: string) {
     this.options = {
       exitOnError: false,
+      defaultMeta: { context },
       transports: [new transports.Console({ level: 'debug' })],
     };
 
@@ -32,13 +37,13 @@ class LoggerConfig {
         format.colorize(),
         format.timestamp(),
         format.printf((msg) => {
-          const { timestamp, level, message, context, ...data } = msg;
-          const contextMsg = context ? `[${context}]` : '';
-          const dataMsg = Object.entries(data).length
-            ? ` - ${JSON.stringify(data)}`
+          const { context, timestamp, level, message, ...extra } = msg;
+
+          const extraInfo = Object.entries(extra).length
+            ? `- ${JSON.stringify(extra)}`
             : '';
 
-          return `${timestamp} ${contextMsg}[${level}] - ${message} ${dataMsg}`;
+          return `${timestamp} [${level}] ${context} - ${message} ${extraInfo}`;
         })
       );
     } else {
@@ -57,4 +62,8 @@ class LoggerConfig {
 /**
  * Configuration settings for logging - inferred from NODE_ENV
  */
-export const loggerConfig = new LoggerConfig();
+export const loggerEnvConfig = (context: string): winston.LoggerOptions => {
+  const config = new LoggerConfig(context);
+
+  return config.console();
+};

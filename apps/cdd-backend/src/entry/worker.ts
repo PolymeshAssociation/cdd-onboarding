@@ -1,5 +1,7 @@
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { WinstonModule } from 'nest-winston';
+import { createLogger } from 'winston';
+import { loggerEnvConfig } from '../config/logger';
 
 import { WorkerModule } from './worker.module';
 
@@ -7,9 +9,13 @@ import { WorkerModule } from './worker.module';
  * Bootstrap a background worker
  */
 async function bootstrap() {
-  await NestFactory.createApplicationContext(WorkerModule);
+  const logger = createLogger(loggerEnvConfig('CddWorker'));
 
-  Logger.log('🐂 Worker process has started up');
+  await NestFactory.createApplicationContext(WorkerModule, {
+    logger: WinstonModule.createLogger({ instance: logger }),
+  });
+
+  logger.info('🐂 Worker process has started up');
 }
 
 bootstrap();

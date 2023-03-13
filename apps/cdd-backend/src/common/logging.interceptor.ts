@@ -15,7 +15,6 @@ const noBodyMethods = ['GET', 'OPTIONS', 'HEAD', 'TRACE', 'DELETE'];
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  private logContext = LoggingInterceptor.name;
   constructor(private readonly logger: Logger) {}
 
   /**
@@ -35,7 +34,6 @@ export class LoggingInterceptor implements NestInterceptor {
     const message = `Request: ${method} ${url}`;
 
     this.logger.info(message, {
-      context: this.logContext,
       method,
       url,
       body,
@@ -63,10 +61,9 @@ export class LoggingInterceptor implements NestInterceptor {
     const { method, url } = context.switchToHttp().getRequest();
     const { statusCode, body } = context.switchToHttp().getResponse();
 
-    const message = `Response: ${statusCode}} ${method} ${url}`;
+    const message = `Response: ${statusCode} ${method} ${url}`;
 
     this.logger.info(message, {
-      context: this.logContext,
       method,
       url,
       body,
@@ -97,7 +94,6 @@ export class LoggingInterceptor implements NestInterceptor {
         this.logger.error(
           message,
           {
-            context: this.logContext,
             method,
             url,
             body,
@@ -109,7 +105,6 @@ export class LoggingInterceptor implements NestInterceptor {
         );
       } else {
         this.logger.warn(message, {
-          context: this.logContext,
           method,
           url,
           body,
@@ -122,7 +117,6 @@ export class LoggingInterceptor implements NestInterceptor {
       this.logger.error(
         'Error occurred',
         {
-          context: this.logContext,
           requestId,
           error: error.message,
         },

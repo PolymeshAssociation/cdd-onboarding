@@ -7,7 +7,7 @@ import { CddModule } from '../cdd/cdd.module';
 import { NetkiModule } from '../netki/netki.module';
 import { WinstonModule } from 'nest-winston';
 import { serverEnvConfig } from '../config/server';
-import { loggerConfig } from '../config/logger';
+import { loggerEnvConfig } from '../config/logger';
 
 /**
  * Module for initializing the app in "server" mode
@@ -17,7 +17,7 @@ import { loggerConfig } from '../config/logger';
     ConfigModule.forRoot({
       load: [serverEnvConfig],
     }),
-    WinstonModule.forRoot(loggerConfig.console()),
+    WinstonModule.forRoot(loggerEnvConfig(ServerModule.name)),
     CddModule,
     NetkiModule,
   ],
