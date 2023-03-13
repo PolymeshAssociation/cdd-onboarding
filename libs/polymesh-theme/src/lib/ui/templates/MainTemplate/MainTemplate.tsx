@@ -7,17 +7,17 @@ type MainTemplateProps = {
   children: React.ReactNode;
 };
 
-
-
 export const MainTemplate: React.FC<MainTemplateProps> = ({ children }) => {
   return (
-    <Flex flexDirection="column" minH="100vh">
+    <>
       <Header />
-      <Box flexGrow={1} mt="3rem">        
-        {children}
-      </Box>
+      <Flex flexDirection="column" minH="100vh">
+        <Box flexGrow={1} mt="3rem">
+          {children}
+        </Box>
+      </Flex>
       <Footer />
-    </Flex>
+    </>
   );
 };
 

@@ -104,15 +104,9 @@ const questionsAnswers: QuestionItem[] = [
 const LandingCta = () => {
   return (
     <Box textAlign="center">
-      <Flex gap="1rem" mb="2rem">
-        <Button colorScheme="navy" size="lg" as="a" href="/verification">
+        <Button colorScheme="navy" size={{ base:"md", md: 'lg'}} as="a" href="/verification" w={{ base: '100%', md: 'unset'}} mb="1.5rem" display="block">
           New Application
         </Button>
-        
-        <Button colorScheme="navy" size="lg" variant="ghost" bg="#fff" as="a" href="/login">
-        View an existing application
-      </Button>
-      </Flex>
       <Link
           color="navy"
           variant="ghost"

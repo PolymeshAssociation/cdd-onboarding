@@ -23,6 +23,7 @@ export const Button: ComponentStyleConfig = {
             h: '36px',
             px: '36px',
             borderRadius: '18px',
+            paddingY: '0.5em',
         },
         sm: {
             h: '24px',

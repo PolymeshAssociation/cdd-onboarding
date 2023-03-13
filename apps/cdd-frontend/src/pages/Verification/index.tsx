@@ -12,7 +12,7 @@ export const Verification: React.FC = () => {
   const [state, setState] = React.useState<VerificationState>({})
 
   return (
-    <StepForm title="Onboarding">
+    <StepForm title="Onboarding" initialStep={0}>
       <Step title="Verify Address">
         <EnterAddress setState={setState} state={state} />
       </Step>

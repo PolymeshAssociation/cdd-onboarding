@@ -13,9 +13,9 @@ import {
 import { motion } from 'framer-motion';
 import { MdKeyboardBackspace } from 'react-icons/md';
 import React, { useEffect, createContext, useContext } from 'react';
-import { Logo } from '../../atoms';
+import { Logo, LogoCircle } from '../../atoms';
 import { BsCheck2Square, BsArrowRight, BsSquare } from 'react-icons/bs';
-import { FooterCopy } from '../../molecules';
+import { FooterCopy, Header } from '../../molecules';
 
 export type StepProps = {
   title: string;
@@ -106,7 +106,7 @@ export const Step: React.FC<StepProps> = ({
         },
       }}
     >
-      <Heading mb="2rem" as="h1" size="2xl">
+      <Heading mb="2rem" as="h1" size="2xl" mt={{ base: '6rem', md: 'unset' }}>
         {title}
       </Heading>
       {subTitle && <Heading>{subTitle}</Heading>}
@@ -146,12 +146,7 @@ export const StepFormNavigation: React.FC = () => {
             />
           )}
           {index > activeStep && (
-            <ListIcon
-              as={BsSquare}
-              color="gray.300"
-              mr="1rem"
-              boxSize="1rem"
-            />
+            <ListIcon as={BsSquare} color="gray.300" mr="1rem" boxSize="1rem" />
           )}
           <Text
             fontWeight={index === activeStep ? 'bold' : 'unset'}
@@ -186,7 +181,20 @@ export const FormNavigation: React.FC<
   const { onBack, activeStep } = useContext(FormContext);
 
   return (
-    <Stack mt="2rem" gap="1rem" direction="row" alignItems="center">
+    <Stack
+      mt="2rem"
+      gap="1rem"
+      direction="row"
+      alignItems="center"
+      justify={{ base: 'center', md: 'unset' }}
+      py={{ base: '1.5rem', md: '1 rem' }}
+      px={{ base: '1rem', md: 'unset' }}
+      position={{ base: 'absolute', md: 'initial' }}
+      left={{ base: 0, md: 'unset' }}
+      bottom={{ base: 0, md: 'unset ' }}
+      w={{ base: '100%', md: 'unset' }}
+      bgColor={{ base: 'white', md: 'unset' }}
+    >
       {activeStep > 0 && (
         <Button
           onClick={onBack}
@@ -198,16 +206,13 @@ export const FormNavigation: React.FC<
       )}
       {Boolean(nextStepLabel) && (
         <Button
-          isDisabled={
-            nextIsDisabled ||
-            nextIsLoading ||
-            nextIsError
-          }
+          isDisabled={nextIsDisabled || nextIsLoading || nextIsError}
           colorScheme="navy"
           size="lg"
           type={onNext ? 'button' : 'submit'}
           onClick={onNext}
           form="stepForm"
+          w={{ base: activeStep === 0 ? '100%' : 'unset', md: 'unset' }}
         >
           {nextIsLoading && nextLoadingLabel ? nextLoadingLabel : nextStepLabel}
         </Button>
@@ -231,19 +236,21 @@ export const StepForm: React.FC<StepFromProps> = ({
 }) => {
   return (
     <FormContextProvider initialStep={initialStep}>
-      <Flex h="100vh" alignItems="stretch">
+      <Header display={{ md: 'none' }} />
+      <Flex h="100vh" alignItems={{ base: 'center', md: 'stretch'}} py={{ base: '4rem', sm: 'unset' }}>
         <Flex
           h="100%"
-          minW="25rem"
+          minW={{ md: '5rem', lg: '20rem', xl: '25rem', '2xl': '40rem' }}
           direction="column"
           justify="space-between"
           align="center"
-          px="2rem"
+          px={{ base: 'none', md: '2rem' }}
           pt="1.5rem"
           pb="1rem"
           boxShadow="0.5rem 0 0.5rem -0.25rem rgba(0,0,0,0.75)"
+          display={{ base: 'none', md: 'flex' }}
         >
-          <Logo height="1.5rem" />
+          <LogoCircle variant="color" boxSize="120px" mt="5rem" link="/" />
           <Box>
             <Heading mb="1rem">{title}</Heading>
             <StepFormNavigation />
@@ -254,10 +261,11 @@ export const StepForm: React.FC<StepFromProps> = ({
         <Flex
           h="100vh"
           direction="column"
-          py="5rem"
+          pt={{ base: '1rem', md: '7rem' }}
+          pb={{ base: "8rem", md: "unset" }}
           flexGrow={1}
-          px="5rem"
-          justify="center"
+          px={{ base: '0.5rem', sm: '2rem', md: '5rem' }}
+          justify={{ base: 'flex-start', md: 'center' }}        
           overflow="hidden"
           overflowY="scroll"
         >

@@ -9,6 +9,9 @@ import {
   Card,
   CardBody,
   GridItem,
+  Box,
+  Flex,
+  useMediaQuery
 } from '@chakra-ui/react';
 
 import {
@@ -65,27 +68,25 @@ const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
   const onClick = () => {
     onSelectProvider(provider);
   };
+  const [isLargerThan320] = useMediaQuery('(min-width: 320px)')
 
   return (
     <GridItem w="100%">
-      <Card
+      <Flex alignItems="center" justifyContent="center"
         _hover={{ cursor: 'pointer', borderColor: 'navy' }}
         border="2px solid"
         borderColor={isSelected ? 'fucsia.700' : 'gray.100'}
         boxSizing="border-box"
         onClick={onClick}
+        h={{ base: '120px', md: '150px' }}
+        w={{ base: '100%', md: 'unset' }}
+        style={{ aspectRatio: isLargerThan320 ? '1' : 'unset'}}
+        p="1.5rem"
+        borderRadius="0.75rem"
       >
-        <CardBody
-          p="2rem"
-          style={{ aspectRatio: 1 }}
-          justifyContent="center"
-          alignItems="center"
-          display="flex"
-        >
           {provider === 'jumio' && <JumioLogo boxSize="80%" />}
           {provider === 'netki' && <NetkiLogo boxSize="80%" />}
-        </CardBody>
-      </Card>
+      </Flex>
     </GridItem>
   );
 };
@@ -128,7 +129,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   return (
     <>
       {isError && <ErrorLoadingProviderLink isError={isError} />}
-      <Grid gap="2rem" templateColumns="repeat(auto-fit, minMax(250px, 300px))">
+      <Flex gap="2rem" w="100%" direction={{ base: 'column', md: 'row'}}>
         <ProviderLogoCard
           provider="jumio"
           onSelectProvider={onSelectProvider}
@@ -139,7 +140,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           onSelectProvider={onSelectProvider}
           isSelected={state.provider === 'netki'}
         />
-      </Grid>
+      </Flex>
       <FormNavigation
         nextStepLabel="Next"
         nextIsDisabled={!state.provider}

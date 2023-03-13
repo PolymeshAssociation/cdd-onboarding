@@ -32,8 +32,8 @@ export const QuestionsAnswers: React.FC<QuestionsAnswersProps> = ({
         {items.map(({ question, answer }) => (
           <AccordionItem key={question}>
             <Heading as="h4" size="xl" fontWeight="bold">
-              <AccordionButton _expanded={{ color: 'link' }}>
-                <Box as="span" flex="1" textAlign="left" fontWeight="600" color={textColor} pl="1rem" lineHeight="2em">
+              <AccordionButton _expanded={{ color: 'link' }} px={{ base: 0, md: '1rem'}}>
+                <Box as="span" flex="1" textAlign="left" fontWeight="600" color={textColor} pl={{ base: '0.5rem', md: '1rem'}} lineHeight="2em">
                   {question}
                 </Box>
                 <AccordionIcon boxSize="2rem" />
