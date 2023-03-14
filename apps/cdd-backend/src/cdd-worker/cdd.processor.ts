@@ -144,9 +144,7 @@ export class CddProcessor {
     provider: CddProvider,
     address: string
   ): Promise<void> {
-    this.logInfo(jobId, provider, 'attempting to create CDD claim', {
-      address,
-    });
+    this.logInfo(jobId, provider, 'creating cdd', { address });
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity({
       targetAccount: address,

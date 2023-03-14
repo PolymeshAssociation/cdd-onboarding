@@ -83,7 +83,7 @@ describe('NetkiService', () => {
       expect(result).toEqual({
         id: '123',
         code: 'abc',
-        url: 'http://example.com/?service_code=abc&applicationId=cG9seW1lc2hDZGQ=',
+        url: 'https://example.com?service_code=abc&applicationId=cG9seW1lc2hDZGQ=',
       });
     });
 

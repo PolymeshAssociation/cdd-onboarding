@@ -5,6 +5,8 @@
         "jumio",
         "nestjs",
         "netki",
+        "opentelemetry",
+        "OTLP",
         "polymeshassociation",
         "Prefixer",
         "sadd",
