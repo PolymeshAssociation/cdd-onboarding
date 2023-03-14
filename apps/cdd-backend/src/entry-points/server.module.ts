@@ -24,4 +24,4 @@ import { CddModule } from '../cdd/cdd.module';
     },
   ],
 })
-export class AppModule {}
+export class ServerModule {}
