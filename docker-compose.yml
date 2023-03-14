@@ -6,6 +6,21 @@ services:
       - '6379:6379'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis_data:/data
+
+  # Note this container must be restarted to detect newly created queues
+  # Repo: https://github.com/felixmosh/bull-board
+  bullboard: # dashboard for the job queue
+    container_name: cdd-bullboard
+    image: deadly0/bull-board # Note: unofficial image
+    restart: unless-stopped
+    ports:
+      - 3334:3000
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      REDIS_HOST: host.docker.internal
 
   alice:
       image: ${CHAIN_IMAGE}
@@ -24,3 +39,6 @@ services:
         [
           '--alice --chain dev',
         ]
+
+volumes:
+  redis_data:

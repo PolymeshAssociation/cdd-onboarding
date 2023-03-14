@@ -20,7 +20,11 @@ export const addressZ = extendApi(
         }
       },
       {
+<<<<<<< HEAD
         message: 'Address must be ss58 encoded',
+=======
+        message: 'String must be ss58 encoded',
+>>>>>>> origin/main
       }
     ),
   {
