@@ -22,3 +22,8 @@ export interface NetkiCddJob {
   value: NetkiCallbackDto;
   type: 'netki';
 }
+
+export interface JobIdentifier {
+  id: string;
+  provider: CddProvider;
+}
