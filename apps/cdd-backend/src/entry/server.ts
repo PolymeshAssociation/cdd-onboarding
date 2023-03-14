@@ -9,9 +9,15 @@ import { WinstonModule } from 'nest-winston';
 import { createLogger } from 'winston';
 import { loggerEnvConfig } from '../config/logger';
 import { LoggingInterceptor } from '../common/logging.interceptor';
+import { startTelemetry } from '../config/telemetry';
 
+/**
+ * start a server process
+ */
 async function bootstrap() {
   const logger = createLogger(loggerEnvConfig('CddServer'));
+  startTelemetry(logger);
+
   const app = await NestFactory.create(ServerModule, {
     logger: WinstonModule.createLogger({ instance: logger }),
   });

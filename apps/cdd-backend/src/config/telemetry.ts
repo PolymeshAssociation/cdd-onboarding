@@ -1,26 +1,54 @@
 'use strict';
 
+import os from 'node:os';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { Logger } from 'winston';
+import { z } from 'zod';
 
-const OTLP_EXPORTER_URL = process.env.OTLP_EXPORTER_URL || '';
+const telemetryZ = z
+  .object({
+    telemetry: z.object({
+      hostname: z.string().default(os.hostname()),
+      url: z.string().url().default(''),
+      service: z.string().default('PolymeshCdd'),
+    }),
+  })
+  .describe('config for telemetry data');
 
-export let openTelemetrySdk: NodeSDK | undefined;
+type TelemetryConfig = ReturnType<typeof telemetryZ.parse>;
 
-if (OTLP_EXPORTER_URL) {
-  const exporterOptions = {
-    url: OTLP_EXPORTER_URL,
+const telemetryEnvConfig = (): TelemetryConfig => {
+  const rawConfig = {
+    url: process.env.OTLP_EXPORT_URL,
+    hostname: process.env.OTLP_HOSTNAME,
+    service: process.env.OTLP_SERVICE,
   };
 
-  const traceExporter = new OTLPTraceExporter(exporterOptions);
-  openTelemetrySdk = new NodeSDK({
+  return telemetryZ.parse(rawConfig);
+};
+
+/**
+ * starts telemetry service if env `OTLP_EXPORT_URL` is set
+ */
+export const startTelemetry = (logger: Logger) => {
+  const { telemetry } = telemetryEnvConfig();
+
+  if (telemetry.url === '') {
+    logger.info(
+      'OTLP_EXPORT_URL was unset - open telemetry export was not started'
+    );
+  }
+
+  const traceExporter = new OTLPTraceExporter(telemetry);
+  const openTelemetrySdk = new NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: 'CddService',
+      [SemanticResourceAttributes.SERVICE_NAME]: telemetry.service,
     }),
   });
 
@@ -28,17 +56,17 @@ if (OTLP_EXPORTER_URL) {
   // this enables the API to record telemetry
   openTelemetrySdk
     .start()
-    .then(() =>
-      logger.log(`Trace data is being exported to '${OTLP_EXPORTER_URL}'`)
-    )
+    .then(() => logger.info('Open telemetry export started', telemetry))
     .catch((error) => logger.error('Error initializing tracing', error));
 
   // gracefully shut down the SDK on process exit
   process.on('SIGTERM', () => {
     openTelemetrySdk
       ?.shutdown()
-      .then(() => logger.log('Tracing terminated'))
-      .catch((error) => logger.log('Error terminating tracing', error))
+      .then(() => logger.info('Open telemetry export terminated'))
+      .catch((error) =>
+        logger.error('Error terminating open telemetry export', error)
+      )
       .finally(() => process.exit(0));
   });
-}
+};
