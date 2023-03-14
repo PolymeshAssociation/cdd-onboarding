@@ -3,10 +3,9 @@ import { PolymeshTheme } from '../../../ThemeProvider';
 import { useForm } from 'react-hook-form';
 import {
   StepForm as StepFormComponent,
-  Step,
-  StepProps,
-  FormContext,
-} from './StepForm';
+  StepFormStep,
+  StepFormContext,
+} from './index';
 import { useContext } from 'react';
 
 export default {
@@ -16,9 +15,9 @@ export default {
   },
 };
 
-const FirstStep: React.FC<Pick<StepProps, 'index'>> = ({ index }) => {
+const FirstStep: React.FC = () => {
   const { handleSubmit } = useForm();
-  const { onNext } = useContext(FormContext);
+  const { onNext } = useContext(StepFormContext);
 
   const onSubmit = (data: unknown) => {
     console.log(data);
@@ -41,11 +40,11 @@ export const StepForm: React.FC = () => {
   return (
     <PolymeshTheme>
       <StepFormComponent title="Onboarding">
-        <Step title="First Step" nextStepLabel="Get Started" showFormNavigation>
+        <StepFormStep title="First Step" nextStepLabel="Get Started" showFormNavigation>
           <FirstStep />
-        </Step>
-        <Step title="Second Step">test</Step>
-        <Step title="Third Step">test</Step>
+        </StepFormStep>
+        <StepFormStep title="Second Step">test</StepFormStep>
+        <StepFormStep title="Third Step">test</StepFormStep>
       </StepFormComponent>
     </PolymeshTheme>
   );

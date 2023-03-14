@@ -5,11 +5,7 @@ import {
   AlertTitle,
   AlertDescription,
   CircularProgress,
-  Grid,
-  Card,
-  CardBody,
   GridItem,
-  Box,
   Flex,
   useMediaQuery
 } from '@chakra-ui/react';
@@ -21,8 +17,8 @@ import {
 
 import { VerificationState } from './index.d';
 import {
-  FormContext,
-  FormNavigation,
+  StepFormContext,
+  StepFormNavigation,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
 import useGetProviderLinkMutation from 'apps/cdd-frontend/src/hooks/useGetProviderLinkMutation';
 
@@ -100,7 +96,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   state,
   setState,
 }) => {
-  const { onNext } = useContext(FormContext);
+  const { onNext } = useContext(StepFormContext);
   const { mutate, isLoading, isError, data } = useGetProviderLinkMutation();
   const { link } = data || {};
 
@@ -141,7 +137,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           isSelected={state.provider === 'netki'}
         />
       </Flex>
-      <FormNavigation
+      <StepFormNavigation
         nextStepLabel="Next"
         nextIsDisabled={!state.provider}
         nextIsLoading={isLoading}

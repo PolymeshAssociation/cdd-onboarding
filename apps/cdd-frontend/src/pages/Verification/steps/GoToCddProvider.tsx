@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import QRCode from 'react-qr-code';
 
-import { FormNavigation } from '@polymeshassociation/polymesh-theme/ui/organisms';
+import { StepFormNavigation } from '@polymeshassociation/polymesh-theme/ui/organisms';
 import { VerificationState } from './index.d';
 
 export const QRCodeView: React.FC<{ link: string; provider: string }> = ({
@@ -111,7 +111,7 @@ export const JumioView: React.FC<{ link: string }> = ({ link }) => {
       <Text textAlign="justify">
         Click on the <Code>Go to Jumio</Code> button to be redirected to Jumio.
       </Text>
-      <FormNavigation
+      <StepFormNavigation
         nextStepLabel={`Go to Jumio`}
         nextIsDisabled={!link}
         onNext={onNavigateToCddProvider}
@@ -132,7 +132,7 @@ export const NetkiView: React.FC<{ link: string }> = ({ link }) => {
         <OrDivider />
         <CopyLink link={link} />
       </OnboardingContainer>
-      <FormNavigation />
+      <StepFormNavigation />
     </>
   );
 };
@@ -158,7 +158,7 @@ export const GoToCddProvider: React.FC<VerificationState> = ({
           again.
         </AlertDescription>
       </Alert>
-      <FormNavigation />
+      <StepFormNavigation />
     </>
   );
 };

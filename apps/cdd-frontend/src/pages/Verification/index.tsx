@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   StepForm,
-  Step,
+  StepFormStep,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
 
 import { EnterAddress, SelectCddProvider, GoToCddProvider } from './steps';
@@ -13,15 +13,15 @@ export const Verification: React.FC = () => {
 
   return (
     <StepForm title="Onboarding" initialStep={0}>
-      <Step title="Verify Address">
+      <StepFormStep title="Verify Address">
         <EnterAddress setState={setState} state={state} />
-      </Step>
-      <Step title="Select CDD Provider">
+      </StepFormStep>
+      <StepFormStep title="Select CDD Provider">
         <SelectCddProvider state={state} setState={setState} />
-      </Step>
-      <Step title="Get Verified">
+      </StepFormStep>
+      <StepFormStep title="Get Verified">
         <GoToCddProvider {...state} />
-      </Step>
+      </StepFormStep>
     </StepForm>
   );
 };

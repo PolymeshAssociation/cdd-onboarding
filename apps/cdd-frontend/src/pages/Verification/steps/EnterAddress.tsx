@@ -13,8 +13,8 @@ import {
 } from '@chakra-ui/react';
 
 import {
-  FormContext,
-  FormNavigation,
+  StepFormContext,
+  StepFormNavigation,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
 import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 
@@ -43,7 +43,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<FormValues>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { address } });
-  const { onNext } = useContext(FormContext);
+  const { onNext } = useContext(StepFormContext);
   const { mutate, isLoading, isSuccess, isError, error } = useVerifyAddressMutation();
   const { message } = error as AxiosError || {}
 
@@ -71,7 +71,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           <FormHelperText>Please enter your Polymesh address to start verification</FormHelperText>
         </FormControl>
       </Box>
-      <FormNavigation
+      <StepFormNavigation
         nextStepLabel="Get started"
         nextIsLoading={isLoading}
         nextIsDisabled={!isValid || isLoading}
