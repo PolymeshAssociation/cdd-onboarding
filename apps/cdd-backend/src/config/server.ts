@@ -84,7 +84,6 @@ export const serverEnvConfig = (): ServerConfig => {
     polymesh: {
       nodeUrl: process.env.MESH_NODE_URL,
     },
-
     jumio: {
       apiKey: Buffer.from(process.env.JUMIO_API_KEY || '').toString('base64'),
       generateLinkUrl: process.env.JUMIO_GENERATE_LINK_URL,
