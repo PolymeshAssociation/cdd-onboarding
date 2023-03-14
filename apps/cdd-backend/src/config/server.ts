@@ -23,10 +23,6 @@ const configZ = z.object({
         .url()
         .default('ws://localhost:9944')
         .describe('Polymesh chain node ws url'),
-      mnemonic: z
-        .string()
-        .default('//Alice')
-        .describe('mnemonic to create CDD claims with'),
     })
     .describe('Polymesh chain related config'),
 
@@ -95,7 +91,6 @@ export default (): AppConfig => {
     },
     polymesh: {
       nodeUrl: process.env.MESH_NODE_URL,
-      mnemonic: process.env.MESH_MNEMONIC,
     },
     redis: {
       host: process.env.REDIS_HOST,

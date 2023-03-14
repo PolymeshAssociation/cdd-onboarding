@@ -23,6 +23,7 @@
     "@nrwl/webpack": "15.7.0",
     "@nrwl/workspace": "15.6.3",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@polymeshassociation/signing-manager-types": "^1.2.1",
     "@rollup/plugin-url": "^7.0.0",
     "@storybook/addon-essentials": "^6.5.15",
     "@storybook/builder-webpack5": "^6.5.15",

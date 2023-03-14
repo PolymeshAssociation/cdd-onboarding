@@ -129,6 +129,9 @@ export class NetkiService {
   }
 
   private async refreshAccessToken() {
+    // TODO base64 decode the token and read the expiry
+    // TODO refresh tokens expire after 24 hours - provide API auth creds
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Authorization, ...headers } = this.headers;
 
