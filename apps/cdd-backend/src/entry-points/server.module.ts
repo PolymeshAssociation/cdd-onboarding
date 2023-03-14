@@ -5,6 +5,7 @@ import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { ConfigModule } from '@nestjs/config';
 import config from '../config';
 import { CddModule } from '../cdd/cdd.module';
+import { NetkiModule } from '../netki/netki.module';
 
 /**
  * Module for initializing the app in "server" mode
@@ -15,6 +16,7 @@ import { CddModule } from '../cdd/cdd.module';
       load: [config],
     }),
     CddModule,
+    NetkiModule,
   ],
   providers: [
     {

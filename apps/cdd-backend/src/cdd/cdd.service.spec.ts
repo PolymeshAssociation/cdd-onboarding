@@ -6,12 +6,16 @@ import { MockPolymesh, mockQueue } from '../test-utils/mocks';
 import { createMock } from '@golevelup/ts-jest';
 import Redis from 'ioredis';
 import { JumioService } from '../jumio/jumio.service';
+import { NetkiService } from '../netki/netki.service';
+import { Logger } from '@nestjs/common';
 
 describe('CddService', () => {
   const address = 'some-address';
   const mockPolymesh = new MockPolymesh();
   const mockRedis = createMock<Redis>();
   const mockJumioService = createMock<JumioService>();
+  const mockNetkiService = createMock<NetkiService>();
+  const mockLogger = createMock<Logger>();
   let service: CddService;
 
   beforeEach(async () => {
@@ -22,6 +26,8 @@ describe('CddService', () => {
         { provide: getQueueToken(), useValue: mockQueue },
         { provide: Redis, useValue: mockRedis },
         { provide: JumioService, useValue: mockJumioService },
+        { provide: NetkiService, useValue: mockNetkiService },
+        { provide: Logger, useValue: mockLogger },
       ],
     }).compile();
 
@@ -40,7 +46,7 @@ describe('CddService', () => {
 
       const result = await service.verifyAddress(address);
 
-      expect(result).toEqual({ valid: true, previousLinks: [] });
+      expect(result).toEqual({ valid: true });
     });
 
     it('should return `false` if the address does have an associated Identity', async () => {
@@ -50,7 +56,7 @@ describe('CddService', () => {
 
       const result = await service.verifyAddress(address);
 
-      expect(result).toEqual({ valid: false, previousLinks: [] });
+      expect(result).toEqual({ valid: false });
     });
   });
 
@@ -65,9 +71,11 @@ describe('CddService', () => {
 
         mockJumioService.generateLink.mockResolvedValue({
           redirectUrl: expectedLink,
+          transactionReference: 'test-ref',
+          timestamp: 'test-time',
         });
 
-        const link = await service.generateProviderLink({
+        const link = await service.getProviderLink({
           address,
           provider: 'jumio',
         });

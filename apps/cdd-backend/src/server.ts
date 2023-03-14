@@ -1,10 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
+import { ServerModule } from './entry-points/server.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { ServerModule } from './entry-points/server.module';
 import { openTelemetrySdk, setTelemetryServiceName } from './telemetry';
+
+import { urlencoded, json } from 'express';
 
 async function bootstrap() {
   if (openTelemetrySdk) {
@@ -14,19 +16,28 @@ async function bootstrap() {
 
   const app = await NestFactory.create(ServerModule);
 
-  const openApiConfig = new DocumentBuilder()
-    .setTitle('Polymesh CDD Backend')
-    .setDescription(
-      'Backend for providing Polymesh Customer Due Diligence claims (CDD)'
-    )
-    .setVersion('1.0')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, openApiConfig);
-  SwaggerModule.setup('/', app, document);
+  app.use(json({ limit: '1mb' }));
+  app.use(urlencoded({ extended: true, limit: '1mb' }));
 
   const config = app.get(ConfigService);
-  const port = config.getOrThrow('port');
+  const port = config.getOrThrow('server.port');
+  const routePrefix = config.getOrThrow('server.routePrefix');
+  if (routePrefix) {
+    app.setGlobalPrefix(routePrefix);
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    const openApiConfig = new DocumentBuilder()
+      .setTitle('Polymesh CDD Backend')
+      .setDescription(
+        'Backend for providing Polymesh Customer Due Diligence claims (CDD)'
+      )
+      .setVersion('1.0')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, openApiConfig);
+    SwaggerModule.setup('/', app, document);
+  }
 
   app.enableCors({ origin: ['http://localhost:4200'] });
 

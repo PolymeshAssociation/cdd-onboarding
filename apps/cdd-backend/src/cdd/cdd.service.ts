@@ -2,24 +2,27 @@ import {
   ProviderLinkDto,
   VerifyAddressResponse,
 } from '@cdd-onboarding/cdd-types';
-import { InjectQueue } from '@nestjs/bull';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { Queue } from 'bull';
 import Redis from 'ioredis';
 import crypto from 'node:crypto';
 import { CddApplication } from '../cdd-worker/types';
 import { JumioService } from '../jumio/jumio.service';
+import { NetkiService } from '../netki/netki.service';
 
 @Injectable()
 export class CddService {
-  private readonly logger = new Logger(CddService.name);
-
   constructor(
     private readonly polymesh: Polymesh,
     private readonly jumioService: JumioService,
-    @InjectQueue() private readonly queue: Queue,
-    private readonly redis: Redis
+    private readonly netkiService: NetkiService,
+    private readonly redis: Redis,
+    private readonly logger: Logger
   ) {}
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {
@@ -38,51 +41,52 @@ export class CddService {
 
     const identity = await account.getIdentity();
     if (identity) {
-      return { valid: false, previousLinks: [] };
+      return { valid: false };
     }
 
-    const rawApplications = await this.redis.smembers(address);
-
-    const previousLinks = rawApplications.map(
-      (rawApp) => JSON.parse(rawApp).link
-    );
-
-    return { valid: true, previousLinks };
+    return { valid: true };
   }
 
-  public async generateProviderLink({
+  public async getProviderLink({
     address,
     provider,
   }: ProviderLinkDto): Promise<string> {
     const verify = await this.verifyAddress(address);
-
     if (!verify.valid) {
       throw new BadRequestException(
-        `Address: ${address} is not valid to be onboarded. Perhaps it is already linked to an Identity`
+        `Address: ${address} cannot be onboarded. Perhaps it is already linked to an Identity`
       );
     }
 
     const id = crypto.randomUUID();
+    let url, externalId;
+
+    if (provider === 'jumio') {
+      const jumioResponse = await this.jumioService.generateLink(id, address);
+
+      url = jumioResponse.redirectUrl as string;
+      externalId = jumioResponse.transactionReference as string;
+    } else if (provider === 'netki') {
+      const accessCode = await this.netkiService.popLink(address);
+
+      url = accessCode.url;
+      externalId = accessCode.id;
+    } else {
+      this.logger.error(`unimplemented provider received: ${provider}`);
+      throw new InternalServerErrorException();
+    }
 
     const application: CddApplication = {
       id,
       address,
-      link: `http://example.com/${address}/${provider}`,
+      url,
+      externalId,
       provider,
-      timestamp: new Date(),
-      externalReference: '',
+      timestamp: new Date().toISOString(),
     };
-
-    if (provider === 'jumio') {
-      const jumioResponse = await this.jumioService.generateLink(id, address);
-      application.link = jumioResponse.redirectUrl as string;
-      application.timestamp = jumioResponse.timestamp as Date;
-      application.externalReference =
-        jumioResponse.transactionReference as string;
-    }
 
     this.redis.sadd(address, JSON.stringify(application));
 
-    return application.link;
+    return application.url;
   }
 }
