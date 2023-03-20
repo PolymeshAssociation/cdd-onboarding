@@ -6,6 +6,7 @@ import { JumioService } from './jumio.service';
 import { JumioCallbackDto } from './types';
 
 import mockRequest from '../test-utils/jumio-http/webhook-approved-verified.json';
+import { ALLOWED_IPS_TOKEN } from '../common/ip-filter.guard';
 
 describe('JumioController', () => {
   let controller: JumioController;
@@ -18,6 +19,10 @@ describe('JumioController', () => {
         {
           provide: JumioService,
           useValue: createMock<JumioService>(),
+        },
+        {
+          provide: ALLOWED_IPS_TOKEN,
+          useValue: [],
         },
       ],
     }).compile();

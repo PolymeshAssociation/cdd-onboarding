@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+const allowedIpsZ = z
+  .string()
+  .array()
+  .describe('A comma separated list of IPs that can POST webhooks')
+  .default(['127.0.0.1', '::1']);
+
 const configZ = z
   .object({
     server: z
@@ -40,6 +46,7 @@ const configZ = z
           .describe(
             'http URL users will be directed to when onboarding with Jumio'
           ),
+        allowedIps: allowedIpsZ,
       })
       .describe('Jumio related config'),
 
@@ -65,6 +72,7 @@ const configZ = z
           .describe(
             'http URL users will be directed to when onboarding with Netki'
           ),
+        allowedIps: allowedIpsZ,
       })
       .describe('Netki related config'),
   })
@@ -87,12 +95,18 @@ export const serverEnvConfig = (): ServerConfig => {
     jumio: {
       apiKey: Buffer.from(process.env.JUMIO_API_KEY || '').toString('base64'),
       generateLinkUrl: process.env.JUMIO_GENERATE_LINK_URL,
+      allowedIps: process.env.NETKI_ALLOWED_IPS?.split(',').map((ip) =>
+        ip.trim()
+      ),
     },
     netki: {
       url: process.env.NETKI_URL,
       refreshToken: process.env.NETKI_REFRESH_TOKEN,
       businessId: process.env.NETKI_BUSINESS_ID,
       linkUrl: process.env.NETKI_LINK_URL,
+      allowedIps: process.env.NETKI_ALLOWED_IPS?.split(',').map((ip) =>
+        ip.trim()
+      ),
     },
   };
 

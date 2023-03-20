@@ -1,5 +1,6 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ALLOWED_IPS_TOKEN } from '../common/ip-filter.guard';
 import { NetkiController } from './netki.controller';
 import { NetkiService } from './netki.service';
 import { NetkiCallbackDto } from './types';
@@ -15,6 +16,10 @@ describe('NetkiController', () => {
         {
           provide: NetkiService,
           useValue: createMock<NetkiService>(),
+        },
+        {
+          provide: ALLOWED_IPS_TOKEN,
+          useValue: [],
         },
       ],
     }).compile();
