@@ -6,7 +6,7 @@ export interface AddressObject {
   name?: string;
 }
 
-type PolyNetwork = 'local' | 'staging' | 'testnet' | 'mainnet';
+export type PolyNetwork = 'local' | 'staging' | 'testnet' | 'mainnet';
 
 export interface Accounts {
   get(): Promise<AddressObject[]>;
