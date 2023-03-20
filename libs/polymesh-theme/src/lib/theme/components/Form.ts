@@ -13,10 +13,11 @@ export const Form: ComponentStyleConfig = {
             ...activeLabelStyles,
           },
         },
-        'input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label':
+        '> input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label':
           {
             ...activeLabelStyles,
           },
+
         label: {
           top: 0,
           left: 0,

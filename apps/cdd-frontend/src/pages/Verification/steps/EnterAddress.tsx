@@ -11,8 +11,20 @@ import {
   FormControl,
   FormHelperText,
   FormErrorMessage,
+  InputGroup,
+  InputRightElement,
+  Button,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Icon,
+  Tooltip,
+  Link,
+  MenuDivider,
+  Text
 } from '@chakra-ui/react';
-
+import { BiImport, BiChevronDown } from 'react-icons/bi';
 import {
   StepFormContext,
   StepFormNavigation,
@@ -20,6 +32,7 @@ import {
 import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 
 import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
+import usePolyWallet from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
 
 const schema = z.object({
@@ -42,6 +55,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     register,
     handleSubmit,
     formState: { errors, isValid },
+    setValue,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: 'onBlur',
@@ -50,8 +64,9 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { onNext } = useContext(StepFormContext);
   const { mutate, isLoading, isSuccess, isError, error } =
     useVerifyAddressMutation();
+  const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
+    usePolyWallet({ network: 'local' });
   const { message } = (error as AxiosError) || {};
-
   const onSubmit = ({ address }: FormValues) => {
     setState({ address });
     mutate(address);
@@ -63,22 +78,116 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     }
   }, [isSuccess, onNext]);
 
+  useEffect(() => {
+    async function init() {
+      await connectToWallet();
+    }
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
       <Box maxW="500px">
         <FormControl
           isInvalid={Boolean(errors.address?.message) || isError}
           isRequired
-          variant="floating"
         >
-          <Input size="lg" {...register('address')} placeholder=" " />
           <FormLabel>Polymesh Address</FormLabel>
+          <InputGroup>
+            <Input size="lg" {...register('address')} placeholder=" " />
+            <Tooltip label="Pick address from Polymesh Wallet">
+              <InputRightElement width="4.5rem">
+                {allAddresses.length === 1 && (
+                  <Button
+                    onClick={() => setValue('address', allAddresses[0])}
+                    size="md"
+                    h="2.5rem"
+                    position="absolute"
+                    right="4px"
+                    top="4px"
+                    borderRadius="md"
+                    borderWidth="1px"
+                    px={4}
+                    py={2}
+                  >
+                    <Icon as={BiImport} boxSize="1.5rem" color="navy.500" />
+                  </Button>
+
+                )}
+                {allAddresses.length > 1 && (
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="md"
+                      h="2.5rem"
+                      position="absolute"
+                      right="4px"
+                      top="4px"
+                      bg="white"
+                      px={4}
+                      py={1}
+                      transition="all 0.2s"
+                      borderRadius="md"
+                      borderWidth="1px"
+                      _hover={{ bg: 'gray.400' }}
+                      _expanded={{ bg: 'blue.200' }}
+                      _focus={{ boxShadow: 'outline' }}
+                      rightIcon={<Icon as={BiChevronDown} />}
+                    >
+                      <Icon as={BiImport} boxSize="1.5rem" color="navy.800" />
+                    </MenuButton>
+                    <MenuList zIndex={200} maxW="100vw">
+                      <MenuItem>Select Address</MenuItem>
+                      <MenuDivider />
+                      {allAddresses.map((address) => (
+                        <MenuItem
+                          onClick={() => setValue('address', address)}
+                          key={address}
+                          maxW="calc(100% -2rem)"
+                          textOverflow="ellipsis"                        
+                          px="1rem"
+                        >
+                          <Text maxW="100%">{address}</Text>
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
+                )}
+              </InputRightElement>
+              </Tooltip>
+          </InputGroup>
+
           <FormErrorMessage>
             {isError ? message : errors.address?.message?.toString()}
           </FormErrorMessage>
           <FormHelperText>
             Please enter your Polymesh address to start verification
           </FormHelperText>
+          {isWalletAvailable && !isCorrectNetwork && (
+            <FormHelperText>
+              Your Polymesh Wallet is connected to the wrong network. Please
+              connect to the Local network to be able to automatically import
+              address from your wallet.
+            </FormHelperText>
+          )}
+          {!isWalletAvailable && (
+            <FormHelperText>
+              Your don't have a Polymesh Wallet connected. Approve the request
+              to connect to Polymesh wallet or get from{' '}
+              <Link
+                color="navy"
+                variant="ghost"
+                bg="#fff"
+                href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
+                target="_blank"
+                isExternal
+              >
+                Polymesh Wallet extension
+              </Link>
+            </FormHelperText>
+          )}
         </FormControl>
       </Box>
       <StepFormNavigation
