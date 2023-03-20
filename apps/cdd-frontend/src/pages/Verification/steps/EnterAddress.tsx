@@ -22,7 +22,8 @@ import {
   Tooltip,
   Link,
   MenuDivider,
-  Text
+  Text,
+  Portal
 } from '@chakra-ui/react';
 import { BiImport, BiChevronDown } from 'react-icons/bi';
 import {
@@ -57,9 +58,10 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     handleSubmit,
     formState: { errors, isValid },
     setValue,
+    trigger,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    mode: 'onBlur',
+    mode: 'onTouched',
     defaultValues: { address },
   });
   const { onNext } = useContext(StepFormContext);
@@ -88,6 +90,11 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onSetAddress = (address: string) => {
+    setValue('address', address);
+    trigger('address');
+  }
+
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
       <Box maxW="660px">
@@ -102,7 +109,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
               <InputRightElement width="4.5rem">
                 {allAddresses.length === 1 && (
                   <Button
-                    onClick={() => setValue('address', allAddresses[0])}
+                    onClick={() => onSetAddress(allAddresses[0])}
                     size="md"
                     h="2.5rem"
                     position="absolute"
@@ -139,12 +146,13 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                     >
                       <Icon as={BiImport} boxSize="1.5rem" color="navy.800" />
                     </MenuButton>
+                    <Portal>
                     <MenuList zIndex={200} maxW="100vw">
                       <MenuItem>Select Address</MenuItem>
                       <MenuDivider />
                       {allAddresses.map((address) => (
                         <MenuItem
-                          onClick={() => setValue('address', address)}
+                          onClick={() => onSetAddress(address)}
                           key={address}
                           maxW="calc(100% -2rem)"
                           textOverflow="ellipsis"                        
@@ -154,6 +162,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                         </MenuItem>
                       ))}
                     </MenuList>
+                    </Portal>
                   </Menu>
                 )}
               </InputRightElement>
