@@ -90,7 +90,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
 
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
-      <Box maxW="635px">
+      <Box maxW="660px">
         <FormControl
           isInvalid={Boolean(errors.address?.message) || isError}
           isRequired
