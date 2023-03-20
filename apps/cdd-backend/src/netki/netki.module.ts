@@ -6,7 +6,7 @@ import { NetkiController } from './netki.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppBullModule } from '../app-bull/app-bull.module';
 import { BullModule } from '@nestjs/bull';
-import { ALLOWED_IPS_TOKEN } from '../common/ip-filter.guard';
+import { BASIC_AUTH_CREDENTIALS_PROVIDER } from '../common/basic-auth.guard';
 
 @Module({
   imports: [
@@ -19,9 +19,9 @@ import { ALLOWED_IPS_TOKEN } from '../common/ip-filter.guard';
   providers: [
     NetkiService,
     {
-      provide: ALLOWED_IPS_TOKEN,
+      provide: BASIC_AUTH_CREDENTIALS_PROVIDER,
       useFactory: (config: ConfigService) =>
-        config.getOrThrow('netki.allowedIps'),
+        config.getOrThrow<string[]>('netki.allowedBasicAuth'),
       inject: [ConfigService],
     },
   ],

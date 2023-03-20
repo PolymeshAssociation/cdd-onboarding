@@ -32,7 +32,7 @@ export class JumioController {
   @ApiOkResponse()
   @Post('/callback')
   @UseGuards(IpFilterGuard)
-  @HttpCode(HttpStatus.OK) // return 200, not the default 201 for POST
+  @HttpCode(HttpStatus.OK) // Jumio wants a 200, not the NestJS default 201 for POST
   public async processCddApplication(@Body() request: JumioCallbackDto) {
     await this.service.queueApplication(request);
   }

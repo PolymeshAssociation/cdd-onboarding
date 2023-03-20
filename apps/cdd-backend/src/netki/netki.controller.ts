@@ -1,7 +1,7 @@
 import { HttpStatus, UseGuards } from '@nestjs/common';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { IpFilterGuard } from '../common/ip-filter.guard';
+import { BasicAuthGuard } from '../common/basic-auth.guard';
 import { NetkiService } from './netki.service';
 import { NetkiCallbackDto, NetkiFetchCodesResponse } from './types';
 
@@ -23,7 +23,7 @@ export class NetkiController {
   @ApiBody({
     type: NetkiCallbackDto,
   })
-  @UseGuards(IpFilterGuard)
+  @UseGuards(BasicAuthGuard)
   @ApiResponse({
     status: HttpStatus.CREATED,
   })

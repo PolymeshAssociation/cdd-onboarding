@@ -3,7 +3,7 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppBullModule } from '../app-bull/app-bull.module';
-import { ALLOWED_IPS_TOKEN } from '../common/ip-filter.guard';
+import { ALLOWED_IPS_PROVIDER } from '../common/ip-filter.guard';
 import { JumioController } from './jumio.controller';
 import { JumioService } from './jumio.service';
 
@@ -18,9 +18,9 @@ import { JumioService } from './jumio.service';
   providers: [
     JumioService,
     {
-      provide: ALLOWED_IPS_TOKEN,
+      provide: ALLOWED_IPS_PROVIDER,
       useFactory: (config: ConfigService) =>
-        config.getOrThrow('jumio.allowedIps'),
+        config.getOrThrow<string[]>('jumio.allowedIps'),
       inject: [ConfigService],
     },
   ],

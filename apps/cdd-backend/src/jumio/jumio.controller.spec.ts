@@ -6,7 +6,9 @@ import { JumioService } from './jumio.service';
 import { JumioCallbackDto } from './types';
 
 import mockRequest from '../test-utils/jumio-http/webhook-approved-verified.json';
-import { ALLOWED_IPS_TOKEN } from '../common/ip-filter.guard';
+import { ALLOWED_IPS_PROVIDER } from '../common/ip-filter.guard';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 describe('JumioController', () => {
   let controller: JumioController;
@@ -21,8 +23,12 @@ describe('JumioController', () => {
           useValue: createMock<JumioService>(),
         },
         {
-          provide: ALLOWED_IPS_TOKEN,
+          provide: ALLOWED_IPS_PROVIDER,
           useValue: [],
+        },
+        {
+          provide: WINSTON_MODULE_PROVIDER,
+          useValue: createMock<Logger>(),
         },
       ],
     }).compile();
