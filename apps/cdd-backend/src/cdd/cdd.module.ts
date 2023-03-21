@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { CddService } from './cdd.service';
 import { CddController } from './cdd.controller';
 import { PolymeshModule } from '../polymesh/polymesh.module';
@@ -8,10 +8,7 @@ import { NetkiModule } from '../netki/netki.module';
 
 @Module({
   imports: [PolymeshModule, AppRedisModule, JumioModule, NetkiModule],
-  providers: [
-    CddService,
-    { provide: Logger, useValue: new Logger(CddModule.name) },
-  ],
+  providers: [CddService],
   controllers: [CddController],
   exports: [CddService],
 })

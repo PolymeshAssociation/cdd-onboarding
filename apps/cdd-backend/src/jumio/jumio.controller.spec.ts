@@ -1,4 +1,4 @@
-import { createMock } from '@golevelup/ts-jest';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JumioController } from './jumio.controller';
 import { JumioService } from './jumio.service';
@@ -9,7 +9,7 @@ import mockRequest from '../test-utils/jumio-http/webhook-approved-verified.json
 
 describe('JumioController', () => {
   let controller: JumioController;
-  const mockService = createMock<JumioService>();
+  let mockService: DeepMocked<JumioService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -17,12 +17,13 @@ describe('JumioController', () => {
       providers: [
         {
           provide: JumioService,
-          useValue: mockService,
+          useValue: createMock<JumioService>(),
         },
       ],
     }).compile();
 
     controller = module.get<JumioController>(JumioController);
+    mockService = module.get<typeof mockService>(JumioService);
   });
 
   it('should be defined', () => {

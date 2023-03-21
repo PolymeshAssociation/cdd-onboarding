@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bull';
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppRedisModule } from '../app-redis/app-redis.module';
 import { AppBullModule } from '../app-bull/app-bull.module';
 import { PolymeshModule } from '../polymesh/polymesh.module';
@@ -12,9 +12,6 @@ import { CddProcessor } from './cdd.processor';
     AppBullModule,
     BullModule.registerQueue({}),
   ],
-  providers: [
-    CddProcessor,
-    { provide: Logger, useValue: new Logger(CddWorkerModule.name) },
-  ],
+  providers: [CddProcessor],
 })
 export class CddWorkerModule {}

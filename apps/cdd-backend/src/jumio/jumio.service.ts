@@ -2,14 +2,16 @@ import { HttpService } from '@nestjs/axios';
 import { InjectQueue } from '@nestjs/bull';
 import {
   HttpStatus,
+  Inject,
   Injectable,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosResponse } from 'axios';
 import { Queue } from 'bull';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { firstValueFrom } from 'rxjs';
+import { Logger } from 'winston';
 import { CddJob } from '../cdd-worker/types';
 import { JumioCallbackDto, JumioGenerateLinkResponse } from './types';
 
@@ -25,7 +27,7 @@ export class JumioService {
     private readonly http: HttpService,
     private readonly config: ConfigService,
     @InjectQueue('') private readonly queue: Queue,
-    private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
 
   /**
@@ -35,6 +37,11 @@ export class JumioService {
     transactionId: string,
     address: string
   ): Promise<JumioGenerateLinkResponse> {
+    this.logger.debug('fetching jumio onboarding link', {
+      address,
+      transactionId,
+    });
+
     const headers = {
       ...this.baseHeaders,
       Authorization: `Basic ${this.config.getOrThrow('jumio.apiKey')}`,
@@ -53,7 +60,8 @@ export class JumioService {
       )
     ).catch((error) => {
       this.logger.error(
-        `could not generate link: ${error.message}`,
+        'could not fetch jumio onboarding link',
+        { address, error: error.message },
         error.stack
       );
 
@@ -61,9 +69,9 @@ export class JumioService {
     })) as AxiosResponse;
 
     if (response.status !== HttpStatus.OK) {
-      this.logger.error(
-        `received non 200 response when generating an onboarding link code: ${response.status}`
-      );
+      this.logger.error('jumio onboarding link response had non 200 code', {
+        responseCode: response.status,
+      });
 
       throw new InternalServerErrorException();
     }
@@ -77,7 +85,6 @@ export class JumioService {
       value: request,
     };
 
-    // maybe save the raw request to redis for audit purposes?
     await this.queue.add(job);
   }
 }

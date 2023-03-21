@@ -4,13 +4,15 @@ import {
 } from '@cdd-onboarding/cdd-types';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import Redis from 'ioredis';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import crypto from 'node:crypto';
+import { Logger } from 'winston';
 import { CddApplication } from '../cdd-worker/types';
 import { JumioService } from '../jumio/jumio.service';
 import { NetkiService } from '../netki/netki.service';
@@ -22,7 +24,7 @@ export class CddService {
     private readonly jumioService: JumioService,
     private readonly netkiService: NetkiService,
     private readonly redis: Redis,
-    private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {

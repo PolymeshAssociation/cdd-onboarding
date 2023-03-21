@@ -1,4 +1,4 @@
-import { createMock } from '@golevelup/ts-jest';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NetkiController } from './netki.controller';
 import { NetkiService } from './netki.service';
@@ -6,7 +6,7 @@ import { NetkiCallbackDto } from './types';
 
 describe('NetkiController', () => {
   let controller: NetkiController;
-  const mockService = createMock<NetkiService>();
+  let mockService: DeepMocked<NetkiService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,12 +14,13 @@ describe('NetkiController', () => {
       providers: [
         {
           provide: NetkiService,
-          useValue: mockService,
+          useValue: createMock<NetkiService>(),
         },
       ],
     }).compile();
 
     controller = module.get<NetkiController>(NetkiController);
+    mockService = module.get<typeof mockService>(NetkiService);
   });
 
   it('should be defined', () => {

@@ -1,5 +1,4 @@
-import { createMock } from '@golevelup/ts-jest';
-import { Logger } from '@nestjs/common';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
@@ -12,10 +11,11 @@ import { JumioCallbackDto } from '../jumio/types';
 import jumioVerifiedData from '../test-utils/jumio-http/webhook-approved-verified.json';
 import jumioCannotReadData from '../test-utils/jumio-http/webhook-cannot-read.json';
 import { NetkiAccessCode, netkiAllocatedPrefixer } from '../netki/types';
+import { Logger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 describe('cddProcessor', () => {
-  const mockRedis = createMock<Redis>();
-  const mockLogger = createMock<Logger>();
+  let mockRedis: DeepMocked<Redis>;
   const address = jumioVerifiedData.customerId;
 
   let mockPolymesh: MockPolymesh;
@@ -23,23 +23,24 @@ describe('cddProcessor', () => {
   let mockRun: jest.Mock;
 
   beforeEach(async () => {
-    mockPolymesh = await MockPolymesh.create();
-    mockRun = jest.fn().mockResolvedValue('test-tx-result');
-    mockPolymesh.identities.registerIdentity.mockResolvedValue({
-      run: mockRun,
-    });
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CddProcessor,
-        { provide: Polymesh, useValue: mockPolymesh },
-        { provide: Redis, useValue: mockRedis },
-        { provide: Logger, useValue: mockLogger },
+        { provide: Polymesh, useValue: new MockPolymesh() },
+        { provide: Redis, useValue: createMock<Redis>() },
+        { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
       ],
     }).compile();
 
     processor = module.get<CddProcessor>(CddProcessor);
+    mockRedis = module.get<typeof mockRedis>(Redis);
+    mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
+
     mockRedis.get.mockResolvedValue(address);
+    mockRun = jest.fn().mockResolvedValue('test-tx-result');
+    mockPolymesh.identities.registerIdentity.mockResolvedValue({
+      run: mockRun,
+    });
   });
 
   it('should be defined', () => {

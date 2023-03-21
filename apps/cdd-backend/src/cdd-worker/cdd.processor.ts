@@ -1,18 +1,19 @@
-import { CddProvider } from '@cdd-onboarding/cdd-types';
 import { Process, Processor } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
 import Redis from 'ioredis';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 import { netkiAllocatedPrefixer, NetkiCallbackDto } from '../netki/types';
-import { CddJob, JumioCddJob, NetkiCddJob } from './types';
+import { CddJob, JobIdentifier, JumioCddJob, NetkiCddJob } from './types';
 
 @Processor()
 export class CddProcessor {
   constructor(
     private readonly polymesh: Polymesh,
     private readonly redis: Redis,
-    private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
 
   @Process()
@@ -22,54 +23,58 @@ export class CddProcessor {
     } else if (job.data.type === 'netki') {
       await this.handleNetki(job.data);
     } else {
-      this.logger.error('unknown CDD job type encountered');
+      const error = new Error('unknown Cdd job type encountered');
+      this.logger.error(error.message, { data: job.data });
+      throw error;
     }
   }
 
   private async handleNetki({ value: netki }: NetkiCddJob): Promise<void> {
     const {
       identity: {
-        transaction_identity: { client_guid: jobId },
+        transaction_identity: { client_guid: id },
         state,
       },
     } = netki;
-    const provider = 'netki';
+    const jobId: JobIdentifier = { id, provider: 'netki' };
 
-    this.logStart(jobId, provider);
+    this.logger.info('starting netki job', { jobId });
 
-    const key = netkiAllocatedPrefixer(jobId);
-    const address = await this.redis.get(key);
+    const netkiAccessCodeKey = netkiAllocatedPrefixer(id);
+    const address = await this.redis.get(netkiAccessCodeKey);
 
     if (!address) {
-      const error = new Error(`Netki record not found for '${key}'`);
-      this.logError(jobId, provider, 'could not find netki record', error);
+      const error = new Error(`Netki record not found`);
+      this.logger.error(error.message, {
+        error,
+        jobId: jobId,
+      });
       throw error;
     }
 
-    this.log(jobId, provider, `retrieved address: '${address}'`);
+    this.logger.info('retrieved address', { jobId: jobId, address });
 
     if (state === 'restarted') {
-      await this.handleNetkiRestart(jobId, provider, address, netki);
+      await this.handleNetkiRestart(jobId, address, netki);
     } else if (state === 'completed') {
-      await this.createCddClaim(jobId, provider, address);
+      await this.createCddClaim(jobId, address);
 
-      await this.clearAddressApplications(jobId, provider, address);
+      await this.clearAddressApplications(jobId, address);
     } else {
-      this.log(
-        jobId,
-        provider,
-        `hook state: '${state}' not handled - no action taken`
-      );
+      this.logger.info('state did not have a handler - no action taken', {
+        jobId: jobId,
+        address,
+        state,
+      });
     }
 
-    this.logDone(jobId, provider, 'completed successfully');
-
-    return;
+    this.logger.info('Netki CDD job completed successfully', {
+      jobId: jobId,
+    });
   }
 
   private async handleNetkiRestart(
-    jobId: string,
-    provider: CddProvider,
+    jobId: JobIdentifier,
     address: string,
     netki: NetkiCallbackDto
   ): Promise<void> {
@@ -84,60 +89,68 @@ export class CddProcessor {
     const childCode = childCodes[0];
 
     if (!childCode) {
-      const error = new Error('child_codes not found in restart webhook');
-      this.logError(jobId, provider, 'new access code not found', error);
+      const error = new Error(
+        'property `child_codes` was not found in restart webhook payload'
+      );
+      this.logger.error(error.message, { jobId, address });
       throw error;
     }
 
-    const newKey = netkiAllocatedPrefixer(childCode.code);
+    const newCodeKey = netkiAllocatedPrefixer(childCode.code);
 
-    this.log(jobId, provider, `allocating code '${newKey}' for '${address}'`);
-    await this.redis.set(newKey, address);
+    this.logger.info('allocating restart access code', {
+      jobId,
+      address,
+      childCode,
+    });
+
+    await this.redis.set(newCodeKey, address);
   }
 
   private async handleJumio({ value: jumio }: JumioCddJob): Promise<void> {
-    const { customerId: address, jumioIdScanReference: jobId } = jumio;
-    const provider = 'jumio';
+    const {
+      customerId: address,
+      jumioIdScanReference: id,
+      verificationStatus: status,
+    } = jumio;
+    const jobId: JobIdentifier = { id, provider: 'jumio' };
 
-    this.logStart(jobId, provider);
-    this.log(jobId, provider, `attempting to create cdd for '${address}'`);
+    this.logger.info('starting jumio CDD job', { jobId });
 
-    if (jumio.verificationStatus !== 'APPROVED_VERIFIED') {
-      this.logDone(
-        jobId,
-        provider,
-        `Jumio verification status: '${jumio.verificationStatus}' was not equal to 'APPROVED_VERIFIED' - no action taken`
+    if (status === 'APPROVED_VERIFIED') {
+      await this.createCddClaim(jobId, address);
+
+      await this.clearAddressApplications(jobId, address);
+    } else {
+      this.logger.info(
+        'Jumio verification status was not equal to `APPROVED_VERIFIED` - no action taken',
+        { jobId, status: jumio.verificationStatus }
       );
-
-      return;
     }
 
-    await this.createCddClaim(jobId, provider, address);
-
-    await this.clearAddressApplications(jobId, provider, address);
-
-    this.logDone(jobId, provider, 'completed successfully');
+    this.logger.info('completed jumio CDD job successfully', { jobId });
   }
 
   private async clearAddressApplications(
-    jobId: string,
-    provider: CddProvider,
+    jobId: JobIdentifier,
     address: string
   ): Promise<number | void> {
-    this.log(jobId, provider, `clearing application records for: '${address}'`);
-    return this.redis.del(address).catch((error) => {
-      this.logError(jobId, provider, 'could not remove address records', error);
+    this.logger.info('clearing CDD application records', { jobId, address });
 
-      return; //  swallow the error - the CDD claim was already made
+    return this.redis.del(address).catch((error) => {
+      this.logger.error('problem clearing address CDD applications', {
+        jobId,
+        address,
+        error,
+      });
     });
   }
 
   private async createCddClaim(
-    jobId: string,
-    provider: CddProvider,
+    jobId: JobIdentifier,
     address: string
   ): Promise<void> {
-    this.log(jobId, provider, 'creating cdd');
+    this.logger.info('attempting CDD creation', { jobId, address });
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity({
       targetAccount: address,
@@ -145,61 +158,17 @@ export class CddProcessor {
     });
 
     const createdIdentity = await registerIdentityTx.run().catch((error) => {
-      this.logError(jobId, provider, 'could not create cdd claim', error);
-
+      this.logger.error('problem creating CDD claim', {
+        error,
+        jobId,
+      });
       throw error;
     });
 
-    this.log(
+    this.logger.info('created CDD claim', {
       jobId,
-      provider,
-      `created CDD claim for DID: '${createdIdentity.did}' with '${address}' as the primary account`
-    );
-  }
-
-  private logStart(jobId: string, provider: CddProvider) {
-    this.logger.log(
-      JSON.stringify({
-        jobId,
-        provider,
-        message: `[START] Job: ${provider}-${jobId}`,
-      })
-    );
-  }
-
-  private log(jobId: string, provider: CddProvider, info: string) {
-    this.logger.log(
-      JSON.stringify({
-        jobId,
-        provider,
-        message: `[INFO] Job: ${provider}-${jobId} - ${info}`,
-      })
-    );
-  }
-
-  private logError(
-    jobId: string,
-    provider: CddProvider,
-    info: string,
-    error: Error
-  ) {
-    this.logger.error(
-      JSON.stringify({
-        jobId,
-        provider,
-        message: `[ERROR] Job: ${provider}-${jobId} - ${info} - ${error.message}`,
-      }),
-      error.stack
-    );
-  }
-
-  private logDone(jobId: string, provider: CddProvider, info: string) {
-    this.logger.log(
-      JSON.stringify({
-        jobId,
-        provider,
-        message: `[DONE] Job: ${provider}-${jobId} - ${info}`,
-      })
-    );
+      address,
+      did: createdIdentity.did,
+    });
   }
 }

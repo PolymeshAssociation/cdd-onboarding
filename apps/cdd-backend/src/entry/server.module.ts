@@ -3,9 +3,11 @@ import { Module } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { ConfigModule } from '@nestjs/config';
-import config from '../config/server';
 import { CddModule } from '../cdd/cdd.module';
 import { NetkiModule } from '../netki/netki.module';
+import { WinstonModule } from 'nest-winston';
+import { serverEnvConfig } from '../config/server';
+import { loggerEnvConfig } from '../config/logger';
 
 /**
  * Module for initializing the app in "server" mode
@@ -13,8 +15,9 @@ import { NetkiModule } from '../netki/netki.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [config],
+      load: [serverEnvConfig],
     }),
+    WinstonModule.forRoot(loggerEnvConfig(ServerModule.name)),
     CddModule,
     NetkiModule,
   ],
