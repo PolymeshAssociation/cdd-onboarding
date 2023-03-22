@@ -53,7 +53,7 @@ export const StepFormNavigation: React.FC<
       )}
       {Boolean(nextStepLabel) && (
         <Button
-          isDisabled={nextIsDisabled || nextIsLoading || nextIsError}          
+          isDisabled={nextIsDisabled || nextIsLoading || nextIsError}
           colorScheme="navy"
           size="lg"
           type={onNext ? 'button' : 'submit'}

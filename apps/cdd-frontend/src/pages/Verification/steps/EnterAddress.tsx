@@ -178,7 +178,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
             <FormHelperText>
               Your Polymesh Wallet is connected to the wrong network. Please
               connect to the "{NETWORK_NAMES[NETWORK]}" network to be able to automatically import
-              address from your wallet.
+              addresses from your wallet.
             </FormHelperText>
           )}
           {!isWalletAvailable && (
