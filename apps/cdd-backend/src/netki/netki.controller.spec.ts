@@ -1,5 +1,8 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
+import { BASIC_AUTH_CREDENTIALS_PROVIDER } from '../common/basic-auth.guard';
 import { NetkiController } from './netki.controller';
 import { NetkiService } from './netki.service';
 import { NetkiCallbackDto } from './types';
@@ -15,6 +18,14 @@ describe('NetkiController', () => {
         {
           provide: NetkiService,
           useValue: createMock<NetkiService>(),
+        },
+        {
+          provide: BASIC_AUTH_CREDENTIALS_PROVIDER,
+          useValue: [],
+        },
+        {
+          provide: WINSTON_MODULE_PROVIDER,
+          useValue: createMock<Logger>(),
         },
       ],
     }).compile();

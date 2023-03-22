@@ -1,5 +1,18 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { IpFilterGuard } from '../common/ip-filter.guard';
 import { JumioService } from './jumio.service';
 import { JumioCallbackDto } from './types';
 
@@ -12,9 +25,14 @@ export class JumioController {
     type: JumioCallbackDto,
     description: 'The expected information to be received from the callback',
   })
+  @ApiForbiddenResponse({
+    description:
+      "An authorization check failed - the server maybe misconfigured or you aren't supposed to be posting",
+  })
   @ApiOkResponse()
   @Post('/callback')
-  @HttpCode(HttpStatus.OK) // return 200, not the default 201 for POST
+  @UseGuards(IpFilterGuard)
+  @HttpCode(HttpStatus.OK) // Jumio wants a 200, not the NestJS default 201 for POST
   public async processCddApplication(@Body() request: JumioCallbackDto) {
     await this.service.queueApplication(request);
   }
