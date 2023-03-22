@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react';
+import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,7 +21,6 @@ import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 
 import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
 import { VerificationState } from './index.d';
-import { AxiosError } from 'axios';
 
 const schema = z.object({
   address: addressZ,
@@ -42,10 +42,15 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { address } });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    mode: 'onBlur',
+    defaultValues: { address },
+  });
   const { onNext } = useContext(StepFormContext);
-  const { mutate, isLoading, isSuccess, isError, error } = useVerifyAddressMutation();
-  const { message } = error as AxiosError || {}
+  const { mutate, isLoading, isSuccess, isError, error } =
+    useVerifyAddressMutation();
+  const { message } = (error as AxiosError) || {};
 
   const onSubmit = ({ address }: FormValues) => {
     setState({ address });
@@ -61,13 +66,19 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
       <Box maxW="500px">
-        <FormControl isInvalid={Boolean(errors.address?.message) || isError} isRequired variant="floating">
+        <FormControl
+          isInvalid={Boolean(errors.address?.message) || isError}
+          isRequired
+          variant="floating"
+        >
           <Input size="lg" {...register('address')} placeholder=" " />
           <FormLabel>Polymesh Address</FormLabel>
           <FormErrorMessage>
             {isError ? message : errors.address?.message?.toString()}
           </FormErrorMessage>
-          <FormHelperText>Please enter your Polymesh address to start verification</FormHelperText>
+          <FormHelperText>
+            Please enter your Polymesh address to start verification
+          </FormHelperText>
         </FormControl>
       </Box>
       <StepFormNavigation
