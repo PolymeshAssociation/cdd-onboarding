@@ -8,6 +8,7 @@ export interface LogFn {
   
   /** Basic logger interface */
   export interface Logger {
+    debug: LogFn;
     log: LogFn;
     warn: LogFn;
     error: LogFn;
@@ -22,6 +23,7 @@ const NO_OP: LogFn = (message?: unknown, ...optionalParams: unknown[]) => {};
 /** Logger which outputs to the browser console */
 export class ConsoleLogger implements Logger {
   readonly log: LogFn;
+  readonly debug!: LogFn;
   readonly warn: LogFn;
   readonly error: LogFn;
 
@@ -46,6 +48,7 @@ export class ConsoleLogger implements Logger {
     }
 
     this.log = console.log.bind(console);
+    this.debug = console.debug.bind(console);
   }
 }
 

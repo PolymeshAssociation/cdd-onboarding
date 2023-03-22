@@ -58,7 +58,7 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
       return;
     }
 
-    logger.log('Polymesh wallet is present');
+    logger.debug('Polymesh wallet is present');
 
     setIsWalletAvailable(true);
 
@@ -70,7 +70,7 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
 
     const addresses = foundAccounts.map(({ address }) => address);
 
-    logger.log("Found addresses: ", addresses);
+    logger.debug("Found addresses: ", addresses);
 
     setAllAddresses(addresses);
 
@@ -80,7 +80,7 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
   },[network, pollyWallet]);
 
   const connectToWallet = useCallback(async () => {
-    logger.log('Connecting to Polymesh Wallet...');
+    logger.debug('Connecting to Polymesh Wallet...');
     const extensions = await web3Enable('onboarding');
 
     const polyWallet = extensions.find(
