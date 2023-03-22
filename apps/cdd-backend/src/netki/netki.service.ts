@@ -22,9 +22,6 @@ import {
   NetkiFetchCodesResponse,
 } from './types';
 
-// not strictly necessary but netki adds a note saying not found if not sent
-const applicationId = Buffer.from('polymeshCdd').toString('base64');
-
 @Injectable()
 export class NetkiService {
   private baseUrl: string;
@@ -57,7 +54,7 @@ export class NetkiService {
     }
 
     const accessCode = JSON.parse(rawAccessCode);
-    accessCode.url = `${this.linkBaseUrl}?service_code=${accessCode.code}&applicationId=${applicationId}`;
+    accessCode.url = `${this.linkBaseUrl}?service_code=${accessCode.code}&applicationId=${address}`;
 
     await this.allocateCode(accessCode.code, address);
 

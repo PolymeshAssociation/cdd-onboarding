@@ -10,6 +10,7 @@ import { NetkiService } from '../netki/netki.service';
 import { Queue } from 'bull';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { BadRequestException } from '@nestjs/common';
 
 describe('CddService', () => {
   const address = 'some-address';
@@ -43,29 +44,46 @@ describe('CddService', () => {
 
   describe('verifyAddress', () => {
     it('should return `true` if the address does not have an associated Identity', async () => {
+      mockPolymesh.accountManagement.isValidAddress.mockReturnValue(true);
       mockPolymesh.accountManagement.getAccount.mockResolvedValue({
         getIdentity: jest.fn().mockResolvedValue(null),
       });
 
       const result = await service.verifyAddress(address);
 
-      expect(result).toEqual({ valid: true });
+      expect(result).toEqual({ valid: true, identity: null });
     });
 
     it('should return `false` if the address does have an associated Identity', async () => {
+      mockPolymesh.accountManagement.isValidAddress.mockReturnValue(true);
       mockPolymesh.accountManagement.getAccount.mockResolvedValue({
-        getIdentity: jest.fn().mockResolvedValue('someIdentity'),
+        getIdentity: jest.fn().mockResolvedValue({
+          did: 'someDid',
+          hasValidCdd: jest.fn().mockResolvedValue(true),
+        }),
       });
 
       const result = await service.verifyAddress(address);
 
-      expect(result).toEqual({ valid: false });
+      expect(result).toEqual({
+        valid: false,
+        identity: { did: 'someDid', validCdd: true },
+      });
+    });
+
+    it('should throw BadRequest if address is not valid', async () => {
+      mockPolymesh.accountManagement.isValidAddress.mockReturnValue(false);
+
+      await expect(service.verifyAddress(address)).rejects.toThrowError(
+        BadRequestException
+      );
     });
   });
 
   describe('generateCddLink', () => {
     describe('when jumio is selected', () => {
       it('should generate a link and save a record of it', async () => {
+        mockPolymesh.accountManagement.isValidAddress.mockReturnValue(true);
         mockPolymesh.accountManagement.getAccount.mockResolvedValue({
           getIdentity: jest.fn().mockResolvedValue(null),
         });

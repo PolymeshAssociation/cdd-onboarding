@@ -5,7 +5,12 @@ import {
   ProviderLinkResponse,
 } from '@cdd-onboarding/cdd-types';
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CddService } from './cdd.service';
 
 @Controller('')
@@ -20,6 +25,10 @@ export class CddController {
   })
   @ApiOkResponse({
     type: VerifyAddressResponse,
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Address is not valid ss58 for the network (prefixed with 12 for mainnet, 42 otherwise)',
   })
   @Get('/verify/:address')
   async verifyAddress(
