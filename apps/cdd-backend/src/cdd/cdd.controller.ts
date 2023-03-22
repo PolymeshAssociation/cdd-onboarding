@@ -5,17 +5,18 @@ import {
   ProviderLinkResponse,
 } from '@cdd-onboarding/cdd-types';
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CddService } from './cdd.service';
 
 @Controller('')
+@ApiTags('user')
 export class CddController {
   constructor(private readonly cddService: CddService) {}
 
   @ApiParam({
     name: 'address',
     description: 'Validate a ss58 encoded address is eligible for onboarding',
-    example: '5Cabc1UmM3CgE6cvvstL2LW62HecBmBwuhQqz8geBQ7h3kDS',
+    example: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
   })
   @ApiOkResponse({
     type: VerifyAddressResponse,
@@ -31,7 +32,7 @@ export class CddController {
   async providerLink(
     @Body() body: ProviderLinkDto
   ): Promise<ProviderLinkResponse> {
-    const link = await this.cddService.generateProviderLink(body);
+    const link = await this.cddService.getProviderLink(body);
 
     return new ProviderLinkResponse(link);
   }

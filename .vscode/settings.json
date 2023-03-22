@@ -5,9 +5,13 @@
         "jumio",
         "nestjs",
         "netki",
+        "opentelemetry",
+        "OTLP",
         "polymeshassociation",
+        "Prefixer",
         "sadd",
-        "smembers"
+        "smembers",
+        "spop"
     ],
     "typescript.tsdk": "node_modules/typescript/lib"
 }

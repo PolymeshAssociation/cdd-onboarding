@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import config from '../config';
 import { BullModule, BullModuleOptions } from '@nestjs/bull';
+import { AppRedisModule } from '../app-redis/app-redis.module';
+import { redisEnvConfig } from '../config/redis';
 
 @Module({
   imports: [
     BullModule.forRootAsync({
       imports: [
-        ConfigModule.forRoot({
-          load: [config],
-        }),
+        AppRedisModule,
+        ConfigModule.forFeature(() => redisEnvConfig()),
       ],
       useFactory: async (
         configService: ConfigService

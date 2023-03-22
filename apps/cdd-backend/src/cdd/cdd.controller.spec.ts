@@ -13,17 +13,18 @@ describe('CddController', () => {
   let mockCddService: DeepMocked<CddService>;
 
   beforeEach(async () => {
-    mockCddService = createMock<CddService>();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
           provide: CddService,
-          useValue: mockCddService,
+          useValue: createMock<CddService>(),
         },
       ],
       controllers: [CddController],
     }).compile();
+
     controller = module.get<CddController>(CddController);
+    mockCddService = module.get<typeof mockCddService>(CddService);
   });
 
   it('should be defined', () => {
@@ -34,20 +35,17 @@ describe('CddController', () => {
     it('should call the service and return the result', async () => {
       mockCddService.verifyAddress.mockResolvedValue({
         valid: true,
-        previousLinks: [],
       });
 
       const response = await controller.verifyAddress({ address });
 
-      expect(response).toEqual(new VerifyAddressResponse(true, []));
+      expect(response).toEqual(new VerifyAddressResponse(true));
     });
   });
 
   describe('generateProviderLink', () => {
     it('should call the service and return the result', async () => {
-      mockCddService.generateProviderLink.mockResolvedValue(
-        'https://example.com'
-      );
+      mockCddService.getProviderLink.mockResolvedValue('https://example.com');
 
       const response = await controller.providerLink({
         address,
