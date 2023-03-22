@@ -112,8 +112,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
         onNext();
     }
   
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [link])
+  }, [link, setState, onNext])
   
 
   const onClickNext = () => {

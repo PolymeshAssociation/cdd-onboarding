@@ -56,8 +56,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     if (isSuccess) {
       onNext();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess]);
+  }, [isSuccess, onNext]);
 
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
