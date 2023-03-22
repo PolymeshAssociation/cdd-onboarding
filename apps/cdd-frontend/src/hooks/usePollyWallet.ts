@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
-
+import { logger } from '../services/logger';
 export interface AddressObject {
   address: string;
   name?: string;
@@ -51,12 +51,14 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
-  const loadAddresses = async () => {
+  const loadAddresses = useCallback(async () => {
     if (!pollyWallet) {
-        console.log('no pollyWallet');
+      logger.warn('No Polymesh wallet has been connected');
       setIsWalletAvailable(false);
       return;
     }
+
+    logger.log('Polymesh wallet is present');
 
     setIsWalletAvailable(true);
 
@@ -68,25 +70,25 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
 
     const addresses = foundAccounts.map(({ address }) => address);
 
-    console.log(addresses);
+    logger.log("Found addresses: ", addresses);
 
     setAllAddresses(addresses);
 
     if (addresses.length === 1) {
       setSelectedAddress(addresses[0]);
     }
-  };
+  },[network, pollyWallet]);
 
-  const connectToWallet = async () => {
-    console.log('connectToWallet');
+  const connectToWallet = useCallback(async () => {
+    logger.log('Connecting to Polymesh Wallet...');
     const extensions = await web3Enable('onboarding');
 
     const polyWallet = extensions.find(
       (ext) => ext.name === 'polywallet'
     ) as unknown as PolyWallet;
-
+    
     setPollyWallet(polyWallet);
-  };
+  }, []);
 
   useEffect(() => {
     async function reload() {
@@ -104,8 +106,7 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
     }
     reload();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pollyWallet]);
+  }, [pollyWallet, loadAddresses]);
 
   return {
     connectToWallet,

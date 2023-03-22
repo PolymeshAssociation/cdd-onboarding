@@ -87,8 +87,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     }
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [connectToWallet]);
 
   const onSetAddress = (address: string) => {
     setValue('address', address);
