@@ -1,3 +1,4 @@
+import { hostname } from 'os';
 import winston, { format, transports } from 'winston';
 import { z } from 'zod';
 
@@ -47,7 +48,15 @@ class LoggerConfig {
         })
       );
     } else {
-      this.options.format = format.combine(format.timestamp(), format.json());
+      this.options.format = format.combine(
+        format.timestamp(),
+        format.label({ label: hostname() }),
+        format.json({
+          deterministic: true,
+          maximumBreadth: 50,
+          maximumDepth: 25,
+        })
+      );
     }
   }
 

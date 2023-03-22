@@ -28,25 +28,29 @@ export class CddService {
   ) {}
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {
+    if (!this.polymesh.accountManagement.isValidAddress({ address })) {
+      throw new BadRequestException(
+        'address is not valid ss58 for the configured network'
+      );
+    }
+
     const account = await this.polymesh.accountManagement
       .getAccount({
         address,
       })
       .catch((error) => {
-        this.logger.error(
-          `problem getting account for address: "${address}": ${error.message}`,
-          error.stack
-        );
+        this.logger.error('error getting account', { address, error });
 
         throw error;
       });
 
     const identity = await account.getIdentity();
     if (identity) {
-      return { valid: false };
+      const validCdd = await identity.hasValidCdd();
+      return { valid: false, identity: { did: identity.did, validCdd } };
     }
 
-    return { valid: true };
+    return { valid: true, identity: null };
   }
 
   public async getProviderLink({

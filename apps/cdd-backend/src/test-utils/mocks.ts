@@ -36,6 +36,7 @@ export class MockPolymesh {
     modifyPermissions: jest.fn(),
     subsidizeAccount: jest.fn(),
     getSubsidy: jest.fn(),
+    isValidAddress: jest.fn(),
   };
 
   public identities = {

@@ -11,11 +11,13 @@ import { z } from 'zod';
 
 const telemetryZ = z
   .object({
-    telemetry: z.object({
-      hostname: z.string().default(os.hostname()),
-      url: z.string().url().default(''),
-      service: z.string().default('PolymeshCdd'),
-    }),
+    telemetry: z
+      .object({
+        hostname: z.string().default(os.hostname()),
+        url: z.string().url().default(''),
+        service: z.string().default('PolymeshCdd'),
+      })
+      .optional(),
   })
   .describe('config for telemetry data');
 
@@ -37,10 +39,12 @@ const telemetryEnvConfig = (): TelemetryConfig => {
 export const startTelemetry = (logger: Logger) => {
   const { telemetry } = telemetryEnvConfig();
 
-  if (telemetry.url === '') {
+  if (!telemetry) {
     logger.info(
       'OTLP_EXPORT_URL was unset - open telemetry export was not started'
     );
+
+    return;
   }
 
   const traceExporter = new OTLPTraceExporter(telemetry);

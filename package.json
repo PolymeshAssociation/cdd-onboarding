@@ -85,7 +85,7 @@
     "@opentelemetry/semantic-conventions": "^1.9.1",
     "@polymeshassociation/hashicorp-vault-signing-manager": "^1.1.6",
     "@polymeshassociation/local-signing-manager": "^1.4.1",
-    "@polymeshassociation/polymesh-sdk": "^19.0.0-alpha.19",
+    "@polymeshassociation/polymesh-sdk": "^19.2.0-alpha.4",
     "bull": "^4.10.3",
     "framer-motion": "^9.0.2",
     "ioredis": "^5.3.0",
