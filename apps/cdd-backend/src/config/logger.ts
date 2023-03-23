@@ -9,7 +9,7 @@ const loggerSettingsZ = z
   .describe(
     `the format the log will be written in:
     'text' will destructure and colorize common JSON properties for a better developer experience
-    'json' will write a true JSON object`
+    'json' will write a JSONL format for easy log ingestion`
   );
 
 type LoggerSettings = ReturnType<typeof loggerSettingsZ.parse>;

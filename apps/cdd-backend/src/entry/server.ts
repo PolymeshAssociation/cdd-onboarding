@@ -50,9 +50,7 @@ async function bootstrap() {
   app.enableCors({ origin: ['http://localhost:4200']});
 
   await app.listen(port);
-  logger.info(
-    `🚀 Application is running on: http://localhost:${port}/${routePrefix}`
-  );
+  logger.info(`Server is running on: http://localhost:${port}/${routePrefix}`);
 }
 
 bootstrap();

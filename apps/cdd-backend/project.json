@@ -10,12 +10,11 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/cdd-backend",
+        "outputPath": "dist/apps/cdd-backend/server",
         "main": "apps/cdd-backend/src/entry/server.ts",
         "tsConfig": "apps/cdd-backend/tsconfig.app.json",
         "assets": ["apps/cdd-backend/src/assets"],
-        "webpackConfig": "apps/cdd-backend/webpack.config.js",
-        "babelUpwardRootMode": true
+        "webpackConfig": "apps/cdd-backend/webpack.server.config.js"
       },
       "configurations": {
         "production": {
@@ -31,12 +30,11 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/cdd-backend",
+        "outputPath": "dist/apps/cdd-backend/worker",
         "main": "apps/cdd-backend/src/entry/worker.ts",
         "tsConfig": "apps/cdd-backend/tsconfig.app.json",
         "assets": ["apps/cdd-backend/src/assets"],
-        "webpackConfig": "apps/cdd-backend/webpack.config.js",
-        "babelUpwardRootMode": true
+        "webpackConfig": "apps/cdd-backend/webpack.worker.config.js"
       },
       "configurations": {
         "production": {
@@ -64,7 +62,7 @@
       },
       "configurations": {
         "production": {
-          "buildTarget": "cdd-backend:build:production"
+          "buildTarget": "cdd-backend:buildWorker:production"
         }
       }
     },

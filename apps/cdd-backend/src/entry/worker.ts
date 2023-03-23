@@ -17,7 +17,7 @@ async function bootstrap() {
     logger: WinstonModule.createLogger({ instance: logger }),
   });
 
-  logger.info('🐂 Worker process has started up');
+  logger.info('Worker process has started up');
 }
 
 bootstrap();
