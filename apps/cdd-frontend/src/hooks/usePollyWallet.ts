@@ -93,7 +93,6 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
   useEffect(() => {
     async function reload() {
       if (pollyWallet) {
-        console.log(pollyWallet)
         pollyWallet.accounts.subscribe(async () => {
           await loadAddresses();
         });
