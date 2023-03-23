@@ -46,13 +46,12 @@ export class CddProcessor {
     if (!address) {
       const error = new Error(`Netki record not found`);
       this.logger.error(error.message, {
-        error,
         jobId: jobId,
       });
       throw error;
     }
 
-    this.logger.info('retrieved address', { jobId: jobId, address });
+    this.logger.info('retrieved address', { jobId, address });
 
     if (state === 'restarted') {
       await this.handleNetkiRestart(jobId, address, netki);
@@ -62,7 +61,7 @@ export class CddProcessor {
       await this.clearAddressApplications(jobId, address);
     } else {
       this.logger.info('state did not have a handler - no action taken', {
-        jobId: jobId,
+        jobId,
         address,
         state,
       });

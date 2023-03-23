@@ -19,7 +19,7 @@ export class IpFilterGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const clientIp =
-      request.header('x-forwarded-for') || request.connection.remoteAddress;
+      request.header('x-real-ip') || request.connection.remoteAddress;
 
     const result = this.allowedIPs.includes(clientIp);
 
