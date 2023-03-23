@@ -35,11 +35,12 @@ export const StepFormNavigation: React.FC<
       justify={{ base: 'center', md: 'unset' }}
       py={{ base: '1.5rem', md: '1 rem' }}
       px={{ base: '1rem', md: 'unset' }}
-      position={{ base: 'absolute', md: 'initial' }}
+      position={{ base: 'absolute', md: 'unset' }}
       left={{ base: 0, md: 'unset' }}
       bottom={{ base: 0, md: 'unset ' }}
       w={{ base: '100%', md: 'unset' }}
       bgColor={{ base: 'white', md: 'unset' }}
+      zIndex={1}
     >
       {activeStep > 0 && (
         <Button

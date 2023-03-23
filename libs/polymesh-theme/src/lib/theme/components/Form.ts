@@ -13,7 +13,7 @@ export const Form: ComponentStyleConfig = {
             ...activeLabelStyles,
           },
         },
-        'input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label':
+        '> input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label':
           {
             ...activeLabelStyles,
           },
@@ -29,7 +29,7 @@ export const Form: ComponentStyleConfig = {
           my: 3,
           transformOrigin: 'left top',
         },
-      },      
+      },
     },
-  }
+  },
 };
