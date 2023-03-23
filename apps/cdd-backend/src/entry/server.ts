@@ -47,6 +47,8 @@ async function bootstrap() {
     SwaggerModule.setup(documentationRoute, app, document);
   }
 
+  app.enableCors({ origin: ['http://localhost:4200']});
+
   await app.listen(port);
   logger.info(
     `🚀 Application is running on: http://localhost:${port}/${routePrefix}`

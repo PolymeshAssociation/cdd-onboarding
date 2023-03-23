@@ -16,7 +16,7 @@ export type SectionContainerProps = {
         maxW="100%"
         w="100%"
         py="3.125rem"
-        px={noGutters ? 'unset' : '3.125rem'}
+        px={noGutters ? 'unset' : { base: '1.5rem', md: '3.125rem' }}
         align="flex-start"
         minH={fullHeight ? '100vh' : undefined}
       >

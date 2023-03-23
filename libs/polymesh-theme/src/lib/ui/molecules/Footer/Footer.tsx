@@ -1,15 +1,7 @@
-import { Box, StackProps, HStack, Link, VStack, Text } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 
-import { Logo } from '../../atoms'
-
-const FooterContainer: React.FC<StackProps> = ({ children, ...rest }) => {
-
-  return (
-    <VStack maxW="100%" w="100%" py="1rem" px="3.125rem" borderStyle="solid none none" borderWidth="1px 0 0" borderColor="#c7c7c7 #000" {...rest}>
-      {children}
-    </VStack>
-  )
-}
+import { FooterContainer, Logo } from '../../atoms'
+import { FooterCopy } from '../FooterCopy'
 
 export type FooterProps = {
     center?: React.ReactNode,
@@ -27,18 +19,6 @@ const FooterTop: React.FC<FooterProps> = ({ center, right }) => {
     </FooterContainer>
   )
 }
-
-const FooterCopy = () => {
-
-  return (
-    <FooterContainer fontSize="0.8rem" alignItems="flex-start">
-      <Text padding={0} m={0}>© {new Date().getFullYear()} Polymesh Association. All Right Reserved</Text>
-      <Text marginTop="0px"><Link href="https://polymesh.network/privacy-policy" isExternal>Privacy Policy</Link> | <Link href="https://polymesh.network/terms-of-service" isExternal>Terms Of Service</Link></Text>
-    </FooterContainer>
-  )
-}
-
-
 
 export const Footer: React.FC<FooterProps> = ({ center, right }) => {
   return (

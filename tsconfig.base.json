@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@cdd-onboarding/cdd-types": ["libs/cdd-types/src/index.ts"],
+      "@cdd-onboarding/cdd-types/*": ["libs/cdd-types/src/lib/*"],
       "@cdd-onboarding/types/types": ["libs/types/types/src/index.ts"],
       "@polymeshassociation/polymesh-theme": [
         "libs/polymesh-theme/src/index.ts"

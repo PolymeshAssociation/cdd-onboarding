@@ -23,7 +23,8 @@
         "styles": [],
         "scripts": [],
         "isolatedConfig": true,
-        "webpackConfig": "apps/cdd-frontend/webpack.config.js"
+        "webpackConfig": "apps/cdd-frontend/webpack.config.js",
+        "babelUpwardRootMode": true
       },
       "configurations": {
         "development": {

@@ -3,6 +3,7 @@ import { extendTheme } from "@chakra-ui/react"
 import { colors } from "./colors/colors"
 import components from "./components"
 import { styles } from "./styles"
+import { breakpoints } from "./breakpoints"
 
 const config = {
   initialColorMode: 'light',
@@ -10,6 +11,7 @@ const config = {
 }
 
 export const theme = extendTheme({
+    breakpoints,
     config,
     ...styles,
     colors,
