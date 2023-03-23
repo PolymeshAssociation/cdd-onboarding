@@ -17,7 +17,6 @@ export const Form: ComponentStyleConfig = {
           {
             ...activeLabelStyles,
           },
-
         label: {
           top: 0,
           left: 0,
@@ -30,7 +29,7 @@ export const Form: ComponentStyleConfig = {
           my: 3,
           transformOrigin: 'left top',
         },
-      },      
+      },
     },
-  }
+  },
 };

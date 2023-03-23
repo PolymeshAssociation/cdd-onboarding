@@ -46,7 +46,7 @@ const questionsAnswers: QuestionItem[] = [
     answer: (
       <>
         Your CDD data is stored with whichever CDD provider that onboarded you
-        onto Polymesh. Currently the three CDD providers for the Polymesh
+        onto Polymesh. Currently the two CDD providers for the Polymesh
         blockchain are Netki and Jumio. All CDD providers are compliant with
         strict GDPR regulation and personal data is not stored for longer than
         necessary for the purpose it was collected and its deletion may be
@@ -72,7 +72,8 @@ const questionsAnswers: QuestionItem[] = [
       <>
         To learn more about becoming a node operator on Polymesh,{' '}
         <Link href="https://polymesh.network/node-operators" isExternal>
-          contact us.
+          You can learn more about becoming a node operator on Polymesh,{' '} 
+          <Link>here</Link>
         </Link>
       </>
     ),
