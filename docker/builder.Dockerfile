@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.17 AS cdd-builder
+FROM node:lts-alpine3.17 AS mesh-cdd-builder
 
 WORKDIR /app/builder
 
