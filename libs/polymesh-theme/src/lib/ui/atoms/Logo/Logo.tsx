@@ -1,11 +1,12 @@
 import React from 'react';
-import { IconProps, useColorMode } from '@chakra-ui/react';
-
+import { IconProps, useColorMode, Link } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import Light from './LogoLight';
 import Dark from './LogoDark';
 
 export type LogoProps = {
   variant?: 'light' | 'dark' | 'grey';
+  link?: string;
 };
 
 function roundToTwo(num: number) {
@@ -95,6 +96,7 @@ export const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
   height,
   w,
   width,
+  link,
   ...rest
 }) => {
   const { height: computedHeight, width: computedWidth } = React.useMemo(
@@ -104,16 +106,26 @@ export const Logo: React.FC<LogoProps & Omit<IconProps, 'boxSize'>> = ({
 
   const { colorMode } = useColorMode();
 
+  let component: React.ReactNode = <Light height={computedHeight} width={computedWidth} {...rest} />
+
   if (variant === 'grey') {
-    return <Dark height={computedHeight} width={computedWidth} color="#565656" {...rest} />;
+    component = <Dark height={computedHeight} width={computedWidth} color="#565656" {...rest} />;
   }
 
   if (variant === 'dark' || (colorMode === 'dark' && !variant)) {
-    return <Dark height={computedHeight} width={computedWidth} color="white" {...rest} />;
+    component = <Dark height={computedHeight} width={computedWidth} color="white" {...rest} />;
   }
   
 
-  return <Light height={computedHeight} width={computedWidth} {...rest} />;
+  if(link){
+    return (
+      <Link as={RouterLink} to={link}>
+        {component}
+      </Link>
+    );
+  }
+
+  return component;
 };
 
 export default Logo;
