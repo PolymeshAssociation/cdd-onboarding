@@ -72,7 +72,8 @@ const questionsAnswers: QuestionItem[] = [
       <>
         To learn more about becoming a node operator on Polymesh,{' '}
         <Link href="https://polymesh.network/node-operators" isExternal>
-          contact us.
+          You can learn more about becoming a node operator on Polymesh,{' '} 
+          <Link>here</Link>
         </Link>
       </>
     ),
