@@ -1,10 +1,10 @@
 import axios from "axios";
 
-import { API_URL } from '../config/constants';
+import config from '../config/constants';
 import { logger } from "./logger";
 
 const instance = axios.create({
-    baseURL: API_URL
+    baseURL: config.API_URL
   });
 
 instance.interceptors.request.use((response) => {

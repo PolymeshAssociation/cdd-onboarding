@@ -35,7 +35,7 @@ import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
 import usePolyWallet from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
-import { NETWORK, NETWORK_NAMES } from '../../../config/constants';
+import config, { NETWORK_NAMES } from '../../../config/constants';
 
 const schema = z.object({
   address: addressZ,
@@ -68,7 +68,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { mutate, isLoading, isSuccess, isError, error } =
     useVerifyAddressMutation();
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
-    usePolyWallet({ network: NETWORK });
+    usePolyWallet({ network: config.NETWORK });
   const { message } = (error as AxiosError) || {};
   const onSubmit = ({ address }: FormValues) => {
     setState({ address });
@@ -177,7 +177,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           {isWalletAvailable && !isCorrectNetwork && (
             <FormHelperText>
               Your Polymesh Wallet is connected to the wrong network. Please
-              connect to the "{NETWORK_NAMES[NETWORK]}" network to be able to automatically import
+              connect to the "{NETWORK_NAMES[config.NETWORK]}" network to be able to automatically import
               addresses from your wallet.
             </FormHelperText>
           )}
