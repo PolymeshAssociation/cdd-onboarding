@@ -2,6 +2,7 @@ import { Box, HStack, StackProps, useColorModeValue } from '@chakra-ui/react';
 import useScrollPosition from '../../hooks/useScrollPosition';
 
 import { Logo } from '../../atoms';
+import { Switch } from '../../atoms/Switch';
 
 export type HeaderProps = {
   center?: React.ReactNode;
@@ -29,9 +30,14 @@ export const Header: React.FC<HeaderProps & Pick<StackProps, 'display'>> = ({ ce
       display={display}
       boxShadow={{ md: 'none', base: '0px 1px 3px rgba(0, 0, 0, 0.1)' }}
     >
+      <HStack justifyContent="space-between">
       <Logo height={{ base: '19px', lg: '16px', xl: '19px' }} link="/" />
+      <Switch/>
+      </HStack>
+
       <Box>{center}</Box>
       <Box>{right}</Box>
+
     </HStack>
   );
 };

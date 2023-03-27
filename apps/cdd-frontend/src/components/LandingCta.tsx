@@ -7,7 +7,7 @@ export const LandingCta: React.FC = () => {
     <Box textAlign="center">
       <Button
         colorScheme="navy"
-        size={{ base: 'md', md: 'lg' }}
+        size={{ base: 'md', sm: "lg", md: 'lg' }}
         as="a"
         href="/verification"
         w={{ base: '100%', md: 'unset' }}

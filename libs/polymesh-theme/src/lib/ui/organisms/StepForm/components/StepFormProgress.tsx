@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
-import { List, ListIcon, ListItem, Text } from '@chakra-ui/react';
+import { List, ListIcon, ListItem, Text, useColorModeValue } from '@chakra-ui/react';
 import { BsCheck2Square, BsArrowRight, BsSquare } from 'react-icons/bs';
 
 import { StepFormContext } from './StepFormContext';
 
 export const StepFormProgress: React.FC = () => {
   const { activeStep, steps } = useContext(StepFormContext);
+  const activeStepColor = useColorModeValue("gray.800", "gray.100")
   return (
     <List>
       {steps.map(({ title }, index) => (
@@ -37,7 +38,7 @@ export const StepFormProgress: React.FC = () => {
           )}
           <Text
             fontWeight={index === activeStep ? 'bold' : 'unset'}
-            color={index === activeStep ? 'gray.900' : 'gray.400'}
+            color={activeStepColor}
           >
             {title}
           </Text>
