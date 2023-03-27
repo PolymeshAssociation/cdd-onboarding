@@ -1,17 +1,12 @@
+import z from 'zod';
+
 import { PolyNetwork } from '../hooks/usePollyWallet';
 
-// TODO: replace this with brackets for server variables
-export const API_URL =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3333'
-    : 'https://polymesh.cdd.centrifuge.io/api';
-
-export const LOG_LEVEL =
-  process.env.NODE_ENV === 'development' ? 'log' : 'error';
-
-// TODO: replace this with brackets for server variables
-export const NETWORK: PolyNetwork =
-  process.env.NODE_ENV === 'development' ? 'local' : 'testnet';
+const configSchema = z.object({
+  API_URL: z.string(),
+  NETWORK: z.enum(['local', 'testnet', 'staging', 'mainnet']),
+  LOG_LEVEL: z.enum(['log', 'warn', 'error', 'debug', 'off']),
+});
 
 export const NETWORK_NAMES: Record<PolyNetwork, string> = {
   local: 'Local Node',
@@ -19,3 +14,11 @@ export const NETWORK_NAMES: Record<PolyNetwork, string> = {
   staging: 'Staging',
   mainnet: 'Mainnet',
 };
+
+export default configSchema.parse({
+  API_URL: process.env.NX_API_URL,
+  NETWORK: process.env.NX_MESH_NETWORK,
+  LOG_LEVEL: process.env.NX_LOG_LEVEL,  
+});
+
+export type AppConfig = z.infer<typeof configSchema>;
