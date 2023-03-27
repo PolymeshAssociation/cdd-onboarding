@@ -2,14 +2,18 @@ import {
   Button,
   HStack,
   Icon,
-  StackProps,
   Text,
+  Tooltip,
   useColorMode,
 } from '@chakra-ui/react';
 import { useCallback, useMemo } from 'react';
 import { CiDark, CiLight } from 'react-icons/ci';
 
-export const ModeSelector: React.FC<StackProps> = ({ children }) => {
+export type ModeSelectorProps = {
+  showLabel?: boolean;
+};
+
+export const ModeSelector: React.FC<ModeSelectorProps> = ({ showLabel }) => {
   const { toggleColorMode, colorMode } = useColorMode();
 
   const style = useMemo(() => {
@@ -23,12 +27,14 @@ export const ModeSelector: React.FC<StackProps> = ({ children }) => {
     toggleColorMode();
   }, [toggleColorMode]);
   return (
-    <Button size="xs" variant="ghost" onClick={onClick}>
-      <HStack pl="-2">
-        <Icon as={style.icon} />
-        <Text fontSize="xs">{style.text} mode</Text>
-      </HStack>
-    </Button>
+    <Tooltip label="switch theme color mode">
+      <Button size="xs" variant="ghost" onClick={onClick}>
+        <HStack pl="-2">
+          <Icon as={style.icon} />
+          {showLabel && <Text fontSize="xs">{style.text} mode</Text>}
+        </HStack>
+      </Button>
+    </Tooltip>
   );
 };
 

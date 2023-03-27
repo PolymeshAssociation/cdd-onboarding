@@ -31,7 +31,7 @@ export const CopyLink: React.FC<CopyLinkProps> = ({ link }) => {
           value={link}
         />
         <InputRightElement width="7rem" mr="0.1rem">
-          <Button size="md" onClick={onCopy} borderLeftRadius={0}>
+          <Button size="md" onClick={onCopy} borderLeftRadius={0} colorScheme="navy">
             {hasCopied ? 'Copied' : 'Copy link'}
           </Button>
         </InputRightElement>

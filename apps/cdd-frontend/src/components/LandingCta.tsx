@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { Box, Button, Link } from '@chakra-ui/react';
+import { Box, Button, Link, useColorModeValue } from '@chakra-ui/react';
 
 export const LandingCta: React.FC = () => {
+  const linkColor = useColorModeValue('navy.500', 'navy.200');
+
   return (
     <Box textAlign="center">
       <Button
@@ -17,9 +19,8 @@ export const LandingCta: React.FC = () => {
         New Application
       </Button>
       <Link
-        color="navy"
-        variant="ghost"
-        bg="#fff"
+        color={linkColor}
+        variant="ghost"      
         href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
         target="_blank"
         isExternal
