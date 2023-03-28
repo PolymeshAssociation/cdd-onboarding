@@ -12,6 +12,12 @@ This repo uses [nx](https://nx.dev), to execute some commands either prefix with
 
 e.g. `npx nx $CMD` can be shortened to `nx $CMD` with a single execution of `npm i -g nx`
 
+Note: to test out the end to end flow with a local build, you will need to be able to receive webhooks.
+
+There are a number of ways to do this you can use `ssh -R` for remote port forwarding, configure your router to forward inbound packets, or deploy to a cloud instance.
+
+The easiest way is to use [ngrok](https://ngrok.com/). The free plan should suffice. Running ngrok will give you a URL that will forward traffic to localhost. This can then be set in the providers webhook URL setting.
+
 ## Dependencies
 
 The front end depends on the backend, and the backend depends on having Redis and a Polymesh node. To start external dependencies use:
