@@ -31,10 +31,27 @@ export interface NetkiAccessCode {
   id: string;
   code: string;
   parent_code: null | string;
-  child_codes: string[]; // TODO double check this
+  child_codes: string[];
   is_active: boolean;
   created: string;
 }
+
+/**
+ * Note additional fields are present on the response - current use case is to act as a "ping"
+ */
+export interface NetkiBusinessInfo {
+  business_type: string;
+  created: string;
+  id: string;
+  is_active: boolean;
+  name: string;
+  primary_account: string;
+  status: string;
+  updated: string;
+}
+
+export type NetkiBusinessInfoPageResponse =
+  NetkiPaginatedResponse<NetkiBusinessInfo>;
 
 export type NetkiAccessCodePageResponse =
   NetkiPaginatedResponse<NetkiAccessCode>;

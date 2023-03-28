@@ -1,66 +1,105 @@
 import { createMock } from '@golevelup/ts-jest';
-import { ExecutionContext } from '@nestjs/common';
 import { Logger } from 'winston';
+import { mockHttpContext } from '../test-utils/mocks';
 import { IpFilterGuard } from './ip-filter.guard';
 
 describe('IpFilterGuard', () => {
-  let ipFilterGuard: IpFilterGuard;
-  const allowedIp = ['192.168.1.1'];
-
-  beforeEach(() => {
-    ipFilterGuard = new IpFilterGuard(allowedIp, createMock<Logger>());
-  });
-
   describe('canActivate', () => {
-    it('should return true if the client IP is included in the allowed IPs', () => {
-      const mockExecutionContext: ExecutionContext =
-        createMock<ExecutionContext>({
-          switchToHttp: () => ({
-            getRequest: () => ({
-              header: jest.fn(),
-              connection: {
-                remoteAddress: '192.168.1.1',
-              },
-            }),
-          }),
+    const testCases = [
+      {
+        description: 'IPv4 - client IP is included in the allowed IPs',
+        clientIP: '192.168.1.1',
+        allowedIPs: ['192.168.1.1'],
+        expected: true,
+      },
+      {
+        description: 'IPv4 - client IP is included in the x-forwarded-header',
+        clientIP: '::1',
+        allowedIPs: ['192.168.1.1'],
+        forwardedFor: '192.168.1.1',
+        expected: true,
+      },
+      {
+        description: 'IPv4 - client IP is not included in the allowed IPs',
+        clientIP: '192.168.1.2',
+        allowedIPs: ['192.168.1.1'],
+        expected: false,
+      },
+      {
+        description: 'IPv4 - client IP is within allowed subnet',
+        clientIP: '172.16.0.4',
+        allowedIPs: ['172.16.0.0/16'],
+        expected: true,
+      },
+      {
+        description:
+          'IPv4 - client IP is within allowed subnet - v6 rule present',
+        clientIP: '172.16.0.4',
+        allowedIPs: ['2001:db8::/48', '172.16.0.0/16'],
+        expected: true,
+      },
+      {
+        description: 'IPv4 - client IP is outside of allowed subnet',
+        clientIP: '192.168.0.1',
+        allowedIPs: ['172.16.0.0/16'],
+        expected: false,
+      },
+      {
+        description: 'IPv6 - client IP is included in the allowed IPs',
+        clientIP: '::1',
+        allowedIPs: ['::1'],
+        expected: true,
+      },
+      {
+        description: 'IPv6 - client IP is within allowed subnet',
+        clientIP: '2001:db8::abcd',
+        allowedIPs: ['2001:db8::/48'],
+        expected: true,
+      },
+      {
+        description:
+          'IPv6 - client IP is within allowed subnet - v4 rule present',
+        clientIP: '2001:db8::abcd',
+        allowedIPs: ['192.168.1.1', '2001:db8::/48'],
+        expected: true,
+      },
+      {
+        description: 'IPv6 - client IP is outside of allowed subnet',
+        clientIP: '::1',
+        allowedIPs: ['2001:db8::/48'],
+        expected: false,
+      },
+      {
+        description:
+          'IPv6 - client IP is included in the allowed IPs with x-forwarded-for',
+        clientIP: '::2',
+        allowedIPs: ['::1'],
+        forwardedFor: '::1',
+        expected: true,
+      },
+      {
+        description:
+          'IPv6 - client IP is not included in the allowed IPs with x-forwarded-for',
+        clientIP: '::2',
+        allowedIPs: ['::1'],
+        forwardedFor: '2001:db8::abcd',
+        expected: false,
+      },
+    ];
+
+    testCases.forEach(
+      ({ description, clientIP, allowedIPs, forwardedFor, expected }) => {
+        it(description, () => {
+          const mockExecutionContext = mockHttpContext(clientIP, forwardedFor);
+          const ipFilterGuard = new IpFilterGuard(
+            allowedIPs,
+            createMock<Logger>()
+          );
+
+          const canActivate = ipFilterGuard.canActivate(mockExecutionContext);
+          expect(canActivate).toEqual(expected);
         });
-
-      const canActivate = ipFilterGuard.canActivate(mockExecutionContext);
-      expect(canActivate).toBe(true);
-    });
-
-    it('should return true if the client IP is included in the x-forwarded-header', () => {
-      const mockExecutionContext: ExecutionContext =
-        createMock<ExecutionContext>({
-          switchToHttp: () => ({
-            getRequest: () => ({
-              header: jest.fn().mockReturnValue('192.168.1.1'),
-              connection: {
-                remoteAddress: '::1',
-              },
-            }),
-          }),
-        });
-
-      const canActivate = ipFilterGuard.canActivate(mockExecutionContext);
-      expect(canActivate).toBe(true);
-    });
-
-    it('should return false if the client IP is not included in the allowed IPs', () => {
-      const mockExecutionContext: ExecutionContext =
-        createMock<ExecutionContext>({
-          switchToHttp: () => ({
-            getRequest: () => ({
-              header: jest.fn(),
-              connection: {
-                remoteAddress: '192.168.1.2',
-              },
-            }),
-          }),
-        });
-
-      const canActivate = ipFilterGuard.canActivate(mockExecutionContext);
-      expect(canActivate).toBe(false);
-    });
+      }
+    );
   });
 });
