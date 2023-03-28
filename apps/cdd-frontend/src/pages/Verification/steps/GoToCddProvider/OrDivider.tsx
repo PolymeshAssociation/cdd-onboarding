@@ -1,7 +1,9 @@
 import React from 'react';
-import { Box, Divider } from '@chakra-ui/react';
+import { Box, Divider, useColorModeValue } from '@chakra-ui/react';
 
 export const OrDivider: React.FC = () => {
+  const bgColor = useColorModeValue('white', 'gray.800');
+  
   return (
     <Box w="100%" position="relative" my="1rem">
       <Divider my="1rem" borderColor="gray.600" />
@@ -14,7 +16,7 @@ export const OrDivider: React.FC = () => {
         w="2rem"
         ml="auto"
         mr="auto"
-        bg="white"
+        bg={bgColor}
         textAlign="center"
       >
         OR
