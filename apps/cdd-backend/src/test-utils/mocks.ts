@@ -1,6 +1,24 @@
+import { createMock } from '@golevelup/ts-jest';
+import { ExecutionContext } from '@nestjs/common';
+
 export const mockQueue = {
   add: jest.fn(),
 };
+
+export const mockHttpContext = (
+  remoteAddress: string,
+  header?: string
+): ExecutionContext =>
+  createMock<ExecutionContext>({
+    switchToHttp: () => ({
+      getRequest: () => ({
+        header: jest.fn().mockReturnValue(header),
+        connection: {
+          remoteAddress,
+        },
+      }),
+    }),
+  });
 
 export class MockPolymesh {
   public static create = jest.fn().mockResolvedValue(new MockPolymesh());

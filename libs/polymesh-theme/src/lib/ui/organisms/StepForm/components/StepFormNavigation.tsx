@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button, Stack } from '@chakra-ui/react';
+import { Button, Stack, useColorModeValue } from '@chakra-ui/react';
 
 import { StepProps } from './index.d';
 import { StepFormContext } from './StepFormContext';
@@ -25,6 +25,7 @@ export const StepFormNavigation: React.FC<
   onNext,
 }) => {
   const { onBack, activeStep } = useContext(StepFormContext);
+  const bgColor = useColorModeValue('white', 'gray.900');
 
   return (
     <Stack
@@ -39,7 +40,7 @@ export const StepFormNavigation: React.FC<
       left={{ base: 0, md: 'unset' }}
       bottom={{ base: 0, md: 'unset ' }}
       w={{ base: '100%', md: 'unset' }}
-      bgColor={{ base: 'white', md: 'unset' }}
+      bgColor={{ base: bgColor, md: 'unset' }}
       zIndex={1}
     >
       {activeStep > 0 && (

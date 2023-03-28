@@ -12,6 +12,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { catchError, firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
 import { CddJob } from '../cdd-worker/types';
+import { getExpiryFromJwt } from '../common/utils';
 import {
   allocatedCodesPrefix,
   netkiAllocatedPrefixer,
@@ -20,6 +21,8 @@ import {
   NetkiAccessCodePageResponse,
   NetkiCallbackDto,
   NetkiFetchCodesResponse,
+  NetkiBusinessInfoPageResponse,
+  NetkiBusinessInfo,
 } from './types';
 
 @Injectable()
@@ -27,7 +30,7 @@ export class NetkiService {
   private baseUrl: string;
   private linkBaseUrl: string;
   private readonly businessId: string;
-  private refreshToken: string;
+  private userAuth: { username: string; password: string };
   private accessToken = '';
 
   constructor(
@@ -37,10 +40,13 @@ export class NetkiService {
     @InjectQueue('') private readonly queue: Queue,
     config: ConfigService
   ) {
-    this.refreshToken = config.getOrThrow('netki.refreshToken');
     this.businessId = config.getOrThrow('netki.businessId');
     this.baseUrl = config.getOrThrow('netki.url');
     this.linkBaseUrl = config.getOrThrow('netki.linkUrl');
+    this.userAuth = {
+      username: config.getOrThrow('netki.username'),
+      password: config.getOrThrow('netki.password'),
+    };
   }
 
   public async popLink(
@@ -61,8 +67,25 @@ export class NetkiService {
     return accessCode;
   }
 
+  public async getBusinessInfo(): Promise<NetkiBusinessInfo> {
+    await this.fetchAccessToken();
+
+    const url = this.pathToUrl('business/businesses/');
+    const headers = this.headers;
+
+    const businessInfoPage = await firstValueFrom(
+      this.http.get<NetkiBusinessInfoPageResponse>(url, { headers })
+    );
+
+    if (businessInfoPage.data.results.length === 0) {
+      throw new Error('no business info was present');
+    }
+
+    return businessInfoPage.data.results[0];
+  }
+
   public async fetchAccessCodes(): Promise<NetkiFetchCodesResponse> {
-    await this.refreshAccessToken();
+    await this.fetchAccessToken();
 
     const { businessId, headers } = this;
 
@@ -127,31 +150,37 @@ export class NetkiService {
     };
   }
 
-  private async refreshAccessToken() {
-    // TODO base64 decode the token and expiry is written
-    // TODO refresh tokens expire after 24 hours
+  private async fetchAccessToken() {
+    if (this.accessToken) {
+      // don't refresh is access isn't expired
+      const expiry = getExpiryFromJwt(this.accessToken);
+
+      const oneSecondLater = new Date();
+      oneSecondLater.setSeconds(oneSecondLater.getSeconds() + 1);
+      if (expiry > oneSecondLater) {
+        return;
+      }
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Authorization, ...headers } = this.headers;
 
-    const url = this.pathToUrl('token-refresh/');
-
-    const data = { refresh: this.refreshToken };
-
-    const refreshResponse = await firstValueFrom(
+    const url = this.pathToUrl('token-auth/');
+    const authResponse = await firstValueFrom(
       this.http
-        .post(url, JSON.stringify(data), { headers })
+        .post(url, JSON.stringify(this.userAuth), { headers })
         .pipe(catchError((error) => this.logError(error)))
     );
 
-    if (refreshResponse?.data?.access) {
-      this.accessToken = refreshResponse.data.access;
+    if (authResponse?.data?.access) {
+      this.accessToken = authResponse.data.access;
     } else {
-      this.logError(
-        new Error(
-          'refresh access token response did not have `access` property'
-        )
+      const error = new Error(
+        'refresh access token response did not have `access` property'
       );
+      this.logError(error);
+
+      throw error;
     }
   }
 

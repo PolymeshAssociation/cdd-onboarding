@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const allowedIpsZ = z
   .string()
   .array()
-  .describe('A comma separated list of IPs that can POST webhooks')
+  .describe('A comma separated list of IPs that can access routes')
   .default(['127.0.0.1', '::1']);
 
 export const allowedBasicAuthZ = z

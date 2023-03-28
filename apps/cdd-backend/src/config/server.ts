@@ -15,6 +15,7 @@ const configZ = z
           .max(65535)
           .default(3333)
           .describe('port the server will listen on'),
+        healthAllowedIps: allowedIpsZ,
       })
       .describe('server related config'),
 
@@ -52,11 +53,8 @@ const configZ = z
           .url()
           .default('https://kyc.myverify.info/api/')
           .describe('base URL for netki API'),
-        refreshToken: z
-          .string()
-          .describe(
-            'JWT refresh token used to fetch an access token which will in turn be used an an Authorization header'
-          ),
+        username: z.string().describe('netki username to authorize the app'),
+        password: z.string().describe('netki password to authorize the app '),
         businessId: z
           .string()
           .default('2c30b4ad-03ef-4cd9-b6fc-7b812f24d788')
@@ -83,6 +81,7 @@ export const serverEnvConfig = (): ServerConfig => {
     server: {
       port: process.env.APP_PORT,
       routePrefix: process.env.APP_ROUTE_PREFIX,
+      healthAllowedIps: process.env.APP_HEALTH_IPS,
     },
     polymesh: {
       nodeUrl: process.env.MESH_NODE_URL,
@@ -96,7 +95,8 @@ export const serverEnvConfig = (): ServerConfig => {
     },
     netki: {
       url: process.env.NETKI_URL,
-      refreshToken: process.env.NETKI_REFRESH_TOKEN,
+      username: process.env.NETKI_USERNAME,
+      password: process.env.NETKI_PASSWORD,
       businessId: process.env.NETKI_BUSINESS_ID,
       linkUrl: process.env.NETKI_LINK_URL,
       allowedBasicAuth: process.env.NETKI_ALLOWED_BASIC_AUTH?.split(',').map(

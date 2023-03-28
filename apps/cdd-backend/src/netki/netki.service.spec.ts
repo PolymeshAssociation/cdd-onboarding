@@ -60,7 +60,8 @@ describe('NetkiService', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exposedService = service as any;
     exposedService.businessId = 'mesh-test';
-    exposedService.accessToken = 'test-token';
+    exposedService.accessToken =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY3ODg5MzI1NiwianRpIjoiZDVjYzU0YjViNzgyNDA0YmJhYzM2ZDVkMDdmYzU1ZDIiLCJ1c2VyX2lkIjoiYWJkZWU2ZTQtM2I3Ny00YjI0LWEwMjUtOGVkNDAzNzM5NzAzIn0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   });
 
   it('should be defined', () => {
@@ -107,7 +108,8 @@ describe('NetkiService', () => {
       } as AxiosResponse;
       const mockAccessResponse = {
         data: {
-          access: 'fake-access-token',
+          access:
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY3ODg5MzI1NiwianRpIjoiZDVjYzU0YjViNzgyNDA0YmJhYzM2ZDVkMDdmYzU1ZDIiLCJ1c2VyX2lkIjoiYWJkZWU2ZTQtM2I3Ny00YjI0LWEwMjUtOGVkNDAzNzM5NzAzIn0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         },
       } as AxiosResponse;
 

@@ -4,10 +4,11 @@ import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { ConfigModule } from '@nestjs/config';
 import { CddModule } from '../cdd/cdd.module';
-import { NetkiModule } from '../netki/netki.module';
 import { WinstonModule } from 'nest-winston';
 import { serverEnvConfig } from '../config/server';
 import { loggerEnvConfig } from '../config/logger';
+import { InfoModule } from '../info/info.module';
+import { HealthModule } from '../health/health.module';
 
 /**
  * Module for initializing the app in "server" mode
@@ -19,11 +20,12 @@ import { loggerEnvConfig } from '../config/logger';
     }),
     WinstonModule.forRoot(loggerEnvConfig(ServerModule.name)),
     CddModule,
-    NetkiModule,
+    InfoModule,
+    HealthModule,
   ],
   providers: [
     {
-      // Validates all requests satisfies their respective DTO schema
+      // Ensure all requests satisfy their respective DTO schema
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
     },
