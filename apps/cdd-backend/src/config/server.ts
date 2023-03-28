@@ -81,7 +81,9 @@ export const serverEnvConfig = (): ServerConfig => {
     server: {
       port: process.env.APP_PORT,
       routePrefix: process.env.APP_ROUTE_PREFIX,
-      healthAllowedIps: process.env.APP_HEALTH_IPS,
+      healthAllowedIps: process.env.APP_HEALTH_IPS?.split(',').map((ip) =>
+        ip.trim()
+      ),
     },
     polymesh: {
       nodeUrl: process.env.MESH_NODE_URL,
