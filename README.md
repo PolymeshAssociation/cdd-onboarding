@@ -46,6 +46,14 @@ To serve the frontend use:
 
 `nx run serve cdd-frontend`
 
+## UI Storybook
+
+This repository also hosts polymesh-theme library for chakra-ui with some custom components.
+
+To preview theme and components in Storybook run:
+
+`nx run polymesh-theme:storybook`
+
 ## Tools
 
 ### Redis Commander
