@@ -3,6 +3,7 @@ import {
   Box,
   Flex,
   Heading,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { LogoCircle } from '../../atoms';
 import { FooterCopy, Header } from '../../molecules';
@@ -24,6 +25,8 @@ export const StepForm: React.FC<StepFromProps> = ({
   initialStep = 0,
   children,
 }) => {
+  const logoVariant = useColorModeValue('color', 'b&w')
+
   return (
     <StepFormContextProvider initialStep={initialStep}>
       <Header display={{ md: 'none' }} />
@@ -40,7 +43,7 @@ export const StepForm: React.FC<StepFromProps> = ({
           boxShadow="0.5rem 0 0.5rem -0.25rem rgba(0,0,0,0.75)"
           display={{ base: 'none', md: 'flex' }}
         >
-          <LogoCircle variant="color" boxSize="120px" mt="5rem" link="/" />
+          <LogoCircle variant={logoVariant} boxSize="120px" mt="5rem" link="/" />
           <Box>
             <Heading mb="1rem">{title}</Heading>
             <StepFormProgress />

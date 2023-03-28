@@ -1,5 +1,5 @@
 import React from 'react';
-import { GridItem, Flex, useMediaQuery } from '@chakra-ui/react';
+import { Flex, useMediaQuery, useColorModeValue } from '@chakra-ui/react';
 
 import {
   JumioLogo,
@@ -21,19 +21,19 @@ export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
     onSelectProvider(provider);
   };
   const [isLargerThan320] = useMediaQuery('(min-width: 320px)');
+  const borderColor = useColorModeValue('gray.100', 'gray.700')
 
   return (
-    <GridItem w="100%">
       <Flex
         alignItems="center"
         justifyContent="center"
         _hover={{ cursor: 'pointer', borderColor: 'navy' }}
         border="2px solid"
-        borderColor={isSelected ? 'fucsia.700' : 'gray.100'}
+        borderColor={isSelected ? 'fucsia.700' : borderColor}
         boxSizing="border-box"
         onClick={onClick}
-        h={{ base: '120px', md: '150px' }}
-        w={{ base: '100%', md: 'unset' }}
+        h={{ base: '120px', md: '150px', lg: 'unset' }}
+        w={{ base: '100%', md: '200px', lg: '250px' }}
         style={{ aspectRatio: isLargerThan320 ? '1' : 'unset' }}
         p="1.5rem"
         borderRadius="0.75rem"
@@ -41,7 +41,6 @@ export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
         {provider === 'jumio' && <JumioLogo boxSize="80%" />}
         {provider === 'netki' && <NetkiLogo boxSize="80%" />}
       </Flex>
-    </GridItem>
   );
 };
 

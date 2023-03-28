@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ center, right }) => {
   return (
     <Box>
       <FooterTop center={center} right={right} />
-      <FooterCopy />
+      <FooterCopy isThemeModeVisible={false} />
     </Box>
   )
 }

@@ -1,6 +1,7 @@
 import { Box, HStack } from '@chakra-ui/react'
 
 import Logo from '../logo/logo'
+import Switch from '../switch'
 
 export type HeaderProps = {
     center?: React.ReactNode,
@@ -13,6 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ center, right }) => {
       <Logo height={{ base: '19px', lg: '16px', xl: '19px', }} />
       <Box>{center}</Box>
       <Box>{right}</Box>
+      <Switch />
     </HStack>
   )
 }

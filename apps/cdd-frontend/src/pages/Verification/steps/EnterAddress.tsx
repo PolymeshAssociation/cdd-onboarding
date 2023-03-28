@@ -23,7 +23,7 @@ import {
   Link,
   MenuDivider,
   Text,
-  Portal
+  Portal,
 } from '@chakra-ui/react';
 import { BiImport, BiChevronDown } from 'react-icons/bi';
 import {
@@ -116,10 +116,13 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                     top="4px"
                     borderRadius="md"
                     borderWidth="1px"
+                    bg="pink.800"
+                    _hover={{ bg: 'pink.600' }}
+                    color="white"
                     px={4}
                     py={2}
                   >
-                    <Icon as={BiImport} boxSize="1.5rem" color="navy.500" />
+                    <Icon as={BiImport} boxSize="1.5rem" />
                   </Button>
 
                 )}
@@ -132,18 +135,19 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                       position="absolute"
                       right="4px"
                       top="4px"
-                      bg="white"
                       px={4}
                       py={1}
                       transition="all 0.2s"
                       borderRadius="md"
                       borderWidth="1px"
-                      _hover={{ bg: 'gray.400' }}
-                      _expanded={{ bg: 'blue.200' }}
+                      color="white"
+                      bg="pink.800"
+                      _hover={{ bg: 'pink.600' }}
+                      _expanded={{ bg: 'pink.200' }}
                       _focus={{ boxShadow: 'outline' }}
-                      rightIcon={<Icon as={BiChevronDown} />}
+                      rightIcon={<Icon as={BiChevronDown} boxSize="1.5rem" />}
                     >
-                      <Icon as={BiImport} boxSize="1.5rem" color="navy.800" />
+                      <Icon as={BiImport} boxSize="1.5rem" />
                     </MenuButton>
                     <Portal>
                     <MenuList zIndex={200} maxW="100vw">
