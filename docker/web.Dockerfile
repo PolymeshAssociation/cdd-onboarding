@@ -3,7 +3,7 @@ FROM mesh-cdd-builder AS builder
 RUN nx dep-graph --file dep-graph.json
 RUN nx build cdd-frontend --configuration=production
 
-FROM nginx
+FROM nginx:stable-alpine3.17
 
 ENV NODE_ENV='production'
 # URL TO CDD Backend i.e. http://localhost:3333
