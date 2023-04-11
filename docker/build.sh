@@ -8,5 +8,6 @@ export DOCKER_BUILDKIT=1 # use buildkit for better build times
 docker build .. -t mesh-cdd-builder -f builder.Dockerfile
 
 # final tags are arbitrary
+docker build .. -t mesh-cdd-web -f ./web.Dockerfile
 docker build .. -t mesh-cdd-worker -f ./worker.Dockerfile
 docker build .. -t mesh-cdd-server -f ./server.Dockerfile
