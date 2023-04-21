@@ -12,20 +12,17 @@ type MarketingPermission = {
 
 @Injectable()
 export class MailchimpService {
-  private isEnabled: boolean;
-  private mailchimpClient: typeof client;
   private listId: string;
 
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    config: ConfigService
+    @Inject('MAILCHIMP_CLIENT') private readonly mailchimpClient: typeof client,
+    private readonly config: ConfigService
   ) {
     const apiKey = config.getOrThrow('mailchimp.apiKey');
     const serverPrefix = config.getOrThrow('mailchimp.serverPrefix');
 
     this.listId = config.getOrThrow('mailchimp.listId');
-    this.isEnabled = config.getOrThrow('mailchimp.isEnabled');
-    this.mailchimpClient = client;
 
     this.logger.debug('mailchimp config', { apiKey, serverPrefix });
 
@@ -35,8 +32,12 @@ export class MailchimpService {
     });
   }
 
+  private isEnabled(): boolean {
+    return this.config.getOrThrow('mailchimp.isEnabled');
+  }
+
   public async ping(): Promise<boolean> {
-    if(!this.isEnabled) {
+    if(!this.isEnabled()) {
         return true;
     }
 
@@ -66,7 +67,7 @@ export class MailchimpService {
   }
 
   private async addSubscriberToList(email: string, listId: string, status: Status, marketingPermissions?: MarketingPermission[]): Promise<boolean> {
-    if(!this.isEnabled) {
+    if(!this.isEnabled()) {
         return true;
     }
 
