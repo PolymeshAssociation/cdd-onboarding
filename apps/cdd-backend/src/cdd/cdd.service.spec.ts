@@ -11,12 +11,15 @@ import { Queue } from 'bull';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { BadRequestException } from '@nestjs/common';
+import { MailchimpService } from '../mailchimp/mailchimp.service';
+import { EmailDetailsDto } from '@cdd-onboarding/cdd-types';
 
 describe('CddService', () => {
   const address = 'some-address';
   let mockPolymesh: MockPolymesh;
   let mockRedis: DeepMocked<Redis>;
   let mockJumioService: DeepMocked<JumioService>;
+  let mockMailchimpService: DeepMocked<MailchimpService>;
   let service: CddService;
 
   beforeEach(async () => {
@@ -29,6 +32,7 @@ describe('CddService', () => {
         { provide: JumioService, useValue: createMock<JumioService>() },
         { provide: NetkiService, useValue: createMock<NetkiService>() },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
+        { provide: MailchimpService, useValue: createMock<MailchimpService>() },
       ],
     }).compile();
 
@@ -36,6 +40,7 @@ describe('CddService', () => {
     mockRedis = module.get<typeof mockRedis>(Redis);
     mockJumioService = module.get<typeof mockJumioService>(JumioService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
+    mockMailchimpService = module.get<typeof mockMailchimpService>(MailchimpService)
   });
 
   it('should be defined', () => {
@@ -108,6 +113,28 @@ describe('CddService', () => {
           expect.stringContaining(expectedLink)
         );
       });
+    });
+  });
+
+  describe('processEmail', () => {
+    it('should call addSubscriberToMarketingList if updatesAccepted = true with status subscribed', async () => {
+      mockMailchimpService.addSubscriberToMarketingList.mockResolvedValue(true);
+
+      const payload: EmailDetailsDto = { email: 'test@example.com', updatesAccepted: true, termsAccepted: true }
+      const result = await service.processEmail(payload);
+
+      expect(mockMailchimpService.addSubscriberToMarketingList).toHaveBeenCalledWith(payload.email, 'subscribed');
+      expect(result).toEqual(true);
+    });
+
+    it('should call addSubscriberToMarketingList if updatesAccepted = true with status transactional', async () => {
+      mockMailchimpService.addSubscriberToMarketingList.mockResolvedValue(true);
+
+      const payload: EmailDetailsDto = { email: 'test@example.com', updatesAccepted: false, termsAccepted: true }
+      const result = await service.processEmail(payload);
+
+      expect(mockMailchimpService.addSubscriberToMarketingList).toHaveBeenCalledWith(payload.email, 'transactional');
+      expect(result).toEqual(true);
     });
   });
 });

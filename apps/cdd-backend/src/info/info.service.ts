@@ -97,7 +97,11 @@ export class InfoService {
   }
 
   public async mailchimpInfo(): Promise<HealthCheckResponse> {
-    const healthy = await this.mailchimp.ping();
+    let healthy = true;
+
+    await this.mailchimp.ping().catch(() => {
+      healthy = false;
+    });
 
     return new HealthCheckResponse(healthy);
   }

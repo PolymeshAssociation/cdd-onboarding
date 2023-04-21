@@ -46,14 +46,14 @@ export class MailchimpService {
       if (this.isMailchimpErrorResponse(result)) {
         this.logger.error('Mailchimp Error', { error: result });
 
-        return false;
+        throw new Error('Mailchimp Error');
       }
 
       return true;
     } catch (error) {
       this.logger.error('Mailchimp Error', { error });
 
-      return false;
+      throw new Error('Mailchimp Error');
     }
   }
 
@@ -83,13 +83,12 @@ export class MailchimpService {
       if (this.isMailchimpErrorResponse(result)) {
         this.logger.error('Mailchimp Error', { error: result });
 
-        return true; // We don't want to fail the whole process if mailchimp fails
       }
     } catch (error) {
       this.logger.error('Mailchimp Error', { error });
-
-      return true; // We don't want to fail the whole process if mailchimp fails
     }
+
+    return true; // We don't want to fail the whole process if mailchimp fails
   }
 
   private isMailchimpErrorResponse(
