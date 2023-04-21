@@ -3,6 +3,7 @@ import {
   VerifyAddressParamDto,
   VerifyAddressResponse,
   ProviderLinkResponse,
+  EmailDetailsDto,
 } from '@cdd-onboarding/cdd-types';
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import {
@@ -44,5 +45,12 @@ export class CddController {
     const link = await this.cddService.getProviderLink(body);
 
     return new ProviderLinkResponse(link);
+  }
+
+  @Post('/email')
+  async emailAddress(
+    @Body() body: EmailDetailsDto
+  ): Promise<boolean> {
+    return this.cddService.processEmail(body);
   }
 }

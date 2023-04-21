@@ -1,4 +1,5 @@
 import {
+  EmailDetailsDto,
   ProviderLinkDto,
   VerifyAddressResponse,
 } from '@cdd-onboarding/cdd-types';
@@ -15,6 +16,7 @@ import crypto from 'node:crypto';
 import { Logger } from 'winston';
 import { CddApplication } from '../cdd-worker/types';
 import { JumioService } from '../jumio/jumio.service';
+import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
 
 @Injectable()
@@ -24,7 +26,8 @@ export class CddService {
     private readonly jumioService: JumioService,
     private readonly netkiService: NetkiService,
     private readonly redis: Redis,
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    private readonly mailchimpService: MailchimpService
   ) {}
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {
@@ -94,5 +97,22 @@ export class CddService {
     this.redis.sadd(address, JSON.stringify(application));
 
     return application.url;
+  }
+
+  public async processEmail({
+    email,
+    updatesAccepted,
+  }: EmailDetailsDto): Promise<boolean> {
+    if (updatesAccepted) {
+      return this.mailchimpService.addSubscriberToMarketingList(
+        email,
+        'subscribed'
+      );
+    }
+
+    return this.mailchimpService.addSubscriberToMarketingList(
+      email,
+      'transactional'
+    );
   }
 }
