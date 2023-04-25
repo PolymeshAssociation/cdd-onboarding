@@ -9,55 +9,58 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from 'winston';
+import { verify } from 'hcaptcha';
 
-export const HCAPTCHA_GUARD_CREDENTIALS_PROVIDER = Symbol('HCAPTCHA_GUARD_CREDENTIALS_PROVIDER');
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+
+export const HCAPTCHA_GUARD_CREDENTIALS_PROVIDER = Symbol(
+  'HCAPTCHA_GUARD_CREDENTIALS_PROVIDER'
+);
 
 export const HCaptchaGuardCredentialsProvider: Provider = {
   provide: HCAPTCHA_GUARD_CREDENTIALS_PROVIDER,
-  useFactory: (config: ConfigService) => config.getOrThrow<string[]>('hCaptcha.secretKey'),
+  useFactory: (config: ConfigService) =>
+    config.getOrThrow<string[]>('hCaptcha.secretKey'),
   inject: [ConfigService],
 };
-
 
 @Injectable()
 export class HCaptchaGuard implements CanActivate {
   constructor(
     @Inject(HCAPTCHA_GUARD_CREDENTIALS_PROVIDER)
     private readonly secretKey: string,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const responseToken = request.body.hCaptcha;
+    const token = request.body.hCaptcha;
 
-    if (!responseToken) {
+    if (!token) {
       throw new HttpException(
         'hCaptcha token not provided',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
 
-    const apiUrl = `https://hcaptcha.com/siteverify?secret=${this.secretKey}&response=${responseToken}`;
-
     try {
-      const result = await axios.post(apiUrl);
-      if (result.data.success) {
+      const result = await verify(this.secretKey, token);
+
+      this.logger.debug('hCaptcha verification result', result);
+
+      if (result.success === true) {
         return true;
       } else {
-        throw new HttpException(
-          'hCaptcha verification failed',
-          HttpStatus.FORBIDDEN,
-        );
+        return false;
       }
     } catch (error) {
+      this.logger.error('hCaptcha verification failed', error);
+
       throw new HttpException(
         'hCaptcha verification failed',
-        HttpStatus.FORBIDDEN,
+        HttpStatus.FORBIDDEN
       );
     }
   }
 }
-
-
-
-
