@@ -1,15 +1,14 @@
 import {
   ProviderLinkDto,
-  VerifyAddressParamDto,
+  VerifyAddressDto,
   VerifyAddressResponse,
   ProviderLinkResponse,
   EmailDetailsDto,
 } from '@cdd-onboarding/cdd-types';
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
-  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { HCaptchaGuard } from '../common/hcaptcha.guard';
@@ -21,11 +20,6 @@ import { CddService } from './cdd.service';
 export class CddController {
   constructor(private readonly cddService: CddService) {}
 
-  @ApiParam({
-    name: 'address',
-    description: 'Validate a ss58 encoded address is eligible for onboarding',
-    example: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-  })
   @ApiOkResponse({
     type: VerifyAddressResponse,
   })
@@ -33,9 +27,9 @@ export class CddController {
     description:
       'Address is not valid ss58 for the network (prefixed with 12 for mainnet, 42 otherwise)',
   })
-  @Get('/verify/:address')
+  @Post('/verify-address')
   async verifyAddress(
-    @Param() { address }: VerifyAddressParamDto
+    @Body() { address }: VerifyAddressDto
   ): Promise<VerifyAddressResponse> {
     return this.cddService.verifyAddress(address);
   }
