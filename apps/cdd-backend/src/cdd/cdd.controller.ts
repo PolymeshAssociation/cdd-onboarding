@@ -5,17 +5,19 @@ import {
   ProviderLinkResponse,
   EmailDetailsDto,
 } from '@cdd-onboarding/cdd-types';
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { HCaptchaGuard } from '../common/hcaptcha.guard';
 import { CddService } from './cdd.service';
 
 @Controller('')
 @ApiTags('user')
+@UseGuards(HCaptchaGuard)
 export class CddController {
   constructor(private readonly cddService: CddService) {}
 

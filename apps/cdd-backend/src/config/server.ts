@@ -68,6 +68,11 @@ const configZ = z
         allowedBasicAuth: allowedBasicAuthZ,
       })
       .describe('Netki related config'),
+    hCaptcha: z
+      .object({
+        secretKey: z.string().describe('hCaptcha secret key'),
+      })
+      .describe('hCaptcha related config'),
   })
   .describe('config values needed for "server" mode');
 
@@ -105,6 +110,9 @@ export const serverEnvConfig = (): ServerConfig => {
         (credential) => credential.trim()
       ),
     },
+    hCaptcha: {
+      secretKey: process.env.HCAPTCHA_SECRET_KEY,
+    }
   };
 
   return configZ.parse(rawConfig);
