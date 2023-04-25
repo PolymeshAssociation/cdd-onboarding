@@ -5,6 +5,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { MailchimpService } from './mailchimp.service';
 import { Status } from '@mailchimp/mailchimp_marketing';
+import { MAILCHIMP_CLIENT_PROVIDER } from './mailchimp.provider';
 
 jest.mock('@mailchimp/mailchimp_marketing');
 
@@ -18,37 +19,56 @@ const mockMailchimpClient = {
   },
 };
 
+const createTestModule = async (isEnabled: boolean, mockListId: string) => {
+  const mockConfigService = createMock<ConfigService>();
+
+  mockConfigService.getOrThrow.mockImplementation((key: string) => {
+    if (key === 'mailchimp.isEnabled') {
+      return isEnabled;
+    }
+    if (key === 'mailchimp.listId') {
+      return mockListId;
+    }
+  });
+
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      {
+        provide: WINSTON_MODULE_PROVIDER,
+        useValue: createMock<Logger>(),
+      },
+      {
+        provide: ConfigService,
+        useValue: mockConfigService,
+      },
+      {
+        provide: MAILCHIMP_CLIENT_PROVIDER,
+        useValue: mockMailchimpClient,
+      },
+      MailchimpService,
+    ],
+  }).compile();
+
+  return module;
+};
+
 describe('MailchimpService', () => {
   let service: MailchimpService;
+  let isEnabled = true;
+  const mockListId = 'mockListId';
 
-  const mockConfigService = createMock<ConfigService>(); // mock for constructor
+
+
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: WINSTON_MODULE_PROVIDER,
-          useValue: createMock<Logger>(),
-        },
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
-        },
-        {
-          provide: 'MAILCHIMP_CLIENT',
-          useValue: mockMailchimpClient,
-        },
-        MailchimpService,
-      ],
-    }).compile();
-
+    const module = await createTestModule(isEnabled, mockListId)
     service = module.get<MailchimpService>(MailchimpService);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const exposedService = service as any;
-    exposedService.businessId = 'mesh-test';
-    exposedService.accessToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY3ODg5MzI1NiwianRpIjoiZDVjYzU0YjViNzgyNDA0YmJhYzM2ZDVkMDdmYzU1ZDIiLCJ1c2VyX2lkIjoiYWJkZWU2ZTQtM2I3Ny00YjI0LWEwMjUtOGVkNDAzNzM5NzAzIn0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   });
+
+  afterEach(() => {
+    isEnabled = true;
+    jest.clearAllMocks();
+  })
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -56,23 +76,14 @@ describe('MailchimpService', () => {
 
   describe('ping', () => {
     it('should return true when isEnabled is false', async () => {
-      mockConfigService.getOrThrow.mockImplementation((key: string) => {
-        if (key === 'mailchimp.isEnabled') {
-          return false;
-        }
-      });
-
+      isEnabled = false;
+      const module = await createTestModule(isEnabled, mockListId)
+      service = module.get<MailchimpService>(MailchimpService);
       const result = await service.ping();
       expect(result).toBe(true);
     });
 
     it('should return true when isEnabled is true and Mailchimp returns a successful response', async () => {
-      mockConfigService.getOrThrow.mockImplementation((key: string) => {
-        if (key === 'mailchimp.isEnabled') {
-          return true;
-        }
-      });
-
       mockMailchimpClient.ping.get.mockResolvedValue({});
 
       const result = await service.ping();
@@ -81,12 +92,6 @@ describe('MailchimpService', () => {
     });
 
     it('should throw an error when isEnabled is true and Mailchimp returns an error response', async () => {
-      mockConfigService.getOrThrow.mockImplementation((key: string) => {
-        if (key === 'mailchimp.isEnabled') {
-          return true;
-        }
-      });
-
       // Mock a Mailchimp error response
       mockMailchimpClient.ping.get.mockRejectedValue(
         new Error('Mailchimp Error')
@@ -100,31 +105,16 @@ describe('MailchimpService', () => {
   describe('addSubscriberToMarketingList', () => {
     const email = 'test@example.com';
     const status: Status = 'subscribed';
-    const mockListId = 'mock_list_id';
 
-    beforeEach(() => {
-      mockConfigService.getOrThrow.mockImplementation((key: string) => {
-        if (key === 'mailchimp.isEnabled') {
-          return true; // default isEnabled to true
-        } else if (key === 'mailchimp.listId') {
-          return mockListId;
-        }
-      });
-    });
 
     afterEach(() => {
       jest.clearAllMocks();
     });
 
     it('should return true when isEnabled is false', async () => {
-      mockConfigService.getOrThrow.mockImplementation((key: string) => {
-        if (key === 'mailchimp.isEnabled') {
-          return false;
-        }
-        if (key === 'mailchimp.listId') {
-          return mockListId;
-        }
-      });
+      isEnabled = false;
+      const module = await createTestModule(isEnabled, mockListId)
+      service = module.get<MailchimpService>(MailchimpService);
 
       const result = await service.addSubscriberToMarketingList(email, status);
       expect(result).toBe(true);

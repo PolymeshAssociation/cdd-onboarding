@@ -137,7 +137,6 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if jumio service is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockJumio.generateLink.mockRejectedValue(new Error('some error'));
 
       const response = await service.jumioInfo();
@@ -157,7 +156,6 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if netki service is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockNetki.getBusinessInfo.mockRejectedValue(new Error('some error'));
 
       const response = await service.netkiInfo();
@@ -177,7 +175,6 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if redis is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockRedis.ping.mockRejectedValue(new Error('some error'));
 
       const response = await service.redisInfo();
@@ -197,7 +194,6 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if mailchimp is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockMailchimpService.ping.mockRejectedValue(new Error('some error'));
 
       const response = await service.mailchimpInfo();
