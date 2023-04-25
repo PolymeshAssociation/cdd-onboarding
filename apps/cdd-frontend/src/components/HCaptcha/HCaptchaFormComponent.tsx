@@ -4,35 +4,31 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useController } from 'react-hook-form';
 import z from 'zod';
 import { useHCaptcha } from './HCaptchaContext';
+import constants from '../../config/constants';
 
 interface HCaptchaComponentProps {
   control: any;
   siteKey?: string;
 }
 
-
 export function withHCaptcha<T extends z.ZodObject<any>>(obj: T) {
   return obj.extend({
     hCaptcha: z.string().nonempty(),
-  })
+  });
 }
 
 export const hCaptcha = z.string().nonempty();
 
-
-const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({
-  siteKey = '10000000-ffff-ffff-ffff-000000000001',
-  control,
-}) => {
+const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
   const { token, setToken } = useHCaptcha();
-  console.log(token)
-  const {
-    field,
-  } = useController({
+  const siteKey = constants.H_CAPTCHA_SITE_KEY;
+
+  console.log(token);
+  const { field } = useController({
     name: 'hCaptcha',
     control,
     defaultValue: token,
-    rules:  {required: true }
+    rules: { required: true },
   });
 
   const captchaRef = React.useRef<HCaptcha>(null);
@@ -42,35 +38,39 @@ const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({
   }, []);
 
   const onVerify = (newToken: string) => {
-    setToken(newToken)
+    setToken(newToken);
     field.onChange(newToken);
   };
 
   const onError = () => {
-    setToken(null)
+    setToken(null);
     field.onChange('');
   };
 
   const onExpire = () => {
-    setToken(null)
+    setToken(null);
     field.onChange('');
   };
 
   const onLoad = () => {
-    console.log("loaded")
+    console.log('loaded');
     captchaRef.current?.execute();
+  };
+
+  if(!siteKey) {
+    return null;
   }
 
   return (
-    <Box display={token ? "none" : "block"}>
-    <HCaptcha
-      ref={captchaRef}
-      sitekey={siteKey}
-      onVerify={onVerify}
-      onError={onError}
-      onExpire={onExpire}
-      onLoad={onLoad}
-    />
+    <Box display={token ? 'none' : 'block'}>
+      <HCaptcha
+        ref={captchaRef}
+        sitekey={siteKey}
+        onVerify={onVerify}
+        onError={onError}
+        onExpire={onExpire}
+        onLoad={onLoad}
+      />
     </Box>
   );
 };

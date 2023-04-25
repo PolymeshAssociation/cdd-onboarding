@@ -1,54 +1,46 @@
 import React from 'react';
 import { Box } from '@chakra-ui/react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
-import z from 'zod';
 
 import { useHCaptcha } from './HCaptchaContext';
+import constants from '../../config/constants';
 
-interface HCaptchaComponentProps {
-  siteKey?: string;
-}
-
-
-export function withHCaptcha<T extends z.ZodObject<any>>(obj: T) {
-  return obj.extend({
-    hCaptcha: z.string().nonempty(),
-  })
-}
-
-const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({
-  siteKey = '10000000-ffff-ffff-ffff-000000000001',
-}) => {
+const HCaptchaComponent: React.FC = () => {
   const { token, setToken } = useHCaptcha();
+  const siteKey = constants.H_CAPTCHA_SITE_KEY;
 
   const captchaRef = React.useRef<HCaptcha>(null);
 
   const onVerify = (newToken: string) => {
-    setToken(newToken)
+    setToken(newToken);
   };
 
   const onError = () => {
-    setToken(null)
+    setToken(null);
   };
 
   const onExpire = () => {
-    setToken(null)
+    setToken(null);
   };
 
   const onLoad = () => {
     captchaRef.current?.execute();
+  };
+
+  if (!siteKey) {
+    return null;
   }
 
   return (
-    <Box display={token ? "none" : "block"}>
-    <HCaptcha
-      ref={captchaRef}
-      sitekey={siteKey}
-      onVerify={onVerify}
-      onError={onError}
-      onExpire={onExpire}
-      onLoad={onLoad}
-    />
+    <Box display={token ? 'none' : 'block'}>
+      <HCaptcha
+        ref={captchaRef}
+        sitekey={siteKey}
+        onVerify={onVerify}
+        onError={onError}
+        onExpire={onExpire}
+        onLoad={onLoad}
+      />
     </Box>
   );
 };
