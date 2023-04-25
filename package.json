@@ -71,6 +71,7 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@fontsource/poppins": "^4.5.10",
+    "@hcaptcha/react-hcaptcha": "^1.8.1",
     "@hookform/resolvers": "^2.9.11",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@nestjs/axios": "^2.0.0",

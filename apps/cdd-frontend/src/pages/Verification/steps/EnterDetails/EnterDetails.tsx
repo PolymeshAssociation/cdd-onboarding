@@ -22,14 +22,16 @@ import { VerificationState } from '../index.d';
 
 import {
   useSubmitEmailMutation,
-  EmailFormValues,
   emailFormSchema,
+  EmailFormValues
 } from '../../../../hooks/useSubmitEmailMutation';
+import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaFormComponent';
 
 type EnterDetailsProps = {
   state: VerificationState;
   setState: (state: VerificationState) => void;
 };
+
 
 export const EnterDetails: React.FC<EnterDetailsProps> = ({
   state,
@@ -39,6 +41,8 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors, isValid },
   } = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
@@ -54,13 +58,11 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
     useSubmitEmailMutation();
 
   const { message } = (error as AxiosError) || {};
-  const onSubmit = ({
-    email,
-    termsAccepted,
-    updatesAccepted,
-  }: EmailFormValues) => {
+  const onSubmit = ({ email, termsAccepted, updatesAccepted, hCaptcha }: EmailFormValues) => {
+    onNext();
+
     if (!emailSubmitted || email !== state.email) {
-      mutate({ email, termsAccepted, updatesAccepted });
+      mutate({ email, termsAccepted, updatesAccepted, hCaptcha });
       setState({ ...state, email, termsAccepted, updatesAccepted });
 
       return;
@@ -70,12 +72,16 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
   };
 
   useEffect(() => {
+    setValue('email', "test@test.com");
+  },[setValue])
+
+  useEffect(() => {
     if (isSuccess) {
       setState({ ...state, emailSubmitted: true });
 
       onNext();
     }
-  }, [isSuccess, onNext]);
+  }, [isSuccess, onNext, setState, state]);
 
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
@@ -114,6 +120,10 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
           </FormHelperText>
         </FormControl>
 
+        <FormErrorMessage>
+            {isError ? message : errors.hCaptcha?.message?.toString()}
+          </FormErrorMessage>
+
         <FormControl
           isInvalid={Boolean(errors.termsAccepted?.message) || isError}
         >
@@ -129,6 +139,8 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
             Network.
           </FormHelperText>
         </FormControl>
+
+        <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
         nextStepLabel="Get started"

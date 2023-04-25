@@ -1,5 +1,6 @@
 import { useMutation } from 'react-query';
 
+import { HCaptchaPayload } from '../components/HCaptcha';
 import axios from '../services/axios';
 
 export type ServiceResponse = {
@@ -9,7 +10,7 @@ export type ServiceResponse = {
 type Payload = {
     address: string;
     provider: 'netki' | 'jumio';
-}
+} & HCaptchaPayload
 
 const generateProviderLink = async (payload: Payload) => {
     const { data } = await axios.post<ServiceResponse>('provider-link', payload);
