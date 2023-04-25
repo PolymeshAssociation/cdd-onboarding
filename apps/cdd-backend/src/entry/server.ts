@@ -31,7 +31,7 @@ async function bootstrap() {
   app.setGlobalPrefix(routePrefix);
 
   if (process.env.NODE_ENV !== 'production') {
-    const documentationRoute = `/${routePrefix}`;
+    const documentationRoute = `${routePrefix}/docs`;
     logger.info('NODE_ENV was not `production` - serving swagger web UI', {
       documentationRoute,
     });
@@ -50,7 +50,7 @@ async function bootstrap() {
   app.enableCors({ origin: ['http://localhost:4200']});
 
   await app.listen(port);
-  logger.info(`Server is running on: http://localhost:${port}/${routePrefix}`);
+  logger.info(`Server is running on: http://localhost:${port}${routePrefix}`);
 }
 
 bootstrap();
