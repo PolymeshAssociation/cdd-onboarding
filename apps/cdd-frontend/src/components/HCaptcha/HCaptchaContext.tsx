@@ -1,4 +1,3 @@
-// HCaptchaContext.tsx
 import React, { createContext, useContext, useState, useMemo } from 'react';
 
 interface HCaptchaContextType {

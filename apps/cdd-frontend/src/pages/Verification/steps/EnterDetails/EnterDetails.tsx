@@ -32,7 +32,6 @@ type EnterDetailsProps = {
   setState: (state: VerificationState) => void;
 };
 
-
 export const EnterDetails: React.FC<EnterDetailsProps> = ({
   state,
   setState,
@@ -41,7 +40,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
   const {
     register,
     handleSubmit,
-    setValue,
     control,
     formState: { errors, isValid },
   } = useForm<EmailFormValues>({
@@ -70,10 +68,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
 
     onNext();
   };
-
-  useEffect(() => {
-    setValue('email', "test@test.com");
-  },[setValue])
 
   useEffect(() => {
     if (isSuccess) {

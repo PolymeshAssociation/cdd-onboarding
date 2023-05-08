@@ -7,6 +7,7 @@ const configZ = z
       .object({
         routePrefix: z
           .string()
+          .transform((val) => val.trim().replace(/^\/+/, ""))
           .default('')
           .describe('(optional) global route prefix e.g. `/api`'),
         port: z.coerce

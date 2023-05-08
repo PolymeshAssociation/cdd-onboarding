@@ -23,7 +23,6 @@ const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
   const { token, setToken } = useHCaptcha();
   const siteKey = constants.H_CAPTCHA_SITE_KEY;
 
-  console.log(token);
   const { field } = useController({
     name: 'hCaptcha',
     control,
@@ -34,8 +33,10 @@ const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
   const captchaRef = React.useRef<HCaptcha>(null);
 
   useEffect(() => {
-    field.onChange(token);
-  }, []);
+    if(token){
+      field.onChange(token);
+    }
+  }, [field, token]);
 
   const onVerify = (newToken: string) => {
     setToken(newToken);
@@ -53,7 +54,6 @@ const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
   };
 
   const onLoad = () => {
-    console.log('loaded');
     captchaRef.current?.execute();
   };
 

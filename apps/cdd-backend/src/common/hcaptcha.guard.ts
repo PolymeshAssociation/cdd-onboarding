@@ -7,7 +7,6 @@ import {
   Injectable,
   Provider,
 } from '@nestjs/common';
-import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'winston';
 import { verify } from 'hcaptcha';
@@ -55,7 +54,7 @@ export class HCaptchaGuard implements CanActivate {
         return false;
       }
     } catch (error) {
-      this.logger.error('hCaptcha verification failed', error);
+      this.logger.warn('hCaptcha verification failed', error);
 
       throw new HttpException(
         'hCaptcha verification failed',
