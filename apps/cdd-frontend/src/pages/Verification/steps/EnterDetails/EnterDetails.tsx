@@ -100,7 +100,7 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
         >
           <FormLabel>Privacy Policy</FormLabel>
           <Checkbox {...register('termsAccepted')}>
-            I have read and accept Polymesh privacy policy
+            I have read and accept the Polymesh privacy policy
           </Checkbox>
           <FormErrorMessage>
             {isError ? message : errors.termsAccepted?.message?.toString()}
@@ -125,7 +125,7 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
             {isError ? message : errors.updatesAccepted?.message?.toString()}
           </FormErrorMessage>
           <FormHelperText>
-            Please check if you want to receive occasional updates from Polymesh
+            Please check this if you want to receive occasional updates from Polymesh
             Network.
           </FormHelperText>
         </FormControl>

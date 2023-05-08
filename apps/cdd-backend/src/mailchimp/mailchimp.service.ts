@@ -12,6 +12,9 @@ type MarketingPermission = {
   enabled: boolean;
 };
 
+type MailchimpPingResponse = client.ping.APIHealthStatus | ErrorResponse
+type MailchimpListResponse = ErrorResponse | client.lists.MembersSuccessResponse
+
 @Injectable()
 export class MailchimpService {
   private listId: string;
@@ -41,8 +44,8 @@ export class MailchimpService {
       return true;
     }
 
-    // have to cast to unknown since mailchimp types are wrong (in examples they use await to get the data...)
-    const [err, result] = await to<client.ping.APIHealthStatus | ErrorResponse>(this.mailchimpClient.ping.get() as unknown as Promise<client.ping.APIHealthStatus | ErrorResponse>);
+    // have to cast to unknown since mailchimp types don't show this as a promise
+    const [err, result] = await to<MailchimpPingResponse>(this.mailchimpClient.ping.get() as unknown as Promise<MailchimpPingResponse>);
 
     if(err){
       this.logger.error('Mailchimp Error', { error: err });
@@ -74,25 +77,27 @@ export class MailchimpService {
     status: Status,
     marketingPermissions?: MarketingPermission[]
   ): Promise<boolean> {
-    if (this.isEnabled) {
-      try {
-        const result = await this.mailchimpClient.lists.addListMember(listId, {
-          email_address: email,
-          status,
-          marketing_permissions: marketingPermissions,
-        });
-
-        if (this.isMailchimpErrorResponse(result)) {
-          this.logger.error('Mailchimp Error', { error: result });
-        }
-      } catch (error) {
-        this.logger.error('Mailchimp Error', { error });
-      }
-    } else {
+    if (!this.isEnabled) {
       this.logger.info('Mailchimp is disabled, skipping addSubscriberToList');
+
+      return true;
     }
 
-    return true; // We don't want to fail the whole process if mailchimp fails
+    const [error, result] = await to<MailchimpListResponse>(this.mailchimpClient.lists.addListMember(listId, {
+      email_address: email,
+      status,
+      marketing_permissions: marketingPermissions,
+    }));
+
+    if(error){
+      this.logger.error('Mailchimp Error', { error });
+    }
+
+    if (result && this.isMailchimpErrorResponse(result)) {
+      this.logger.error('Mailchimp Error', { error: result });  
+    }
+
+    return true;
   }
 
   private isMailchimpErrorResponse(
