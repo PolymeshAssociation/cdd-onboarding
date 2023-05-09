@@ -56,4 +56,18 @@ describe('CddController', () => {
       expect(response).toEqual(new ProviderLinkResponse('https://example.com'));
     });
   });
+
+  describe('emailAddress', () => {
+    it('should call the service and return the result', async () => {
+      mockCddService.processEmail.mockResolvedValue(true);
+
+      const response = await controller.emailAddress({
+        email: "test@email.com",
+        termsAccepted: true,
+        updatesAccepted: true,
+      });
+
+      expect(response).toEqual(true);
+    });
+  });
 });

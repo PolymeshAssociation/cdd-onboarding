@@ -4,6 +4,7 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { randomUUID } from 'crypto';
 import Redis from 'ioredis';
 import { JumioService } from '../jumio/jumio.service';
+import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
 import { PolymeshNetworkResponse } from './types';
 
@@ -13,15 +14,17 @@ export class InfoService {
     private readonly polymesh: Polymesh,
     private readonly netki: NetkiService,
     private readonly jumio: JumioService,
-    private readonly redis: Redis
+    private readonly redis: Redis,
+    private readonly mailchimp: MailchimpService
   ) {}
 
   public async all(): Promise<HealthCheckResponse> {
-    const [network, jumio, netki, redis] = await Promise.all([
+    const [network, jumio, netki, redis, mailchimp] = await Promise.all([
       this.polymeshInfo(),
       this.jumioInfo(),
       this.netkiInfo(),
       this.redisInfo(),
+      this.mailchimpInfo(),
     ]);
 
     const data = {
@@ -29,6 +32,7 @@ export class InfoService {
       jumio,
       netki,
       redis,
+      mailchimp
     };
 
     const healthy = !Object.values(data).some((response) => !response.healthy);
@@ -86,6 +90,16 @@ export class InfoService {
     let healthy = true;
 
     await this.netki.getBusinessInfo().catch(() => {
+      healthy = false;
+    });
+
+    return new HealthCheckResponse(healthy);
+  }
+
+  public async mailchimpInfo(): Promise<HealthCheckResponse> {
+    let healthy = true;
+
+    await this.mailchimp.ping().catch(() => {
       healthy = false;
     });
 

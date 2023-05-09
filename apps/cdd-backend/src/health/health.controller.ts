@@ -56,6 +56,13 @@ export class HealthController {
     return this.isHealthy(result);
   }
 
+  @Get('/mailchimp')
+  public async getMailchimpHealth(): Promise<string> {
+    const result = await this.infoService.mailchimpInfo();
+
+    return this.isHealthy(result);
+  }
+
   private isHealthy(result: HealthCheckResponse<unknown>): string {
     if (!result.healthy) {
       this.logger.warn('health check not healthy', result);

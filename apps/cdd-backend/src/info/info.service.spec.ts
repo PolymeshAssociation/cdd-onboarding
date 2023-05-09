@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Redis } from 'ioredis';
 import { JumioService } from '../jumio/jumio.service';
+import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
 import { MockPolymesh } from '../test-utils/mocks';
 import { InfoService } from './info.service';
@@ -31,6 +32,7 @@ describe('InfoService', () => {
   let mockJumio: DeepMocked<JumioService>;
   let mockNetki: DeepMocked<NetkiService>;
   let mockRedis: DeepMocked<Redis>;
+  let mockMailchimpService: DeepMocked<MailchimpService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,6 +42,7 @@ describe('InfoService', () => {
         { provide: NetkiService, useValue: createMock<NetkiService>() },
         { provide: JumioService, useValue: createMock<JumioService>() },
         { provide: Redis, useValue: createMock<Redis>() },
+        { provide: MailchimpService, useValue: createMock<MailchimpService>() },
       ],
     }).compile();
 
@@ -48,6 +51,7 @@ describe('InfoService', () => {
     mockJumio = module.get<typeof mockJumio>(JumioService);
     mockNetki = module.get<typeof mockNetki>(NetkiService);
     mockRedis = module.get<typeof mockRedis>(Redis);
+    mockMailchimpService = module.get<typeof mockMailchimpService>(MailchimpService)
   });
 
   it('should be defined', () => {
@@ -61,6 +65,7 @@ describe('InfoService', () => {
         jest.spyOn(service, 'polymeshInfo').mockResolvedValue(meshHealthy),
         jest.spyOn(service, 'redisInfo').mockResolvedValue(healthyResponse),
         jest.spyOn(service, 'netkiInfo').mockResolvedValue(healthyResponse),
+        jest.spyOn(service,'mailchimpInfo').mockResolvedValue(healthyResponse),
       ];
 
       const result = await service.all();
@@ -77,6 +82,7 @@ describe('InfoService', () => {
         jest.spyOn(service, 'polymeshInfo').mockResolvedValue(meshHealthy),
         jest.spyOn(service, 'redisInfo').mockResolvedValue(healthyResponse),
         jest.spyOn(service, 'netkiInfo').mockResolvedValue(healthyResponse),
+        jest.spyOn(service,'mailchimpInfo').mockResolvedValue(healthyResponse),
       ];
 
       const result = await service.all();
@@ -131,7 +137,6 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if jumio service is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockJumio.generateLink.mockRejectedValue(new Error('some error'));
 
       const response = await service.jumioInfo();
@@ -151,7 +156,6 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if netki service is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockNetki.getBusinessInfo.mockRejectedValue(new Error('some error'));
 
       const response = await service.netkiInfo();
@@ -171,10 +175,28 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if redis is not ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockRedis.ping.mockRejectedValue(new Error('some error'));
 
       const response = await service.redisInfo();
+
+      expect(response).toEqual(new HealthCheckResponse(false));
+    });
+  });
+
+  describe('method: mailchimpInfo', () => {
+    it('should return healthy if mailchimp is ok', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockMailchimpService.ping.mockResolvedValue('mockResponse' as any);
+
+      const response = await service.mailchimpInfo();
+
+      expect(response).toEqual(new HealthCheckResponse(true));
+    });
+
+    it('should return unhealthy if mailchimp is not ok', async () => {
+      mockMailchimpService.ping.mockRejectedValue(new Error('some error'));
+
+      const response = await service.mailchimpInfo();
 
       expect(response).toEqual(new HealthCheckResponse(false));
     });

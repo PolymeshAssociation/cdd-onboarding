@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { extendApi } from '@anatine/zod-openapi';
 import { createZodDto } from '@anatine/zod-nestjs';
-import { addressZ } from './utils';
+import { addressZ, hCaptcha } from './utils';
 import { ApiProperty } from '@nestjs/swagger';
 
 const CddProviderZEnum = z.enum(['netki', 'jumio']);
@@ -12,6 +12,7 @@ export const ProviderLinkZ = extendApi(
   z.object({
     address: addressZ,
     provider: CddProviderZEnum,
+    hCaptcha
   }),
   {
     title: 'Generate Onboarding Link',

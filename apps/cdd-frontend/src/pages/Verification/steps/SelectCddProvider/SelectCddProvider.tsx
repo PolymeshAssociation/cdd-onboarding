@@ -11,6 +11,8 @@ import useGetProviderLinkMutation from '../../../../hooks/useGetProviderLinkMuta
 
 import ErrorLoadingProviderLink from './ErrorLoadingProviderLink';
 import ProviderLogoCard from './ProviderLogoCard';
+import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaComponent';
+import { useHCaptcha } from '../../../../components/HCaptcha/HCaptchaContext';
 
 type SelectCddProviderProps = {
   setState: React.Dispatch<React.SetStateAction<VerificationState>>;
@@ -24,6 +26,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   const { onNext } = useContext(StepFormContext);
   const { mutate, isLoading, isError, data } = useGetProviderLinkMutation();
   const { link } = data || {};
+  const { token: hCaptcha } = useHCaptcha()
 
   const onSelectProvider = (provider: 'netki' | 'jumio') => {
     if (!isLoading) {
@@ -39,8 +42,8 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   }, [link, setState, onNext]);
 
   const onClickNext = () => {
-    if (state.provider && state.address) {
-      mutate({ provider: state.provider, address: state.address });
+    if (state.provider && state.address && hCaptcha) {
+      mutate({ provider: state.provider, address: state.address, hCaptcha });
     }
   };
 
@@ -58,6 +61,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           onSelectProvider={onSelectProvider}
           isSelected={state.provider === 'netki'}
         />
+        <HCaptchaComponent />
       </Flex>
       <StepFormNavigation
         nextStepLabel="Next"
