@@ -27,3 +27,5 @@ export const addressZ = extendApi(
     example: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
   }
 );
+
+export const hCaptcha = z.string().nonempty("hCaptcha validation token is required");

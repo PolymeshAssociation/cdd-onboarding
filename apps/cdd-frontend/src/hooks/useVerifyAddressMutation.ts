@@ -1,5 +1,8 @@
+import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 import { useMutation } from 'react-query';
+import { z } from 'zod';
 
+import { hCaptcha } from '../components/HCaptcha/HCaptchaFormComponent';
 import axios from '../services/axios';
 
 export type ServiceResponse = {
@@ -7,13 +10,18 @@ export type ServiceResponse = {
     previousLinks: string[];
 }
 
-const verifyAddress = async (address: string) => {
-    const { data } = await axios.get<ServiceResponse>(`/verify/${address}`);
+export const verifyAddressSchema = z.object({
+    address: addressZ,
+    hCaptcha
+  });
+
+export type VerifyAddressPayload = z.infer<typeof verifyAddressSchema>;
+
+const verifyAddress = async (payload: VerifyAddressPayload) => {
+    const { data } = await axios.post<ServiceResponse>('/verify-address', payload);
 
     return data;
 };
-
-
 
 export const useVerifyAddressMutation = () => {
     return useMutation(verifyAddress);

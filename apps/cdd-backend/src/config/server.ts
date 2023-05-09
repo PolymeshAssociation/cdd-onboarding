@@ -7,6 +7,7 @@ const configZ = z
       .object({
         routePrefix: z
           .string()
+          .transform((val) => val.trim().replace(/^\/+/, ""))
           .default('')
           .describe('(optional) global route prefix e.g. `/api`'),
         port: z.coerce
@@ -68,6 +69,11 @@ const configZ = z
         allowedBasicAuth: allowedBasicAuthZ,
       })
       .describe('Netki related config'),
+    hCaptcha: z
+      .object({
+        secretKey: z.string().describe('hCaptcha secret key'),
+      })
+      .describe('hCaptcha related config'),
   })
   .describe('config values needed for "server" mode');
 
@@ -105,6 +111,9 @@ export const serverEnvConfig = (): ServerConfig => {
         (credential) => credential.trim()
       ),
     },
+    hCaptcha: {
+      secretKey: process.env.HCAPTCHA_SECRET_KEY,
+    }
   };
 
   return configZ.parse(rawConfig);

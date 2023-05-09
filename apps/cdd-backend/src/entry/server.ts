@@ -31,7 +31,7 @@ async function bootstrap() {
   app.setGlobalPrefix(routePrefix);
 
   if (process.env.NODE_ENV !== 'production') {
-    const documentationRoute = `/${routePrefix}`;
+    const documentationRoute = `${routePrefix}/docs`;
     logger.info('NODE_ENV was not `production` - serving swagger web UI', {
       documentationRoute,
     });

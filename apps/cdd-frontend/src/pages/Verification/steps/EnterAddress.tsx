@@ -36,9 +36,13 @@ import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
 import usePolyWallet from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
 import config, { NETWORK_NAMES } from '../../../config/constants';
+import HCaptchaComponent, { hCaptcha } from '../../../components/HCaptcha/HCaptchaFormComponent';
+
+import { useHCaptcha } from '../../../components/HCaptcha/HCaptchaContext';
 
 const schema = z.object({
   address: addressZ,
+  hCaptcha
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -54,6 +58,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
 }) => {
   const { address } = state;
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isValid },
@@ -65,6 +70,8 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     defaultValues: { address },
   });
   const { onNext } = useContext(StepFormContext);
+  const { token: hCaptcha } = useHCaptcha()
+
   const { mutate, isLoading, isSuccess, isError, error } =
     useVerifyAddressMutation();
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
@@ -72,7 +79,9 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { message } = (error as AxiosError) || {};
   const onSubmit = ({ address }: FormValues) => {
     setState({ address });
-    mutate(address);
+    if(hCaptcha){
+      mutate({ address, hCaptcha });
+    }
   };
 
   useEffect(() => {
@@ -202,6 +211,8 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
             </FormHelperText>
           )}
         </FormControl>
+
+        <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
         nextStepLabel="Get started"

@@ -1,6 +1,8 @@
 import { useMutation } from 'react-query';
 import { z } from 'zod';
 
+import { hCaptcha } from '../components/HCaptcha/HCaptchaFormComponent';
+
 import axios from '../services/axios';
 
 export type ServiceResponse = {
@@ -11,6 +13,7 @@ export const emailFormSchema = z.object({
   email: z.string().email(),
   termsAccepted: z.boolean(),
   updatesAccepted: z.boolean(),
+  hCaptcha
 });
 
 export type EmailFormValues = z.infer<typeof emailFormSchema>;
