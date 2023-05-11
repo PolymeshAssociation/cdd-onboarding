@@ -14,7 +14,6 @@ echo "Finished replacing environment variable placeholders"
 date
 echo "Replacing environment variables with their runtime values..."
 
-env
 while read LINE; do
     TMP=$(mktemp)
     chmod 0644 "$TMP"
