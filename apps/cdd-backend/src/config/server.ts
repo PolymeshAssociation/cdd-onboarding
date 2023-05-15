@@ -7,7 +7,7 @@ const configZ = z
       .object({
         routePrefix: z
           .string()
-          .transform((val) => val.trim().replace(/^\/+/, ""))
+          .transform((val) => val.trim().replace(/^\/+/, ''))
           .default('')
           .describe('(optional) global route prefix e.g. `/api`'),
         port: z.coerce
@@ -16,6 +16,11 @@ const configZ = z
           .max(65535)
           .default(3333)
           .describe('port the server will listen on'),
+        allowedCorsDomains: z
+          .string()
+          .array()
+          .default(['localhost:4200'])
+          .describe('CSV list of allowed CORS domains'),
         healthAllowedIps: allowedIpsZ,
       })
       .describe('server related config'),
@@ -87,6 +92,9 @@ export const serverEnvConfig = (): ServerConfig => {
     server: {
       port: process.env.APP_PORT,
       routePrefix: process.env.APP_ROUTE_PREFIX,
+      allowedCorsDomains: process.env.ALLOWED_CORS_DOMAINS?.split(',').map(
+        (domain) => domain.trim()
+      ),
       healthAllowedIps: process.env.APP_HEALTH_IPS?.split(',').map((ip) =>
         ip.trim()
       ),
@@ -113,7 +121,7 @@ export const serverEnvConfig = (): ServerConfig => {
     },
     hCaptcha: {
       secretKey: process.env.HCAPTCHA_SECRET_KEY,
-    }
+    },
   };
 
   return configZ.parse(rawConfig);
