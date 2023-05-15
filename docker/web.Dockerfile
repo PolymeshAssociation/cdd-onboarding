@@ -12,6 +12,9 @@ RUN nx build cdd-frontend --configuration=production
 
 FROM nginx:stable-alpine3.17
 
+RUN rm /etc/nginx/conf.d/default.conf
+COPY docker/nginx.conf /etc/nginx/conf.d/
+
 COPY --from=builder /app/builder/dist/apps/cdd-frontend /usr/share/nginx/html
 COPY --chown=root:root docker/replace-env-var-placeholders.sh /usr/local/bin/replace-env-var-placeholders.sh
 COPY docker/env.var.list /srv/env.var.list
