@@ -18,14 +18,19 @@ export class CddProcessor {
 
   @Process()
   async generateCdd(job: Job<CddJob>) {
-    if (job.data.type === 'jumio') {
-      await this.handleJumio(job.data);
-    } else if (job.data.type === 'netki') {
-      await this.handleNetki(job.data);
-    } else {
-      const error = new Error('unknown Cdd job type encountered');
-      this.logger.error(error.message, { data: job.data });
-      throw error;
+    try {
+      if (job.data.type === 'jumio') {
+        await this.handleJumio(job.data);
+      } else if (job.data.type === 'netki') {
+        await this.handleNetki(job.data);
+      } else {
+        throw new Error('unknown Cdd job type encountered');
+      }
+    } catch (error) {
+      this.logger.error('problem processing cdd job', {
+        data: job.data,
+        error,
+      });
     }
   }
 
@@ -44,11 +49,7 @@ export class CddProcessor {
     const address = await this.redis.get(netkiAccessCodeKey);
 
     if (!address) {
-      const error = new Error(`Netki record not found`);
-      this.logger.error(error.message, {
-        jobId: jobId,
-      });
-      throw error;
+      throw new Error(`Netki record not found`);
     }
 
     this.logger.info('retrieved address', { jobId, address });
@@ -88,11 +89,9 @@ export class CddProcessor {
     const childCode = childCodes[0];
 
     if (!childCode) {
-      const error = new Error(
+      throw new Error(
         'property `child_codes` was not found in restart webhook payload'
       );
-      this.logger.error(error.message, { jobId, address });
-      throw error;
     }
 
     const newCodeKey = netkiAllocatedPrefixer(childCode.code);
@@ -142,6 +141,7 @@ export class CddProcessor {
         address,
         error,
       });
+      // Swallow the error. The job was processed and shouldn't be retried
     });
   }
 
@@ -156,13 +156,7 @@ export class CddProcessor {
       createCdd: true,
     });
 
-    const createdIdentity = await registerIdentityTx.run().catch((error) => {
-      this.logger.error('problem creating CDD claim', {
-        error,
-        jobId,
-      });
-      throw error;
-    });
+    const createdIdentity = await registerIdentityTx.run();
 
     this.logger.info('created CDD claim', {
       jobId,
