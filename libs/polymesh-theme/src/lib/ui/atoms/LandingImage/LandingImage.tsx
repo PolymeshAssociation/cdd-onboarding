@@ -8,18 +8,19 @@ type LandingImageProps = {
 
 export const LandingImage: React.FC<LandingImageProps> = ({ src, alt }) => {
   return (
-    <Flex w="100vw" h="700px" top={0} left={0} overflow="hidden" zIndex={-100} position="absolute" display={{ base: "none", md: "flex"}}>
       <Box
-        ml="50%"
-        w="50%"
-        h="100%"
-        zIndex={-100}
+        h="2000px"
+        w="500px"
         bgImage={src}
         bgRepeat="no-repeat"
         bgPosition="right top"
         bgSize="contain"
+        top="46px"
+        right={0}
+        position="absolute"
+        zIndex={0}
+        display={{ base: 'none', md: 'block' }}
       />
-    </Flex>
   );
 };
 

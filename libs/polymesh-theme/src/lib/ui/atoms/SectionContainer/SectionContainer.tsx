@@ -19,6 +19,7 @@ export type SectionContainerProps = {
         px={noGutters ? 'unset' : { base: '1.5rem', md: '3.125rem' }}
         align="flex-start"
         minH={fullHeight ? '100vh' : undefined}
+        position="relative"
       >
         {children}
       </VStack>

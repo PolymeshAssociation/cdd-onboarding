@@ -1,3 +1,4 @@
+import { Link as RouterLink } from 'react-router-dom';
 import { Box, Heading, Text, Button } from '@chakra-ui/react';
 
 export const NotFound = () => {
@@ -18,8 +19,8 @@ export const NotFound = () => {
       </Text>
 
       <Button
-        as="a"
-        href="/"
+        as={RouterLink}
+        to="/"
         colorScheme="navy"
         variant="ghost">
         Go to Home

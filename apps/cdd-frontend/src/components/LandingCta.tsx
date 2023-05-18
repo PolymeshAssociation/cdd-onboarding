@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Link, useColorModeValue } from '@chakra-ui/react';
 
 export const LandingCta: React.FC = () => {
@@ -9,9 +9,9 @@ export const LandingCta: React.FC = () => {
     <Box textAlign="center">
       <Button
         colorScheme="navy"
-        size={{ base: 'md', sm: "lg", md: 'lg' }}
-        as="a"
-        href="/verification"
+        size={{ base: 'md', sm: 'lg', md: 'lg' }}
+        as={RouterLink}
+        to="/verification"
         w={{ base: '100%', md: 'unset' }}
         mb="1.5rem"
         display="block"
@@ -20,7 +20,7 @@ export const LandingCta: React.FC = () => {
       </Button>
       <Link
         color={linkColor}
-        variant="ghost"      
+        variant="ghost"
         href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
         target="_blank"
         isExternal
