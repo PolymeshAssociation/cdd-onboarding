@@ -9,7 +9,7 @@ export const LandingCta: React.FC = () => {
     <Box textAlign="center">
       <Button
         colorScheme="navy"
-        size={{ base: 'md', sm: "lg", md: 'lg' }}
+        size={{ base: 'md', sm: 'lg', md: 'lg' }}
         as={RouterLink}
         to="/verification"
         w={{ base: '100%', md: 'unset' }}
@@ -20,7 +20,7 @@ export const LandingCta: React.FC = () => {
       </Button>
       <Link
         color={linkColor}
-        variant="ghost"      
+        variant="ghost"
         href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
         target="_blank"
         isExternal
