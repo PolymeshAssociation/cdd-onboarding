@@ -71,10 +71,8 @@ const questionsAnswers: QuestionItem[] = [
     answer: (
       <>
         To learn more about becoming a node operator on Polymesh,{' '}
-        <Link href="https://polymesh.network/node-operators" isExternal>
           You can learn more about becoming a node operator on Polymesh,{' '} 
-          <Link>here</Link>
-        </Link>
+          <Link href="https://polymesh.network/node-operators" isExternal>here</Link>
       </>
     ),
   },
