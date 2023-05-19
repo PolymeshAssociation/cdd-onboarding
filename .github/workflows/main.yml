@@ -19,7 +19,7 @@ jobs:
           node-version: '18.x'
           cache: 'yarn'
       - name: install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile && npm install -g nx@latest
       - name: lint
         run: nx run-many --target=lint --all
 
@@ -35,7 +35,7 @@ jobs:
           node-version: '18.x'
           cache: 'yarn'
       - name: install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile && npm install -g nx@latest
       - name: build
         run: nx run-many --target=build --all
 
@@ -51,6 +51,6 @@ jobs:
           node-version: '18.x'
           cache: 'yarn'
       - name: install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile  && npm install -g nx@latest
       - name: test
         run: nx run-many --target=test --all
