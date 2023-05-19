@@ -1,10 +1,11 @@
-import { ComponentStyleConfig } from '@chakra-ui/react';
+import { ComponentMultiStyleConfig } from '@chakra-ui/react';
 
 const activeLabelStyles = {
   transform: 'scale(0.85) translateY(-1.75rem)',
 };
 
-export const Form: ComponentStyleConfig = {
+export const Form: ComponentMultiStyleConfig = {
+  parts: [],
   variants: {
     floating: {
       container: {
