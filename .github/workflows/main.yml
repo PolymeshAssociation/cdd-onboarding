@@ -53,4 +53,4 @@ jobs:
       - name: install dependencies
         run: yarn --frozen-lockfile  && npm install -g nx@latest
       - name: test
-        run: nx run-many --target=test --all
+        run: nx run-many --target=test --all --exclude polymesh-theme

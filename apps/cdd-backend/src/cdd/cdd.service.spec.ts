@@ -40,7 +40,8 @@ describe('CddService', () => {
     mockRedis = module.get<typeof mockRedis>(Redis);
     mockJumioService = module.get<typeof mockJumioService>(JumioService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
-    mockMailchimpService = module.get<typeof mockMailchimpService>(MailchimpService)
+    mockMailchimpService =
+      module.get<typeof mockMailchimpService>(MailchimpService);
   });
 
   it('should be defined', () => {
@@ -104,6 +105,7 @@ describe('CddService', () => {
         const link = await service.getProviderLink({
           address,
           provider: 'jumio',
+          hCaptcha: 'someSecret',
         });
 
         expect(link).toEqual(expectedLink);
@@ -120,20 +122,34 @@ describe('CddService', () => {
     it('should call addSubscriberToMarketingList if updatesAccepted = true with status subscribed', async () => {
       mockMailchimpService.addSubscriberToMarketingList.mockResolvedValue(true);
 
-      const payload: EmailDetailsDto = { email: 'test@example.com', updatesAccepted: true, termsAccepted: true }
+      const payload: EmailDetailsDto = {
+        email: 'test@example.com',
+        updatesAccepted: true,
+        termsAccepted: true,
+        hCaptcha: 'someSecret',
+      };
       const result = await service.processEmail(payload);
 
-      expect(mockMailchimpService.addSubscriberToMarketingList).toHaveBeenCalledWith(payload.email, 'subscribed');
+      expect(
+        mockMailchimpService.addSubscriberToMarketingList
+      ).toHaveBeenCalledWith(payload.email, 'subscribed');
       expect(result).toEqual(true);
     });
 
     it('should call addSubscriberToMarketingList if updatesAccepted = true with status transactional', async () => {
       mockMailchimpService.addSubscriberToMarketingList.mockResolvedValue(true);
 
-      const payload: EmailDetailsDto = { email: 'test@example.com', updatesAccepted: false, termsAccepted: true }
+      const payload: EmailDetailsDto = {
+        email: 'test@example.com',
+        updatesAccepted: false,
+        termsAccepted: true,
+        hCaptcha: 'someSecret',
+      };
       const result = await service.processEmail(payload);
 
-      expect(mockMailchimpService.addSubscriberToMarketingList).toHaveBeenCalledWith(payload.email, 'transactional');
+      expect(
+        mockMailchimpService.addSubscriberToMarketingList
+      ).toHaveBeenCalledWith(payload.email, 'transactional');
       expect(result).toEqual(true);
     });
   });

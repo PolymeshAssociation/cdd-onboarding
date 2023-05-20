@@ -16,5 +16,4 @@ export default {
     ],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/cdd-backend-e2e',
 };
