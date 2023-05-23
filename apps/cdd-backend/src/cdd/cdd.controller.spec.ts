@@ -6,6 +6,12 @@ import {
   ProviderLinkResponse,
   VerifyAddressResponse,
 } from '@cdd-onboarding/cdd-types';
+import {
+  HCaptchaGuard,
+  HCAPTCHA_GUARD_CREDENTIALS_PROVIDER,
+} from '../common/hcaptcha.guard';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 const address = 'some-address';
 describe('CddController', () => {
@@ -19,6 +25,15 @@ describe('CddController', () => {
           provide: CddService,
           useValue: createMock<CddService>(),
         },
+        {
+          provide: HCaptchaGuard,
+          useValue: createMock<HCaptchaGuard>(),
+        },
+        {
+          provide: HCAPTCHA_GUARD_CREDENTIALS_PROVIDER,
+          useValue: 'someSecret',
+        },
+        { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
       ],
       controllers: [CddController],
     }).compile();
@@ -38,7 +53,10 @@ describe('CddController', () => {
         identity: null,
       });
 
-      const response = await controller.verifyAddress({ address });
+      const response = await controller.verifyAddress({
+        address,
+        hCaptcha: 'someSecret',
+      });
 
       expect(response).toEqual(new VerifyAddressResponse(true, null));
     });
@@ -51,6 +69,7 @@ describe('CddController', () => {
       const response = await controller.providerLink({
         address,
         provider: 'jumio',
+        hCaptcha: 'someSecret',
       });
 
       expect(response).toEqual(new ProviderLinkResponse('https://example.com'));
@@ -62,9 +81,10 @@ describe('CddController', () => {
       mockCddService.processEmail.mockResolvedValue(true);
 
       const response = await controller.emailAddress({
-        email: "test@email.com",
+        email: 'test@email.com',
         termsAccepted: true,
         updatesAccepted: true,
+        hCaptcha: 'someSecret',
       });
 
       expect(response).toEqual(true);

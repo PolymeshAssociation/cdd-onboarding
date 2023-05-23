@@ -18,19 +18,12 @@ export class CddProcessor {
 
   @Process()
   async generateCdd(job: Job<CddJob>) {
-    try {
-      if (job.data.type === 'jumio') {
-        await this.handleJumio(job.data);
-      } else if (job.data.type === 'netki') {
-        await this.handleNetki(job.data);
-      } else {
-        throw new Error('unknown Cdd job type encountered');
-      }
-    } catch (error) {
-      this.logger.error('problem processing cdd job', {
-        data: job.data,
-        error,
-      });
+    if (job.data.type === 'jumio') {
+      await this.handleJumio(job.data);
+    } else if (job.data.type === 'netki') {
+      await this.handleNetki(job.data);
+    } else {
+      throw new Error('unknown Cdd job type encountered');
     }
   }
 
