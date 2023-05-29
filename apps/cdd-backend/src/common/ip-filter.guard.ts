@@ -42,10 +42,10 @@ export class IpFilterGuard implements CanActivate {
       request.header('x-forwarded-for') || request.connection.remoteAddress;
 
     const type = isIPv4(clientIp) ? 'ipv4' : 'ipv6';
-    const result = this.allowedList.check(clientIp, type);
+    const canActivate = this.allowedList.check(clientIp, type);
 
-    this.logger.debug('filtered IP', { clientIp, result });
+    this.logger.debug('filtered IP', { clientIp, result: canActivate });
 
-    return result;
+    return canActivate;
   }
 }

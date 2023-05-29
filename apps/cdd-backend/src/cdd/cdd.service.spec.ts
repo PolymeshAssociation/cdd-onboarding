@@ -4,7 +4,6 @@ import { CddService } from './cdd.service';
 import { getQueueToken } from '@nestjs/bull';
 import { MockPolymesh } from '../test-utils/mocks';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import Redis from 'ioredis';
 import { JumioService } from '../jumio/jumio.service';
 import { NetkiService } from '../netki/netki.service';
 import { Queue } from 'bull';
@@ -13,11 +12,12 @@ import { Logger } from 'winston';
 import { BadRequestException } from '@nestjs/common';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { EmailDetailsDto } from '@cdd-onboarding/cdd-types';
+import { AppRedisService } from '../app-redis/app-redis.service';
 
 describe('CddService', () => {
   const address = 'some-address';
   let mockPolymesh: MockPolymesh;
-  let mockRedis: DeepMocked<Redis>;
+  let mockRedis: DeepMocked<AppRedisService>;
   let mockJumioService: DeepMocked<JumioService>;
   let mockMailchimpService: DeepMocked<MailchimpService>;
   let service: CddService;
@@ -28,7 +28,7 @@ describe('CddService', () => {
         CddService,
         { provide: Polymesh, useValue: new MockPolymesh() },
         { provide: getQueueToken(), useValue: createMock<Queue>() },
-        { provide: Redis, useValue: createMock<Redis>() },
+        { provide: AppRedisService, useValue: createMock<AppRedisService>() },
         { provide: JumioService, useValue: createMock<JumioService>() },
         { provide: NetkiService, useValue: createMock<NetkiService>() },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
@@ -37,7 +37,7 @@ describe('CddService', () => {
     }).compile();
 
     service = module.get<CddService>(CddService);
-    mockRedis = module.get<typeof mockRedis>(Redis);
+    mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockJumioService = module.get<typeof mockJumioService>(JumioService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
     mockMailchimpService =
@@ -110,9 +110,11 @@ describe('CddService', () => {
 
         expect(link).toEqual(expectedLink);
 
-        expect(mockRedis.sadd).toHaveBeenCalledWith(
+        expect(mockRedis.setApplication).toHaveBeenCalledWith(
           address,
-          expect.stringContaining(expectedLink)
+          expect.objectContaining({
+            url: expect.stringContaining(expectedLink),
+          })
         );
       });
     });

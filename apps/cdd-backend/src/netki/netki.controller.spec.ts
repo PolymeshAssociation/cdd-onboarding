@@ -41,13 +41,13 @@ describe('NetkiController', () => {
   describe('fetchAccessCodes', () => {
     it('should call the service', async () => {
       mockService.fetchAccessCodes.mockResolvedValue({
-        fetched: 2,
+        added: 2,
         total: 3,
       });
 
       const result = await controller.fetchAccessCodes();
 
-      expect(result).toEqual({ fetched: 2, total: 3 });
+      expect(result).toEqual({ added: 2, total: 3 });
     });
   });
 

@@ -5,12 +5,9 @@ import {
   ProviderLinkResponse,
   EmailDetailsDto,
 } from '@cdd-onboarding/cdd-types';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiOkResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
 import { HCaptchaGuard } from '../common/hcaptcha.guard';
 import { CddService } from './cdd.service';
 
@@ -44,9 +41,12 @@ export class CddController {
   }
 
   @Post('/email')
-  async emailAddress(
-    @Body() body: EmailDetailsDto
-  ): Promise<boolean> {
+  async emailAddress(@Body() body: EmailDetailsDto): Promise<boolean> {
     return this.cddService.processEmail(body);
+  }
+
+  @Get('/:address/applications')
+  async addressApplications(address: string): Promise<CddApplicationModel[]> {
+    return this.cddService.getApplications(address);
   }
 }

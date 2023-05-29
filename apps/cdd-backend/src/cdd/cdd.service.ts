@@ -10,11 +10,11 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import Redis from 'ioredis';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import crypto from 'node:crypto';
 import { Logger } from 'winston';
-import { CddApplication } from '../cdd-worker/types';
+import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
+import { AppRedisService } from '../app-redis/app-redis.service';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
@@ -25,10 +25,14 @@ export class CddService {
     private readonly polymesh: Polymesh,
     private readonly jumioService: JumioService,
     private readonly netkiService: NetkiService,
-    private readonly redis: Redis,
+    private readonly redisService: AppRedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly mailchimpService: MailchimpService
   ) {}
+
+  public getApplications(address: string): Promise<CddApplicationModel[]> {
+    return this.redisService.getApplications(address);
+  }
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {
     if (!this.polymesh.accountManagement.isValidAddress({ address })) {
@@ -50,7 +54,10 @@ export class CddService {
     const identity = await account.getIdentity();
     if (identity) {
       const validCdd = await identity.hasValidCdd();
-      return { valid: false, identity: { did: identity.did, validCdd } };
+      return {
+        valid: false,
+        identity: { did: identity.did, validCdd },
+      };
     }
 
     return { valid: true, identity: null };
@@ -76,7 +83,9 @@ export class CddService {
       url = jumioResponse.redirectUrl as string;
       externalId = jumioResponse.transactionReference as string;
     } else if (provider === 'netki') {
-      const accessCode = await this.netkiService.popLink(address);
+      const accessCode = await this.netkiService.allocateLinkForAddress(
+        address
+      );
 
       url = accessCode.url;
       externalId = accessCode.id;
@@ -85,7 +94,7 @@ export class CddService {
       throw new InternalServerErrorException();
     }
 
-    const application: CddApplication = {
+    const application: CddApplicationModel = {
       id,
       address,
       url,
@@ -94,7 +103,7 @@ export class CddService {
       timestamp: new Date().toISOString(),
     };
 
-    this.redis.sadd(address, JSON.stringify(application));
+    this.redisService.setApplication(address, application);
 
     return application.url;
   }
