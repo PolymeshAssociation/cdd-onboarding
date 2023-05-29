@@ -1,4 +1,6 @@
 import {
+  AddressApplicationsResponse,
+  ApplicationInfo,
   EmailDetailsDto,
   ProviderLinkDto,
   VerifyAddressResponse,
@@ -29,10 +31,6 @@ export class CddService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly mailchimpService: MailchimpService
   ) {}
-
-  public getApplications(address: string): Promise<CddApplicationModel[]> {
-    return this.redisService.getApplications(address);
-  }
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {
     if (!this.polymesh.accountManagement.isValidAddress({ address })) {
@@ -122,6 +120,32 @@ export class CddService {
     return this.mailchimpService.addSubscriberToMarketingList(
       email,
       'transactional'
+    );
+  }
+
+  public async getApplications(
+    address: string
+  ): Promise<AddressApplicationsResponse> {
+    const account = await this.polymesh.accountManagement.getAccount({
+      address,
+    });
+
+    const [applications, identity] = await Promise.all([
+      this.redisService.getApplications(address),
+      account.getIdentity(),
+    ]);
+
+    // don't divulge created identities history, just in case
+    const simplifiedApplications = identity
+      ? []
+      : applications.map(
+          ({ provider, timestamp }) => new ApplicationInfo(provider, timestamp)
+        );
+
+    return new AddressApplicationsResponse(
+      address,
+      simplifiedApplications,
+      identity?.did
     );
   }
 }
