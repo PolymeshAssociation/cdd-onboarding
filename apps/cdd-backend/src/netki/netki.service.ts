@@ -7,16 +7,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bull';
-import Redis from 'ioredis';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { catchError, firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
+import { AppRedisService } from '../app-redis/app-redis.service';
+import { NetkiAccessLinkModel } from '../app-redis/models/netki-access-link.model';
 import { CddJob } from '../cdd-worker/types';
 import { getExpiryFromJwt } from '../common/utils';
 import {
-  allocatedCodesPrefix,
-  netkiAllocatedPrefixer,
-  availableCodesSetName,
   NetkiAccessCode,
   NetkiAccessCodePageResponse,
   NetkiCallbackDto,
@@ -34,7 +32,7 @@ export class NetkiService {
   private accessToken = '';
 
   constructor(
-    private readonly redis: Redis,
+    private readonly redis: AppRedisService,
     private readonly http: HttpService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectQueue('') private readonly queue: Queue,
@@ -49,22 +47,23 @@ export class NetkiService {
     };
   }
 
-  public async popLink(
+  public async allocateLinkForAddress(
     address: string
-  ): Promise<NetkiAccessCode & { url: string }> {
-    const [rawAccessCode] = await this.redis.spop(availableCodesSetName, 1);
+  ): Promise<NetkiAccessLinkModel & { url: string }> {
+    const accessCode = await this.redis.popNetkiAccessLink();
 
-    if (!rawAccessCode) {
-      this.logger.error('no Netki access codes found');
-      throw new InternalServerErrorException();
+    if (!accessCode) {
+      throw new InternalServerErrorException('Netki codes exhausted');
     }
 
-    const accessCode = JSON.parse(rawAccessCode);
-    accessCode.url = `${this.linkBaseUrl}?service_code=${accessCode.code}&applicationId=${address}`;
+    const url = `${this.linkBaseUrl}?service_code=${accessCode.code}&applicationId=${address}`;
 
-    await this.allocateCode(accessCode.code, address);
+    await this.redis.allocateCode(accessCode.code, address);
 
-    return accessCode;
+    return {
+      ...accessCode,
+      url,
+    };
   }
 
   public async getBusinessInfo(): Promise<NetkiBusinessInfo> {
@@ -104,41 +103,21 @@ export class NetkiService {
       throw new InternalServerErrorException();
     }
 
-    const allocatedCodes = await this.getAllocatedCodes();
+    const allocatedCodes = await this.redis.getAllocatedCodes();
 
     const newLinks = codeResponse?.data?.results
       .filter(
         // filter any code that has been allocated, the presence of `parent code` implies Netki has allocated the code
         ({ id, parent_code }) => !allocatedCodes.has(id) && parent_code === null
       )
-      .map(({ id, code, created, is_active: isActive }: NetkiAccessCode) =>
-        JSON.stringify({
-          id,
-          code,
-          created,
-          isActive,
-        })
-      );
+      .map(({ id, code, created, is_active: isActive }: NetkiAccessCode) => ({
+        id,
+        code,
+        created,
+        isActive,
+      }));
 
-    const fetched = await this.redis.sadd(availableCodesSetName, newLinks);
-    const total = await this.redis.scard(availableCodesSetName);
-
-    return { fetched, total };
-  }
-
-  private async allocateCode(code: string, address: string): Promise<void> {
-    this.logger.debug(`allocating access code '${code}' for '${address}'`);
-
-    const key = netkiAllocatedPrefixer(code);
-    await this.redis.set(key, address);
-  }
-
-  private async getAllocatedCodes(): Promise<Set<string>> {
-    const allocatedCodes = await this.redis.keys(`${allocatedCodesPrefix}*`);
-
-    return new Set(
-      allocatedCodes.map((code) => code.replace(allocatedCodesPrefix, ''))
-    );
+    return this.redis.pushNetkiCodes(newLinks);
   }
 
   private get headers(): Record<string, string> {

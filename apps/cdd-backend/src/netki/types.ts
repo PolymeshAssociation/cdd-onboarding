@@ -63,13 +63,7 @@ type NetkiPaginatedResponse<T> = {
   results: T[];
 };
 
-export const availableCodesSetName = 'netki-codes' as const;
-export const allocatedCodesPrefix = 'netki-allocated-codes:' as const;
-
-export const netkiAllocatedPrefixer = (id: string) =>
-  `${allocatedCodesPrefix}${id}`;
-
 export interface NetkiFetchCodesResponse {
-  fetched: number;
+  added: number;
   total: number;
 }

@@ -6,17 +6,18 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosResponse } from 'axios';
 import { Job, Queue } from 'bull';
-import Redis from 'ioredis';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { of } from 'rxjs';
 import { Logger } from 'winston';
+import { AppRedisService } from '../app-redis/app-redis.service';
+import { NetkiAccessLinkModel } from '../app-redis/models/netki-access-link.model';
 import { CddJob } from '../cdd-worker/types';
 import { NetkiService } from './netki.service';
-import { netkiAllocatedPrefixer, NetkiCallbackDto } from './types';
+import { NetkiCallbackDto } from './types';
 
 describe('NetkiService', () => {
   let service: NetkiService;
-  let mockRedis: DeepMocked<Redis>;
+  let mockRedis: DeepMocked<AppRedisService>;
   let mockHttp: DeepMocked<HttpService>;
   let mockQueue: DeepMocked<Queue>;
 
@@ -29,8 +30,8 @@ describe('NetkiService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
-          provide: Redis,
-          useValue: createMock<Redis>(),
+          provide: AppRedisService,
+          useValue: createMock<AppRedisService>(),
         },
         {
           provide: HttpService,
@@ -53,7 +54,7 @@ describe('NetkiService', () => {
     }).compile();
 
     service = module.get<NetkiService>(NetkiService);
-    mockRedis = module.get<typeof mockRedis>(Redis);
+    mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockHttp = module.get<typeof mockHttp>(HttpService);
     mockQueue = module.get<typeof mockQueue>(getQueueToken(''));
 
@@ -70,16 +71,10 @@ describe('NetkiService', () => {
 
   describe('popLink', () => {
     it('should return an access code', async () => {
-      const mockCode = ['{"id": "123", "code": "abc"}'];
-      mockRedis.spop.mockResolvedValue(mockCode);
-      mockRedis.set.mockResolvedValue('OK');
+      const mockCode = { id: '123', code: 'abc' } as NetkiAccessLinkModel;
+      mockRedis.popNetkiAccessLink.mockResolvedValue(mockCode);
 
-      const result = await service.popLink(address);
-
-      expect(mockRedis.set).toHaveBeenCalledWith(
-        netkiAllocatedPrefixer('abc'),
-        address
-      );
+      const result = await service.allocateLinkForAddress(address);
 
       expect(result).toEqual({
         id: '123',
@@ -89,9 +84,9 @@ describe('NetkiService', () => {
     });
 
     it('should throw if no code is returned from redis', async () => {
-      mockRedis.spop.mockResolvedValue([]);
+      mockRedis.popNetkiAccessLink.mockResolvedValue(null);
 
-      return expect(service.popLink(address)).rejects.toThrow(
+      return expect(service.allocateLinkForAddress(address)).rejects.toThrow(
         InternalServerErrorException
       );
     });
@@ -106,6 +101,7 @@ describe('NetkiService', () => {
           ],
         },
       } as AxiosResponse;
+
       const mockAccessResponse = {
         data: {
           access:
@@ -117,13 +113,13 @@ describe('NetkiService', () => {
       jest
         .spyOn(mockHttp, 'post')
         .mockImplementation(() => of(mockAccessResponse));
-      mockRedis.keys.mockResolvedValue([]);
-      mockRedis.sadd.mockResolvedValue(1);
-      mockRedis.scard.mockResolvedValue(3);
+
+      mockRedis.getAllocatedCodes.mockResolvedValue(new Set());
+      mockRedis.pushNetkiCodes.mockResolvedValue({ added: 1, total: 3 });
 
       const result = await service.fetchAccessCodes();
 
-      expect(result).toEqual({ fetched: 1, total: 3 });
+      expect(result).toEqual({ added: 1, total: 3 });
     });
   });
 

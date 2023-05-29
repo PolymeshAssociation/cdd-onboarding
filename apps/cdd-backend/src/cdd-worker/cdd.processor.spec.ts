@@ -2,7 +2,6 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
-import Redis from 'ioredis';
 import { MockPolymesh } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
 import { JumioCddJob, NetkiCddJob } from './types';
@@ -10,12 +9,13 @@ import { JumioCallbackDto } from '../jumio/types';
 
 import jumioVerifiedData from '../test-utils/jumio-http/webhook-approved-verified.json';
 import jumioCannotReadData from '../test-utils/jumio-http/webhook-cannot-read.json';
-import { NetkiAccessCode, netkiAllocatedPrefixer } from '../netki/types';
+import { NetkiAccessCode } from '../netki/types';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { AppRedisService } from '../app-redis/app-redis.service';
 
 describe('cddProcessor', () => {
-  let mockRedis: DeepMocked<Redis>;
+  let mockRedis: DeepMocked<AppRedisService>;
   const address = jumioVerifiedData.customerId;
 
   let mockPolymesh: MockPolymesh;
@@ -27,16 +27,16 @@ describe('cddProcessor', () => {
       providers: [
         CddProcessor,
         { provide: Polymesh, useValue: new MockPolymesh() },
-        { provide: Redis, useValue: createMock<Redis>() },
+        { provide: AppRedisService, useValue: createMock<AppRedisService>() },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
       ],
     }).compile();
 
     processor = module.get<CddProcessor>(CddProcessor);
-    mockRedis = module.get<typeof mockRedis>(Redis);
+    mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
 
-    mockRedis.get.mockResolvedValue(address);
+    mockRedis.getNetkiAddress.mockResolvedValue(address);
     mockRun = jest.fn().mockResolvedValue('test-tx-result');
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
       run: mockRun,
@@ -68,7 +68,7 @@ describe('cddProcessor', () => {
           createCdd: true,
         });
         expect(mockRun).toHaveBeenCalled();
-        expect(mockRedis.del).toHaveBeenCalledWith(address);
+        expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
       });
 
       it('should log and throw errors', async () => {
@@ -118,11 +118,11 @@ describe('cddProcessor', () => {
           await processor.generateCdd(mockNetkiCompletedJob);
 
           expect(mockRun).toHaveBeenCalled();
-          expect(mockRedis.del).toHaveBeenCalledWith(address);
+          expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
         });
 
         it('should throw if the address for the netki job is not found', async () => {
-          mockRedis.get.mockResolvedValue(null);
+          mockRedis.getNetkiAddress.mockRejectedValue(new Error('some error'));
 
           await expect(
             processor.generateCdd(mockNetkiCompletedJob)
@@ -156,11 +156,12 @@ describe('cddProcessor', () => {
         });
 
         it('should associate the address to the new netki code', async () => {
-          const expectedAppKey = netkiAllocatedPrefixer(childCode);
-
           await processor.generateCdd(mockNetkiRestartJob);
 
-          expect(mockRedis.set).toHaveBeenCalledWith(expectedAppKey, address);
+          expect(mockRedis.setNetkiCodeToAddress).toHaveBeenCalledWith(
+            childCode,
+            address
+          );
         });
 
         it('should throw if no access code is present', async () => {

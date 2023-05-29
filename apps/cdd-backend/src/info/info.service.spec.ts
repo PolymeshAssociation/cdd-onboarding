@@ -2,7 +2,7 @@ import { HealthCheckResponse } from '@cdd-onboarding/cdd-types';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { Redis } from 'ioredis';
+import { AppRedisService } from '../app-redis/app-redis.service';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
@@ -31,7 +31,7 @@ describe('InfoService', () => {
   let mockPolymesh: MockPolymesh;
   let mockJumio: DeepMocked<JumioService>;
   let mockNetki: DeepMocked<NetkiService>;
-  let mockRedis: DeepMocked<Redis>;
+  let mockRedis: DeepMocked<AppRedisService>;
   let mockMailchimpService: DeepMocked<MailchimpService>;
 
   beforeEach(async () => {
@@ -41,7 +41,7 @@ describe('InfoService', () => {
         { provide: Polymesh, useValue: new MockPolymesh() },
         { provide: NetkiService, useValue: createMock<NetkiService>() },
         { provide: JumioService, useValue: createMock<JumioService>() },
-        { provide: Redis, useValue: createMock<Redis>() },
+        { provide: AppRedisService, useValue: createMock<AppRedisService>() },
         { provide: MailchimpService, useValue: createMock<MailchimpService>() },
       ],
     }).compile();
@@ -50,8 +50,9 @@ describe('InfoService', () => {
     mockPolymesh = module.get<MockPolymesh>(Polymesh);
     mockJumio = module.get<typeof mockJumio>(JumioService);
     mockNetki = module.get<typeof mockNetki>(NetkiService);
-    mockRedis = module.get<typeof mockRedis>(Redis);
-    mockMailchimpService = module.get<typeof mockMailchimpService>(MailchimpService)
+    mockRedis = module.get<typeof mockRedis>(AppRedisService);
+    mockMailchimpService =
+      module.get<typeof mockMailchimpService>(MailchimpService);
   });
 
   it('should be defined', () => {
@@ -65,7 +66,7 @@ describe('InfoService', () => {
         jest.spyOn(service, 'polymeshInfo').mockResolvedValue(meshHealthy),
         jest.spyOn(service, 'redisInfo').mockResolvedValue(healthyResponse),
         jest.spyOn(service, 'netkiInfo').mockResolvedValue(healthyResponse),
-        jest.spyOn(service,'mailchimpInfo').mockResolvedValue(healthyResponse),
+        jest.spyOn(service, 'mailchimpInfo').mockResolvedValue(healthyResponse),
       ];
 
       const result = await service.all();
@@ -82,7 +83,7 @@ describe('InfoService', () => {
         jest.spyOn(service, 'polymeshInfo').mockResolvedValue(meshHealthy),
         jest.spyOn(service, 'redisInfo').mockResolvedValue(healthyResponse),
         jest.spyOn(service, 'netkiInfo').mockResolvedValue(healthyResponse),
-        jest.spyOn(service,'mailchimpInfo').mockResolvedValue(healthyResponse),
+        jest.spyOn(service, 'mailchimpInfo').mockResolvedValue(healthyResponse),
       ];
 
       const result = await service.all();
@@ -166,8 +167,7 @@ describe('InfoService', () => {
 
   describe('method: redisInfo', () => {
     it('should return healthy if redis is ok', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockRedis.ping.mockResolvedValue('mockResponse' as any);
+      mockRedis.isHealthy.mockResolvedValue(true);
 
       const response = await service.redisInfo();
 
@@ -175,7 +175,7 @@ describe('InfoService', () => {
     });
 
     it('should return unhealthy if redis is not ok', async () => {
-      mockRedis.ping.mockRejectedValue(new Error('some error'));
+      mockRedis.isHealthy.mockResolvedValue(false);
 
       const response = await service.redisInfo();
 

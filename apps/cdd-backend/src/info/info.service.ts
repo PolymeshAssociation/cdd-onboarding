@@ -2,7 +2,7 @@ import { HealthCheckResponse } from '@cdd-onboarding/cdd-types';
 import { Injectable } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { randomUUID } from 'crypto';
-import Redis from 'ioredis';
+import { AppRedisService } from '../app-redis/app-redis.service';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
@@ -14,7 +14,7 @@ export class InfoService {
     private readonly polymesh: Polymesh,
     private readonly netki: NetkiService,
     private readonly jumio: JumioService,
-    private readonly redis: Redis,
+    private readonly redis: AppRedisService,
     private readonly mailchimp: MailchimpService
   ) {}
 
@@ -32,7 +32,7 @@ export class InfoService {
       jumio,
       netki,
       redis,
-      mailchimp
+      mailchimp,
     };
 
     const healthy = !Object.values(data).some((response) => !response.healthy);
@@ -77,11 +77,7 @@ export class InfoService {
   }
 
   public async redisInfo(): Promise<HealthCheckResponse> {
-    let healthy = true;
-
-    await this.redis.ping().catch(() => {
-      healthy = false;
-    });
+    const healthy = await this.redis.isHealthy();
 
     return new HealthCheckResponse(healthy);
   }

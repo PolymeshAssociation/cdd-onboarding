@@ -2,29 +2,33 @@ import { Process, Processor } from '@nestjs/bull';
 import { Inject } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
-import Redis from 'ioredis';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { netkiAllocatedPrefixer, NetkiCallbackDto } from '../netki/types';
+import { AppRedisService } from '../app-redis/app-redis.service';
+import { NetkiCallbackDto } from '../netki/types';
 import { CddJob, JobIdentifier, JumioCddJob, NetkiCddJob } from './types';
 
 @Processor()
 export class CddProcessor {
   constructor(
     private readonly polymesh: Polymesh,
-    private readonly redis: Redis,
+    private readonly redis: AppRedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
 
   @Process()
   async generateCdd(job: Job<CddJob>) {
+    this.logger.info('received CDD job from queue', { jobId: job.id });
+
     if (job.data.type === 'jumio') {
       await this.handleJumio(job.data);
     } else if (job.data.type === 'netki') {
       await this.handleNetki(job.data);
     } else {
-      throw new Error('unknown Cdd job type encountered');
+      throw new Error('unknown CDD job type encountered');
     }
+
+    this.logger.info('finished processing CDD job', { jobId: job.id });
   }
 
   private async handleNetki({ value: netki }: NetkiCddJob): Promise<void> {
@@ -36,32 +40,32 @@ export class CddProcessor {
     } = netki;
     const jobId: JobIdentifier = { id, provider: 'netki' };
 
-    this.logger.info('starting netki job', { jobId });
+    this.logger.info('starting netki job', { jobId, state });
 
-    const netkiAccessCodeKey = netkiAllocatedPrefixer(id);
-    const address = await this.redis.get(netkiAccessCodeKey);
-
+    const address = await this.redis.getNetkiAddress(id);
     if (!address) {
-      throw new Error(`Netki record not found`);
+      throw new Error('netki code was not associated to the address');
     }
 
-    this.logger.info('retrieved address', { jobId, address });
+    this.logger.info('netki job info retrieved', { jobId, address, state });
 
     if (state === 'restarted') {
+      this.logger.debug('handling netki restart', { jobId });
       await this.handleNetkiRestart(jobId, address, netki);
     } else if (state === 'completed') {
+      this.logger.debug('handling netki completed', { jobId });
       await this.createCddClaim(jobId, address);
 
       await this.clearAddressApplications(jobId, address);
     } else {
-      this.logger.info('state did not have a handler - no action taken', {
+      this.logger.info('netki state did not have a handler - no action taken', {
         jobId,
         address,
         state,
       });
     }
 
-    this.logger.info('Netki CDD job completed successfully', {
+    this.logger.info('netki CDD job completed successfully', {
       jobId: jobId,
     });
   }
@@ -87,15 +91,13 @@ export class CddProcessor {
       );
     }
 
-    const newCodeKey = netkiAllocatedPrefixer(childCode.code);
-
-    this.logger.info('allocating restart access code', {
+    this.logger.debug('allocating restart access code', {
       jobId,
       address,
       childCode,
     });
 
-    await this.redis.set(newCodeKey, address);
+    await this.redis.setNetkiCodeToAddress(childCode.code, address);
   }
 
   private async handleJumio({ value: jumio }: JumioCddJob): Promise<void> {
@@ -106,20 +108,19 @@ export class CddProcessor {
     } = jumio;
     const jobId: JobIdentifier = { id, provider: 'jumio' };
 
-    this.logger.info('starting jumio CDD job', { jobId });
+    this.logger.info('starting jumio job', { jobId, status });
 
     if (status === 'APPROVED_VERIFIED') {
+      this.logger.debug('handling jumio approved verified', { jobId });
       await this.createCddClaim(jobId, address);
 
       await this.clearAddressApplications(jobId, address);
     } else {
       this.logger.info(
-        'Jumio verification status was not equal to `APPROVED_VERIFIED` - no action taken',
+        'jumio verification status did not have a handler set - no action taken',
         { jobId, status: jumio.verificationStatus }
       );
     }
-
-    this.logger.info('completed jumio CDD job successfully', { jobId });
   }
 
   private async clearAddressApplications(
@@ -128,7 +129,7 @@ export class CddProcessor {
   ): Promise<number | void> {
     this.logger.info('clearing CDD application records', { jobId, address });
 
-    return this.redis.del(address).catch((error) => {
+    return this.redis.clearApplications(address).catch((error) => {
       this.logger.error('problem clearing address CDD applications', {
         jobId,
         address,
