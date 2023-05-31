@@ -90,4 +90,22 @@ describe('CddController', () => {
       expect(response).toEqual(true);
     });
   });
+
+  describe('getApplications', () => {
+    it('should call the service and return the result', async () => {
+      const address = 'someAddress';
+      const mockResponse = {
+        address,
+        applications: [],
+      };
+
+      mockCddService.getApplications.mockResolvedValue(mockResponse);
+
+      const response = await controller.getApplications({
+        address,
+      });
+
+      expect(response).toEqual(mockResponse);
+    });
+  });
 });

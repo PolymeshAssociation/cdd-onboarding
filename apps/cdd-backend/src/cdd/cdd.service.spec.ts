@@ -13,6 +13,7 @@ import { BadRequestException } from '@nestjs/common';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { EmailDetailsDto } from '@cdd-onboarding/cdd-types';
 import { AppRedisService } from '../app-redis/app-redis.service';
+import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
 
 describe('CddService', () => {
   const address = 'some-address';
@@ -153,6 +154,50 @@ describe('CddService', () => {
         mockMailchimpService.addSubscriberToMarketingList
       ).toHaveBeenCalledWith(payload.email, 'transactional');
       expect(result).toEqual(true);
+    });
+  });
+
+  describe('getApplications', () => {
+    let mockAccount: DeepMocked<Account>;
+    beforeEach(() => {
+      mockAccount = createMock<Account>();
+      mockPolymesh.accountManagement.getAccount.mockResolvedValue(mockAccount);
+
+      mockRedis.getApplications.mockResolvedValue([
+        {
+          id: 'someId',
+          address: 'someAddress',
+          provider: 'netki',
+          timestamp: 'someTime',
+          url: 'someUrl',
+          externalId: 'someExtId',
+        },
+      ]);
+    });
+
+    it('should return previous applications', async () => {
+      mockAccount.getIdentity.mockResolvedValue(null);
+
+      const result = await service.getApplications('someAddress');
+
+      expect(result).toEqual({
+        address: 'someAddress',
+        applications: [{ provider: 'netki', timestamp: 'someTime' }],
+        did: undefined,
+      });
+    });
+
+    it('should not return application info for account with Identity', async () => {
+      const mockIdentity = createMock<Identity>({ did: 'someDid' });
+      mockAccount.getIdentity.mockResolvedValue(mockIdentity);
+
+      const result = await service.getApplications('someAddress');
+
+      expect(result).toEqual({
+        address: 'someAddress',
+        applications: [],
+        did: 'someDid',
+      });
     });
   });
 });

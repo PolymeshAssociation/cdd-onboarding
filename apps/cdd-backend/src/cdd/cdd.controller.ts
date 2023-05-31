@@ -4,16 +4,21 @@ import {
   VerifyAddressResponse,
   ProviderLinkResponse,
   EmailDetailsDto,
+  AddressApplicationsResponse,
+  AddressApplicationsParamsDto,
 } from '@cdd-onboarding/cdd-types';
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { HCaptchaGuard } from '../common/hcaptcha.guard';
 import { CddService } from './cdd.service';
 
 @Controller('')
 @ApiTags('user')
-@UseGuards(HCaptchaGuard)
 export class CddController {
   constructor(private readonly cddService: CddService) {}
 
@@ -25,6 +30,7 @@ export class CddController {
       'Address is not valid ss58 for the network (prefixed with 12 for mainnet, 42 otherwise)',
   })
   @Post('/verify-address')
+  @UseGuards(HCaptchaGuard)
   async verifyAddress(
     @Body() { address }: VerifyAddressDto
   ): Promise<VerifyAddressResponse> {
@@ -32,6 +38,7 @@ export class CddController {
   }
 
   @Post('/provider-link')
+  @UseGuards(HCaptchaGuard)
   async providerLink(
     @Body() body: ProviderLinkDto
   ): Promise<ProviderLinkResponse> {
@@ -41,12 +48,18 @@ export class CddController {
   }
 
   @Post('/email')
+  @UseGuards(HCaptchaGuard)
   async emailAddress(@Body() body: EmailDetailsDto): Promise<boolean> {
     return this.cddService.processEmail(body);
   }
 
-  @Get('/:address/applications')
-  async addressApplications(address: string): Promise<CddApplicationModel[]> {
+  @ApiOperation({
+    summary: 'Fetch address applications',
+  })
+  @Get('/applications/:address')
+  async getApplications(
+    @Param() { address }: AddressApplicationsParamsDto
+  ): Promise<AddressApplicationsResponse> {
     return this.cddService.getApplications(address);
   }
 }
