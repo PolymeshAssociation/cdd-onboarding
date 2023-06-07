@@ -30,7 +30,6 @@ export class CddController {
       'Address is not valid ss58 for the network (prefixed with 12 for mainnet, 42 otherwise)',
   })
   @Post('/verify-address')
-  @UseGuards(HCaptchaGuard)
   async verifyAddress(
     @Body() { address }: VerifyAddressDto
   ): Promise<VerifyAddressResponse> {
@@ -48,7 +47,6 @@ export class CddController {
   }
 
   @Post('/email')
-  @UseGuards(HCaptchaGuard)
   async emailAddress(@Body() body: EmailDetailsDto): Promise<boolean> {
     return this.cddService.processEmail(body);
   }
