@@ -90,7 +90,11 @@ describe('IpFilterGuard', () => {
     testCases.forEach(
       ({ description, clientIP, allowedIPs, forwardedFor, expected }) => {
         it(description, () => {
-          const mockExecutionContext = mockHttpContext(clientIP, forwardedFor);
+          const mockExecutionContext = mockHttpContext(
+            clientIP,
+            forwardedFor || '',
+            {}
+          );
           const ipFilterGuard = new IpFilterGuard(
             allowedIPs,
             createMock<Logger>()
