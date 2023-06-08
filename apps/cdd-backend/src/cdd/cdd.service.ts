@@ -21,6 +21,8 @@ import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
 
+const fractalUrl = 'https://mainnet-polymesh.fractal.id/';
+
 @Injectable()
 export class CddService {
   constructor(
@@ -87,6 +89,9 @@ export class CddService {
 
       url = accessCode.url;
       externalId = accessCode.id;
+    } else if (provider === 'fractal') {
+      url = fractalUrl;
+      externalId = '';
     } else {
       this.logger.error(`unimplemented provider received: ${provider}`);
       throw new InternalServerErrorException();

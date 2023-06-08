@@ -7,6 +7,7 @@ import { VerificationState } from '../index.d';
 
 import JumioView from './JumioView';
 import { NetkiView } from './NetkiView';
+import FractalView from './FractalView';
 
 export const GoToCddProvider: React.FC<VerificationState> = ({
   link,
@@ -18,6 +19,10 @@ export const GoToCddProvider: React.FC<VerificationState> = ({
 
   if (provider === 'netki' && link) {
     return <NetkiView link={link} />;
+  }
+
+  if(provider === 'fractal' && link) {
+    return <FractalView link={link} />
   }
 
   return (
