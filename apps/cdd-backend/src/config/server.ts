@@ -74,6 +74,12 @@ const configZ = z
         allowedBasicAuth: allowedBasicAuthZ,
       })
       .describe('Netki related config'),
+
+    fractalUrl: z
+      .string()
+      .url()
+      .describe('URL users will be redirected to when selecting Fractal'),
+
     hCaptcha: z
       .object({
         secretKey: z.string().describe('hCaptcha secret key'),
@@ -119,6 +125,7 @@ export const serverEnvConfig = (): ServerConfig => {
         (credential) => credential.trim()
       ),
     },
+    fractalUrl: process.env.FRACTAL_URL,
     hCaptcha: {
       secretKey: process.env.HCAPTCHA_SECRET_KEY,
     },

@@ -4,12 +4,13 @@ import { Flex, useMediaQuery, useColorModeValue } from '@chakra-ui/react';
 import {
   JumioLogo,
   NetkiLogo,
+  FractalLogo,
 } from '@polymeshassociation/polymesh-theme/ui/atoms';
 
 type ProviderLogoCardProps = {
-  provider: 'netki' | 'jumio';
+  provider:  'netki' | 'jumio' | 'fractal'
   isSelected: boolean;
-  onSelectProvider: (provider: 'netki' | 'jumio') => void;
+  onSelectProvider: (provider: 'netki' | 'jumio' | 'fractal') => void;
 };
 
 export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
@@ -40,6 +41,7 @@ export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
       >
         {provider === 'jumio' && <JumioLogo boxSize="80%" />}
         {provider === 'netki' && <NetkiLogo boxSize="80%" />}
+        {provider === 'fractal' && <FractalLogo boxSize="80%" />}
       </Flex>
   );
 };

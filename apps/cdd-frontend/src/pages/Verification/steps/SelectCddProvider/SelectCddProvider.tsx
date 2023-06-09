@@ -28,7 +28,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   const { link } = data || {};
   const { token: hCaptcha } = useHCaptcha()
 
-  const onSelectProvider = (provider: 'netki' | 'jumio') => {
+  const onSelectProvider = (provider: 'netki' | 'jumio' | 'fractal') => {
     if (!isLoading) {
       setState((prev) => ({ ...prev, provider }));
     }
@@ -60,6 +60,11 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           provider="netki"
           onSelectProvider={onSelectProvider}
           isSelected={state.provider === 'netki'}
+        />
+         <ProviderLogoCard
+          provider="fractal"
+          onSelectProvider={onSelectProvider}
+          isSelected={state.provider === 'fractal'}
         />
         <HCaptchaComponent />
       </Flex>
