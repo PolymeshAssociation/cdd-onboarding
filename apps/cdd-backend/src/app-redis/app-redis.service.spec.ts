@@ -66,6 +66,7 @@ describe('AppRedisService', () => {
 
   describe('netkiCodes', () => {
     const exampleCode = { code: 'someCode' } as unknown as NetkiAccessLinkModel;
+
     it('should add codes', async () => {
       redis.scard.mockResolvedValue(1);
       redis.sadd.mockResolvedValue(1);
@@ -76,6 +77,16 @@ describe('AppRedisService', () => {
         JSON.stringify(exampleCode),
       ]);
       expect(result).toEqual({ added: 1, total: 1 });
+    });
+  });
+
+  describe('availableNetkiCodeCount', () => {
+    it('should return the count from scard', async () => {
+      redis.scard.mockResolvedValue(7);
+
+      const result = await service.availableNetkiCodeCount();
+
+      expect(result).toEqual(7);
     });
   });
 

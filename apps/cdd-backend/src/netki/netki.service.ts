@@ -58,7 +58,7 @@ export class NetkiService {
 
     const url = `${this.linkBaseUrl}?service_code=${accessCode.code}&applicationId=${address}`;
 
-    await this.redis.allocateCode(accessCode.code, address);
+    await this.redis.allocateNetkiCode(accessCode.code, address);
 
     return {
       ...accessCode,
@@ -103,7 +103,7 @@ export class NetkiService {
       throw new InternalServerErrorException();
     }
 
-    const allocatedCodes = await this.redis.getAllocatedCodes();
+    const allocatedCodes = await this.redis.getAllocatedNetkiCodes();
 
     const newLinks = codeResponse?.data?.results
       .filter(

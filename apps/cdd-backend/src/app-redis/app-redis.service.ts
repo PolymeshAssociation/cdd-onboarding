@@ -70,14 +70,14 @@ export class AppRedisService {
     return JSON.parse(rawCode);
   }
 
-  async allocateCode(code: string, address: string): Promise<void> {
+  async allocateNetkiCode(code: string, address: string): Promise<void> {
     await this.setNetkiCodeToAddress(code, address);
 
     const key = netkiAddressPrefixer(code);
     await this.redis.set(key, address);
   }
 
-  async getAllocatedCodes(): Promise<Set<string>> {
+  async getAllocatedNetkiCodes(): Promise<Set<string>> {
     const allocatedCodes = await this.redis.keys(
       `${netkiAllocatedCodePrefix}*`
     );
@@ -85,6 +85,10 @@ export class AppRedisService {
     return new Set(
       allocatedCodes.map((code) => code.replace(netkiAllocatedCodePrefix, ''))
     );
+  }
+
+  async availableNetkiCodeCount(): Promise<number> {
+    return await this.redis.scard(netkiAvailableCodesPrefix);
   }
 
   async isHealthy(): Promise<boolean> {

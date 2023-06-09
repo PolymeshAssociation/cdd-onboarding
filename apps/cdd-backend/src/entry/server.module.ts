@@ -9,6 +9,7 @@ import { serverEnvConfig } from '../config/server';
 import { loggerEnvConfig } from '../config/logger';
 import { InfoModule } from '../info/info.module';
 import { HealthModule } from '../health/health.module';
+import { MetricsModule } from '../metrics/metrics.module';
 
 /**
  * Module for initializing the app in "server" mode
@@ -22,6 +23,7 @@ import { HealthModule } from '../health/health.module';
     CddModule,
     InfoModule,
     HealthModule,
+    MetricsModule,
   ],
   providers: [
     {
