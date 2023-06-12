@@ -114,7 +114,7 @@ describe('NetkiService', () => {
         .spyOn(mockHttp, 'post')
         .mockImplementation(() => of(mockAccessResponse));
 
-      mockRedis.getAllocatedCodes.mockResolvedValue(new Set());
+      mockRedis.getAllocatedNetkiCodes.mockResolvedValue(new Set());
       mockRedis.pushNetkiCodes.mockResolvedValue({ added: 1, total: 3 });
 
       const result = await service.fetchAccessCodes();

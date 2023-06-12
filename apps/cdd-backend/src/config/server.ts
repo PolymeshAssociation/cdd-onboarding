@@ -22,6 +22,7 @@ const configZ = z
           .default(['localhost:4200'])
           .describe('CSV list of allowed CORS domains'),
         healthAllowedIps: allowedIpsZ,
+        metricsAllowedIps: allowedIpsZ,
       })
       .describe('server related config'),
 
@@ -102,6 +103,9 @@ export const serverEnvConfig = (): ServerConfig => {
         (domain) => domain.trim()
       ),
       healthAllowedIps: process.env.APP_HEALTH_IPS?.split(',').map((ip) =>
+        ip.trim()
+      ),
+      metricsAllowedIps: process.env.APP_METRICS_IPS?.split(',').map((ip) =>
         ip.trim()
       ),
     },
