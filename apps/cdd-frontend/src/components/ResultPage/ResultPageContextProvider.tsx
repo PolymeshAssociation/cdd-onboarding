@@ -22,7 +22,7 @@ const ResultPageContextProvider = ({
     navigate('/404');
   }
 
-  if (!result || !['success', 'failed'].includes(result)) {
+  if (provider !== 'netki' && (!result || !['success', 'failed'].includes(result))) {
     navigate('/404');
   }
 

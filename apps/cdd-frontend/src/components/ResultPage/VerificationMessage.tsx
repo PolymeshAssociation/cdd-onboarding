@@ -15,24 +15,6 @@ import { useResultPageContext } from './ResultPageContext';
 import dots from './lottie/dots';
 import confetti from './lottie/confetti';
 
-const dotsOptions = {
-  loop: true,
-  autoplay: true,
-  animationData: dots,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice',
-  },
-};
-
-const confettiOptions = {
-  loop: false,
-  autoplay: false,
-  animationData: confetti,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice',
-  },
-};
-
 const MotionStack = chakra(motion.div, {
   /**
    * Allow motion props and non-Chakra props to be forwarded.

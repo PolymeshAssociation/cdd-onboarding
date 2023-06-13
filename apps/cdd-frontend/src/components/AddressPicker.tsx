@@ -70,11 +70,7 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
   };
 
   useEffect(() => {
-    async function init() {
-      await connectToWallet();
-    }
-
-    init();
+    connectToWallet()
   }, [connectToWallet]);
 
   useEffect(() => {
@@ -181,7 +177,7 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
                 color="navy"
                 variant="ghost"
                 bg="#fff"
-                href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl=__REACT_APP_WALLET_URL=https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf?hl__"
+                href="https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf"
                 target="_blank"
                 isExternal
               >

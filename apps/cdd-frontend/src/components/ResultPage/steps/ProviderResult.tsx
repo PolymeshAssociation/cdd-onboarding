@@ -29,7 +29,7 @@ const ProviderResult: React.FC<Pick<StepTemplateProps, 'index'>> = ({
   }, 1000);
 
   if (provider === 'jumio' && localStatus === VerificationStatus.SUCCESS) {
-    return <StepTemplate title="Identity verified with JUMIO" index={index} />;
+    return <StepTemplate title="Identity verified with Jumio" index={index} />;
   }
 
   if (provider === 'netki') {
