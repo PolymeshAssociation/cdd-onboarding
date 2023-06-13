@@ -6,11 +6,9 @@ import {
   VerificationProgress,
 } from '../components/ResultPage';
 import ResultPageContextProvider from '../components/ResultPage/ResultPageContextProvider';
-import { HCaptchaProvider } from '../components/HCaptcha/HCaptchaContext';
 
 const ResultPage: React.FC = () => {
   return (
-    <HCaptchaProvider>
       <ResultPageContextProvider>
         <Stack flex={1} justifyContent="center" alignItems="center" p="6">
           <Heading size="3xl" mt={8} mb={12}>
@@ -20,7 +18,6 @@ const ResultPage: React.FC = () => {
           <VerificationProgress />
         </Stack>
       </ResultPageContextProvider>
-    </HCaptchaProvider>
   );
 };
 

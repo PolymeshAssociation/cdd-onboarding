@@ -1,7 +1,5 @@
 import { Box, Link, Text } from '@chakra-ui/react';
 import React from 'react';
-import { useHCaptcha } from '../HCaptcha/HCaptchaContext';
-import HCaptchaComponent from '../HCaptcha/HCaptchaComponent';
 import { useResultPageContext } from './ResultPageContext';
 import { ProviderResult, ChainStatus, AddressStep } from './steps';
 import StepWrapper from './steps/StepWrapper';
@@ -9,11 +7,6 @@ import { VerificationStatus } from './types.d';
 
 const VerificationProgress: React.FC = () => {
   const { globalStatus } = useResultPageContext();
-  const { token } = useHCaptcha();
-
-  if(!token){
-    return <HCaptchaComponent />;
-  }
 
   if (globalStatus === VerificationStatus.SUCCESS) {
     return (

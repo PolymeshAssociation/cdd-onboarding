@@ -1,42 +1,31 @@
 import React, { useEffect } from 'react';
 
-import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
-import { useHCaptcha } from '../../HCaptcha/HCaptchaContext';
+import useGetAddressApplicationsQuery from '../../../hooks/useGetAddressApplicationsQuery';
 import { useResultPageContext } from '../ResultPageContext';
 import { VerificationStatus } from '../types.d';
 
 import StepTemplate, { StepTemplateProps } from './StepTemplate';
 
 const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
-  const { setStepResult, activeStep, address, stepStatus } = useResultPageContext();
-  const { token } = useHCaptcha();
-  const { mutate, isLoading, isSuccess, isError, error } =
-    useVerifyAddressMutation();
-  const localStatus = stepStatus[index];
-
+  const { setStepResult, activeStep, address } = useResultPageContext();
+  const { isLoading, data, isFetched } = useGetAddressApplicationsQuery(address, activeStep === index);
+  const { did } = data || {};
+    
   useEffect(() => {
-    if (activeStep === index) {
+    if (isLoading) {
       setStepResult(index, VerificationStatus.PROCESSING);
     }
-  }, [setStepResult, index, activeStep]);
-
-
-  useEffect(() => {
-    if (address && token && activeStep === index) {
-      mutate({ address, hCaptcha: token });
-    }
-
-  }, [activeStep, address, index, mutate, setStepResult, token]);
+  }, [index, isLoading, setStepResult]);
 
   useEffect(() => {
-    if (isSuccess && activeStep === index) {
+    if (did) {
       setStepResult(index, VerificationStatus.SUCCESS);
     }
 
-    if (isError && activeStep === index) {
+    if (!did && isFetched) {
       setStepResult(index, VerificationStatus.FAILED);
     }
-  }, [activeStep, index, isError, isSuccess, setStepResult])
+  }, [did, index, isFetched, setStepResult])
 
   if (isLoading) {
     return (
