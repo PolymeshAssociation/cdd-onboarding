@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
           element: <Landing />,
         },
         {
-          path: "/result/:provider/:status",
+          path: "/result/:provider/:result",
           element: <Result />
         },
         {

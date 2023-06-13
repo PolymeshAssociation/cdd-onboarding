@@ -21,6 +21,8 @@ export const hCaptcha = z.string().nonempty();
 
 const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
   const { token, setToken } = useHCaptcha();
+  const [visible, setVisible] = React.useState(false);
+
   const siteKey = constants.H_CAPTCHA_SITE_KEY;
 
   const { field } = useController({
@@ -62,7 +64,7 @@ const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
   }
 
   return (
-    <Box display={token ? 'none' : 'block'}>
+    <Box display={token || !visible ? 'none' : 'block'}>
       <HCaptcha
         ref={captchaRef}
         sitekey={siteKey}
@@ -70,6 +72,7 @@ const HCaptchaComponent: React.FC<HCaptchaComponentProps> = ({ control }) => {
         onError={onError}
         onExpire={onExpire}
         onLoad={onLoad}
+        onOpen={() => setVisible(true)}
       />
     </Box>
   );

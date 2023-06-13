@@ -1,13 +1,10 @@
-import React, { useContext, useEffect } from 'react';
-import { AxiosError } from 'axios';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Box,
   Input,
-  CircularProgress,
-  FormLabel,
   FormControl,
   FormHelperText,
   FormErrorMessage,
@@ -26,74 +23,51 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { BiImport, BiChevronDown } from 'react-icons/bi';
-import {
-  StepFormContext,
-  StepFormNavigation,
-} from '@polymeshassociation/polymesh-theme/ui/organisms';
 import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 
-import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
-import usePolyWallet from '../../..//hooks/usePollyWallet';
-import { VerificationState } from './index.d';
-import config, { NETWORK_NAMES } from '../../../config/constants';
-import HCaptchaComponent, { hCaptcha } from '../../../components/HCaptcha/HCaptchaFormComponent';
-
-import { useHCaptcha } from '../../../components/HCaptcha/HCaptchaContext';
-import { useStoredAddressValue } from '../../../hooks/useStoredAddressValue';
+import usePolyWallet from '../hooks/usePollyWallet';
+import config, { NETWORK_NAMES } from '../config/constants';
 
 const schema = z.object({
   address: addressZ,
-  hCaptcha
 });
 
 type FormValues = z.infer<typeof schema>;
 
-type EnterAddressProps = {
-  state: VerificationState;
-  setState: (state: VerificationState) => void;
+type AddressPickerProps = {
+  address?: string;
+  onSubmit: ({ address }: FormValues) => void;
+  children?: React.ReactNode;
+  isError?: boolean;
+  errorMessage?: string;
 };
 
-export const EnterAddress: React.FC<EnterAddressProps> = ({
-  state,
-  setState,
+const AddressPicker: React.FC<AddressPickerProps> = ({
+  onSubmit,
+  children,
+  address,
+  isError,
+  errorMessage,
 }) => {
-  const { address } = state;
   const {
-    control,
     register,
     handleSubmit,
     formState: { errors, isValid },
     setValue,
+    getValues,
     trigger,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    mode: 'onTouched',
+    mode: 'onChange',
     defaultValues: { address },
   });
-  const { onNext } = useContext(StepFormContext);
-  const { token: hCaptcha } = useHCaptcha()
-  const { setAddress: setStoredAddress } = useStoredAddressValue();
-
-  const { mutate, isLoading, isSuccess, isError, error } =
-    useVerifyAddressMutation();
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
     usePolyWallet({ network: config.NETWORK });
-  const { message } = (error as AxiosError) || {};
-  const onSubmit = ({ address }: FormValues) => {
-    setState({ address });
-    if(hCaptcha){
-      mutate({ address, hCaptcha });
-    }
-  };
 
-  useEffect(() => {
-    if (isSuccess) {
-      if(state.address){
-        setStoredAddress(state.address);
-      }
-      onNext();
-    }
-  }, [isSuccess, onNext]);
+  const onSetAddress = (address: string) => {
+    setValue('address', address);
+    trigger('address');
+  };
 
   useEffect(() => {
     async function init() {
@@ -103,28 +77,29 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     init();
   }, [connectToWallet]);
 
-  const onSetAddress = (address: string) => {
-    setValue('address', address);
-    trigger('address');
-  }
+  useEffect(() => {
+    if(isValid){
+        const address = getValues('address');
+        onSubmit({ address });
+    }
+  }, [isValid, address, onSubmit, getValues]);
 
   return (
     <form id="stepForm" onSubmit={handleSubmit(onSubmit)}>
-      <Box maxW="660px">
+      <Box maxW="660px" minW={670} pt={2}>
         <FormControl
           isInvalid={Boolean(errors.address?.message) || isError}
           isRequired
         >
-          <FormLabel>Polymesh Address</FormLabel>
           <InputGroup>
-            <Input size="lg" {...register('address')} placeholder=" " />
+            <Input size="md" {...register('address')} placeholder=" " />
             <Tooltip label="Pick address from Polymesh Wallet">
               <InputRightElement width="4.5rem">
                 {allAddresses.length === 1 && (
                   <Button
                     onClick={() => onSetAddress(allAddresses[0])}
-                    size="md"
-                    h="2.5rem"
+                    size="sm"
+                    h="2rem"
                     position="absolute"
                     right="4px"
                     top="4px"
@@ -138,14 +113,13 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                   >
                     <Icon as={BiImport} boxSize="1.5rem" />
                   </Button>
-
                 )}
                 {allAddresses.length > 1 && (
                   <Menu>
                     <MenuButton
                       as={Button}
-                      size="md"
-                      h="2.5rem"
+                      size="sm"
+                      h="2rem"
                       position="absolute"
                       right="4px"
                       top="4px"
@@ -164,39 +138,39 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                       <Icon as={BiImport} boxSize="1.5rem" />
                     </MenuButton>
                     <Portal>
-                    <MenuList zIndex={200} maxW="100vw">
-                      <MenuItem>Select Address</MenuItem>
-                      <MenuDivider />
-                      {allAddresses.map((address) => (
-                        <MenuItem
-                          onClick={() => onSetAddress(address)}
-                          key={address}
-                          maxW="calc(100% -2rem)"
-                          textOverflow="ellipsis"                        
-                          px="1rem"
-                        >
-                          <Text maxW="100%">{address}</Text>
-                        </MenuItem>
-                      ))}
-                    </MenuList>
+                      <MenuList zIndex={200} maxW="100vw">
+                        <MenuItem>Select Address</MenuItem>
+                        <MenuDivider />
+                        {allAddresses.map((address: string) => (
+                          <MenuItem
+                            onClick={() => onSetAddress(address)}
+                            key={address}
+                            maxW="calc(100% -2rem)"
+                            textOverflow="ellipsis"
+                            px="1rem"
+                          >
+                            <Text maxW="100%">{address}</Text>
+                          </MenuItem>
+                        ))}
+                      </MenuList>
                     </Portal>
                   </Menu>
                 )}
               </InputRightElement>
-              </Tooltip>
+            </Tooltip>
           </InputGroup>
 
           <FormErrorMessage>
-            {isError ? message : errors.address?.message?.toString()}
+            {isError ? errorMessage : errors.address?.message?.toString()}
           </FormErrorMessage>
           <FormHelperText>
-            Please enter your Polymesh address to start verification
+            Please enter your Polymesh address to check Identity status on Chain
           </FormHelperText>
           {isWalletAvailable && !isCorrectNetwork && (
             <FormHelperText>
               Your Polymesh Wallet is connected to the wrong network. Please
-              connect to the "{NETWORK_NAMES[config.NETWORK]}" network to be able to automatically import
-              addresses from your wallet.
+              connect to the "{NETWORK_NAMES[config.NETWORK]}" network to be
+              able to automatically import addresses from your wallet.
             </FormHelperText>
           )}
           {!isWalletAvailable && (
@@ -217,26 +191,10 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           )}
         </FormControl>
 
-        <HCaptchaComponent control={control} />
       </Box>
-      <StepFormNavigation
-        nextStepLabel="Get started"
-        nextIsLoading={isLoading}
-        nextIsDisabled={!isValid || isLoading}
-        nextLoadingLabel={
-          <>
-            <CircularProgress
-              size="1.5rem"
-              isIndeterminate
-              color="white"
-              mr="1rem"
-            />{' '}
-            Verifying...
-          </>
-        }
-      />
+      {children}
     </form>
   );
 };
 
-export default EnterAddress;
+export default AddressPicker;
