@@ -13,7 +13,6 @@ const AddressStep: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
   const [searchParams ] = useSearchParams();
   const { address: storedAddress } = useStoredAddressValue();
   const localStatus = stepStatus[index];
-  console.log(searchParams)
 
   useEffect(() => {
     if (provider === 'jumio') {
