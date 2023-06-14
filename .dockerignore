@@ -4,3 +4,6 @@ dist
 .github
 .yarn
 .env
+.gitignore
+.dockerignore
+Jenkinsfile
