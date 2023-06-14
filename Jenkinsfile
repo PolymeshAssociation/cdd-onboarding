@@ -124,7 +124,6 @@ node {
                 },
                 worker: {
                     sh (label: 'Build `worker.Dockerfile`',
-                        script: 'docker build -f docker/worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .')
                         script: 'cd docker/ && docker build -f worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .. && cd ../')
                 },
                 ui: {
