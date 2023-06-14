@@ -36,8 +36,8 @@ const AnimatedIcon = () => {
   };
 
 const StepTemplate: React.FC<StepTemplateProps> = ({ index, title, children }) => {  
-    const { isActiveStep, stepStatus, onNext } = useResultPageContext();
-    const isActive = isActiveStep(index);
+    const { stepStatus, onNext, activeStep } = useResultPageContext();
+    const isPastOrActive = activeStep >= index;
     const localStatus = stepStatus[index];
 
     useEffect(() => {
@@ -67,14 +67,13 @@ const StepTemplate: React.FC<StepTemplateProps> = ({ index, title, children }) =
         <StepSeparator />
       </StepIndicator>
    
-      <Box flexShrink="0" minH={12} w="250px">
+      <Box flexShrink="0" minH={12} w="300px">
         <StepTitle>{title}</StepTitle>
-        {isActive && (
+        {children && isPastOrActive && (
         <StepDescription>
             {children}
         </StepDescription>
-      )}
-
+        )}
       </Box>
     </Step>
   );

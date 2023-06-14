@@ -31,7 +31,7 @@ export const useGetAddressApplicationsQuery = (address: string | null, enabled: 
   return useQuery(
     ['applications', address],
     () => getAddressApplications({ address }),
-    { enabled: !!address && enabled}
+    { enabled: !!address && enabled, retry: 1, retryDelay: 500, refetchOnWindowFocus: false },
   );
 };
 
