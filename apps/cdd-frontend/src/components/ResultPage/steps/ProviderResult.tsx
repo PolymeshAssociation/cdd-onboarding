@@ -36,8 +36,12 @@ const ProviderResult: React.FC<Pick<StepTemplateProps, 'index'>> = ({
     return <StepTemplate title="Response received from Netki" index={index} />;
   }
 
+  if (localStatus === VerificationStatus.FAILED) {
+    return <StepTemplate title="Identity verification failed" index={index} />;
+  }
+
   return (
-    <StepTemplate title="Checking CDD Provider Result" index={index}>
+    <StepTemplate title="Checking identity verification" index={index}>
       Checking identity status with {provider?.toLocaleUpperCase()}
     </StepTemplate>
   );

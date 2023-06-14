@@ -46,13 +46,6 @@ const AddressStep: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
     }
   }, [activeStep, address, index, setStepResult]);
 
-  if (localStatus === VerificationStatus.SUCCESS) {
-    return (
-      <StepTemplate title="Address verified" index={index}>
-        {address}
-      </StepTemplate>
-    );
-  }
 
   if (!address && localStatus !== VerificationStatus.PROCESSING) {
     return (
@@ -63,7 +56,7 @@ const AddressStep: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
   }
 
   return (
-    <StepTemplate title="Verifying address" index={index}>
+    <StepTemplate title="Polymesh address" index={index}>
       {address}
     </StepTemplate>
   );
