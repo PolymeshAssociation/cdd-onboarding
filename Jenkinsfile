@@ -104,7 +104,7 @@ node {
             env.AWS_DEFAULT_REGION     = env.AWS_REGION
             env.CONTAINER_REGISTRY     = "${env.AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-            env.CONTAINER_IMAGE_PREFIX = "polymesh/cdd-onboarding-"
+            env.CONTAINER_IMAGE_PREFIX = "polymesh/cdd-onboarding"
 
             env.GIT_COMMIT             = sh (returnStdout: true,
                                              label: 'Read Git Commit',
