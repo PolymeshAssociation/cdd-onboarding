@@ -114,21 +114,22 @@ node {
 
             stage('Build (stage 1)') {
                 sh (label: 'Build `builder.Dockerfile`',
-                    script: 'docker build -f docker/builder.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-builder:${GIT_COMMIT}" .')
+                    script: 'cd docker/ && docker build -f builder.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-builder:${GIT_COMMIT}" .. && cd ../')
             }
 
             stage('Build (stage 2)') {
                 parallel server: {
                     sh (label: 'Build `server.Dockerfile`',
-                        script: 'docker build -f docker/server.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-server:${GIT_COMMIT}" .')
+                        script: 'cd docker/ && docker build -f server.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-server:${GIT_COMMIT}" .. && cd ../')
                 },
                 worker: {
                     sh (label: 'Build `worker.Dockerfile`',
                         script: 'docker build -f docker/worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .')
+                        script: 'cd docker/ && docker build -f worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .. && cd ../')
                 },
                 ui: {
                     sh (label: 'Build `web.Dockerfile`',
-                        script: 'docker build -f docker/web.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-ui:${GIT_COMMIT}" .')
+                        script: 'cd docker/ && docker build -f web.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-ui:${GIT_COMMIT}" .. && cd ../')
                 }
             }
 
