@@ -6,4 +6,5 @@ dist
 .env
 .gitignore
 .dockerignore
+CODEOWNERS
 Jenkinsfile
