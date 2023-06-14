@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useSearchParams } from "react-router-dom";
 
 import { useStoredAddressValue } from '../../../hooks/useStoredAddressValue';
 import AddressPicker from '../../AddressPicker';
@@ -9,18 +10,19 @@ import StepTemplate, { StepTemplateProps } from './StepTemplate';
 const AddressStep: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
   const { provider, setStepResult, activeStep, stepStatus, setAddress, address } =
     useResultPageContext();
+  const [searchParams ] = useSearchParams();
   const { address: storedAddress } = useStoredAddressValue();
   const localStatus = stepStatus[index];
 
   useEffect(() => {
     if (provider === 'jumio') {
-      setAddress(storedAddress || 'somevalue'); // extract address from url
+      setAddress(storedAddress || searchParams.get('customerInternalReference'));
     }
 
     if (provider === 'netki') {
       setAddress(storedAddress);
     }
-  }, [provider, storedAddress]);
+  }, [provider, searchParams, setAddress, storedAddress]);
 
   useEffect(() => {
     if (activeStep === index) {
