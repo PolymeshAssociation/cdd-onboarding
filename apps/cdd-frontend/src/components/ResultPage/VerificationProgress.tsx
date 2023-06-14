@@ -13,6 +13,7 @@ const VerificationProgress: React.FC = () => {
       <Box pt={12}>
         <Text size="lg" textAlign="center">
           To get more details you can visit{' '}
+          {/* TODO: replace with user portal once launched */}
           <Link href="https://dashboard.polymesh.network" isExternal>
             Polymesh Dashboard
           </Link>
