@@ -1,9 +1,17 @@
-FROM mesh-cdd-builder AS builder
+ARG BUILDER_CONTAINER_TAG=latest
+
+FROM mesh-cdd-builder:${BUILDER_CONTAINER_TAG} AS builder
 
 RUN nx dep-graph --file dep-graph.json
 RUN nx build cdd-backend:buildWorker --configuration=production
 
 FROM node:lts-alpine3.17
+
+# `nx` npm package dependencies:
+RUN apk add python3 \
+            make \
+            cmake \
+            g++
 
 RUN addgroup runner && adduser --uid 1001 -G runner -D --shell /bin/false runner
 

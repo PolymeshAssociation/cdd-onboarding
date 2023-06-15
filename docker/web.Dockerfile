@@ -1,4 +1,6 @@
-FROM mesh-cdd-builder AS builder
+ARG BUILDER_CONTAINER_TAG=latest
+
+FROM mesh-cdd-builder:${BUILDER_CONTAINER_TAG} AS builder
 
 ENV NX_API_URL='__NX_API_URL__'
 ENV NX_MESH_NETWORK='__NX_MESH_NETWORK__'

@@ -114,21 +114,29 @@ node {
 
             stage('Build (stage 1)') {
                 sh (label: 'Build `builder.Dockerfile`',
-                    script: 'cd docker/ && docker build -f builder.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-builder:${GIT_COMMIT}" .. && cd ../')
+                    script: '''#!/bin/bash
+                            docker build -f docker/builder.Dockerfile -t "mesh-cdd-builder:${GIT_COMMIT}" .
+                            ''')
             }
 
             stage('Build (stage 2)') {
                 parallel server: {
                     sh (label: 'Build `server.Dockerfile`',
-                        script: 'cd docker/ && docker build -f server.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-server:${GIT_COMMIT}" .. && cd ../')
+                        script: '''#!/bin/bash
+                                docker build --build-arg "BUILDER_CONTAINER_TAG=${GIT_COMMIT}" -f docker/server.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-server:${GIT_COMMIT}" .
+                                ''')
                 },
                 worker: {
                     sh (label: 'Build `worker.Dockerfile`',
-                        script: 'cd docker/ && docker build -f worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .. && cd ../')
+                        script: '''#!/bin/bash
+                                docker build --build-arg "BUILDER_CONTAINER_TAG=${GIT_COMMIT}" -f docker/worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .
+                                ''')
                 },
                 ui: {
                     sh (label: 'Build `web.Dockerfile`',
-                        script: 'cd docker/ && docker build -f web.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-ui:${GIT_COMMIT}" .. && cd ../')
+                        script: '''#!/bin/bash
+                                docker build --build-arg "BUILDER_CONTAINER_TAG=${GIT_COMMIT}" -f docker/web.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-ui:${GIT_COMMIT}" .
+                                ''')
                 }
             }
 

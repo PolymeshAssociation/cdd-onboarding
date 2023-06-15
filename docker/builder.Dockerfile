@@ -12,4 +12,4 @@ RUN yarn global add nx
 COPY package.json yarn.lock ./
 
 RUN ["yarn", "install"]
-COPY .. .
+COPY . .
