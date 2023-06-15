@@ -137,7 +137,7 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
         <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
-        nextStepLabel="Get started"
+        nextStepLabel="Next Step"
         nextIsLoading={isLoading}
         nextIsDisabled={!isValid || isLoading}
         nextLoadingLabel={
