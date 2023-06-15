@@ -44,7 +44,7 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
     formState: { errors, isValid },
   } = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
-    mode: 'onTouched',
+    mode: 'onChange',
     defaultValues: {
       email,
       termsAccepted,
@@ -119,7 +119,7 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
           </FormErrorMessage>
 
         <FormControl
-          isInvalid={Boolean(errors.termsAccepted?.message) || isError}
+          isInvalid={Boolean(errors.updatesAccepted?.message) || isError}
         >
           <FormLabel>Polymesh Updates</FormLabel>
           <Checkbox {...register('updatesAccepted')}>
