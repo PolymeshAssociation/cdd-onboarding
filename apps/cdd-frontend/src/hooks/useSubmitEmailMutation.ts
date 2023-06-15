@@ -11,7 +11,9 @@ export type ServiceResponse = {
 
 export const emailFormSchema = z.object({
   email: z.string().email(),
-  termsAccepted: z.boolean(),
+  termsAccepted: z.boolean().refine(value => value === true, {
+    message: "You must accept Polymesh privacy policy to continue.",
+  }),
   updatesAccepted: z.boolean(),
   hCaptcha
 });
