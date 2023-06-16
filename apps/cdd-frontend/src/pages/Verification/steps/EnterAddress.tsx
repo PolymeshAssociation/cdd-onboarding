@@ -216,6 +216,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
             </FormHelperText>
           )}
         </FormControl>
+        <Text mt={3} color="gray.600" fontSize="0.75rem">* indicates required field</Text>
 
         <HCaptchaComponent control={control} />
       </Box>
