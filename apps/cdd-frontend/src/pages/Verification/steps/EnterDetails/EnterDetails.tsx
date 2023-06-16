@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react';
+import { Text } from "@chakra-ui/react"
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -133,7 +134,7 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
             Network.
           </FormHelperText>
         </FormControl>
-
+        <Text mt={3} color="gray.600" fontSize="0.75rem">* indicates required field</Text>
         <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
