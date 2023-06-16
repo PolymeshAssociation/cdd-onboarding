@@ -33,7 +33,6 @@ const HCaptchaComponent: React.FC = () => {
   }
 
   return (
-    <>
       <Box display={token || !visible ? 'none' : 'block'}>
         <HCaptcha
           ref={captchaRef}
@@ -45,10 +44,6 @@ const HCaptchaComponent: React.FC = () => {
           onOpen={() => setVisible(true)}
         />
       </Box>
-      <Box pt={20} >
-        <Spinner />
-      </Box>
-    </>
   );
 };
 
