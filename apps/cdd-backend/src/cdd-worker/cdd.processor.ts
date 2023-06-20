@@ -6,7 +6,13 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { NetkiCallbackDto } from '../netki/types';
-import { CddJob, JobIdentifier, JumioCddJob, NetkiCddJob } from './types';
+import {
+  CddJob,
+  MockCddJob,
+  JobIdentifier,
+  JumioCddJob,
+  NetkiCddJob,
+} from './types';
 
 @Processor()
 export class CddProcessor {
@@ -24,6 +30,8 @@ export class CddProcessor {
       await this.handleJumio(job.data);
     } else if (job.data.type === 'netki') {
       await this.handleNetki(job.data);
+    } else if (job.data.type === 'mock') {
+      await this.handleMockJob(job.data);
     } else {
       throw new Error('unknown CDD job type encountered');
     }
@@ -121,6 +129,32 @@ export class CddProcessor {
         { jobId, status: jumio.verificationStatus }
       );
     }
+  }
+
+  private async handleMockJob(info: MockCddJob): Promise<void> {
+    const {
+      value: { address, id },
+    } = info;
+
+    const jobId = { id, provider: 'mock' } as const;
+
+    this.logger.info('starting mock job', { jobId, id });
+
+    const { name } = await this.polymesh.network.getNetworkProperties();
+
+    if (address.startsWith('2')) {
+      throw new Error(
+        'Cannot create mock CDD claim for address starting with "2"'
+      );
+    }
+
+    if (name === 'mainnet') {
+      throw new Error('Cannot process mock CDD jobs on mainnet');
+    }
+
+    await this.createCddClaim(jobId, address);
+
+    await this.clearAddressApplications(jobId, address);
   }
 
   private async clearAddressApplications(

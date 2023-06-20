@@ -9,9 +9,18 @@ import { JumioModule } from '../jumio/jumio.module';
 import { NetkiModule } from '../netki/netki.module';
 import { MailchimpModule } from '../mailchimp/mailchimp.module';
 import { HCaptchaGuardCredentialsProvider } from '../common/hcaptcha.guard';
+import { MockCddModule } from '../mock-cdd/mock-cdd.module';
 
 @Module({
-  imports: [PolymeshModule, AppRedisModule, JumioModule, NetkiModule, MailchimpModule, ConfigModule],
+  imports: [
+    PolymeshModule,
+    AppRedisModule,
+    JumioModule,
+    NetkiModule,
+    MockCddModule,
+    MailchimpModule,
+    ConfigModule,
+  ],
   providers: [CddService, HCaptchaGuardCredentialsProvider],
   controllers: [CddController],
   exports: [CddService],

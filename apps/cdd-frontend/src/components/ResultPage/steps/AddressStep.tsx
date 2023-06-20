@@ -22,6 +22,10 @@ const AddressStep: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
     if (provider === 'netki') {
       setAddress(storedAddress);
     }
+
+    if(provider === 'mock') {
+      setAddress(searchParams.get('address'))
+    }
   }, [provider, searchParams, setAddress, storedAddress]);
 
   useEffect(() => {

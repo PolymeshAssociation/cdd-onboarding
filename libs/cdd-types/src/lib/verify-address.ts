@@ -31,6 +31,7 @@ export class IdentityInfo {
     this.validCdd = validCdd;
   }
 }
+
 export class VerifyAddressResponse {
   @ApiProperty({
     type: 'boolean',

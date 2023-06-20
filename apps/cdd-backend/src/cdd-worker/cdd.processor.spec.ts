@@ -4,7 +4,7 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
 import { MockPolymesh } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
-import { JumioCddJob, NetkiCddJob } from './types';
+import { JumioCddJob, MockCddJob, NetkiCddJob } from './types';
 import { JumioCallbackDto } from '../jumio/types';
 
 import jumioVerifiedData from '../test-utils/jumio-http/webhook-approved-verified.json';
@@ -170,6 +170,63 @@ describe('cddProcessor', () => {
 
           await expect(processor.generateCdd).rejects.toThrowError();
         });
+      });
+    });
+
+    describe('with mock job', () => {
+      let mockCddJob: Job<MockCddJob>;
+
+      beforeEach(() => {
+        mockCddJob = {
+          ...createMock<Job>(),
+          data: {
+            type: 'mock',
+            value: {
+              address,
+              id: 'abc',
+            },
+          },
+        };
+      });
+
+      it('should create CDD claim and clear previous link attempts', async () => {
+        mockPolymesh.network.getNetworkProperties.mockResolvedValue({
+          name: 'someNetwork',
+        });
+
+        await processor.generateCdd(mockCddJob);
+
+        expect(mockRun).toHaveBeenCalled();
+        expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
+      });
+
+      it('should never create a CDD claim for mainnet address', () => {
+        mockCddJob.data.value.address = '2SomeMainnetAddr';
+        mockPolymesh.network.getNetworkProperties.mockResolvedValue({
+          name: 'someNetwork',
+        });
+
+        const expectedError = new Error(
+          'Cannot create mock CDD claim for address starting with "2"'
+        );
+
+        expect(processor.generateCdd(mockCddJob)).rejects.toThrow(
+          expectedError
+        );
+      });
+
+      it('should never create a CDD claim for mainnet network', () => {
+        mockPolymesh.network.getNetworkProperties.mockResolvedValue({
+          name: 'mainnet',
+        });
+
+        const expectedError = new Error(
+          'Cannot process mock CDD jobs on mainnet'
+        );
+
+        expect(processor.generateCdd(mockCddJob)).rejects.toThrow(
+          expectedError
+        );
       });
     });
   });

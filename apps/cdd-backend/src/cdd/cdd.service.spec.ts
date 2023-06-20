@@ -14,6 +14,7 @@ import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { EmailDetailsDto } from '@cdd-onboarding/cdd-types';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
+import { ConfigService } from '@nestjs/config';
 
 describe('CddService', () => {
   const address = 'some-address';
@@ -34,6 +35,7 @@ describe('CddService', () => {
         { provide: NetkiService, useValue: createMock<NetkiService>() },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
         { provide: MailchimpService, useValue: createMock<MailchimpService>() },
+        { provide: ConfigService, useValue: createMock<ConfigService>() },
       ],
     }).compile();
 
@@ -117,6 +119,31 @@ describe('CddService', () => {
             url: expect.stringContaining(expectedLink),
           })
         );
+      });
+    });
+
+    describe('when mock is selected', () => {
+      it('should return a relative link', async () => {
+        mockPolymesh.accountManagement.isValidAddress.mockReturnValue(true);
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue({
+          getIdentity: jest.fn().mockResolvedValue(null),
+        });
+
+        const expectedLink = 'mock-cdd/';
+
+        mockJumioService.generateLink.mockResolvedValue({
+          redirectUrl: expectedLink,
+          transactionReference: 'test-ref',
+          timestamp: 'test-time',
+        });
+
+        const link = await service.getProviderLink({
+          address,
+          provider: 'mock',
+          hCaptcha: 'someSecret',
+        });
+
+        expect(link).toEqual(expectedLink);
       });
     });
   });

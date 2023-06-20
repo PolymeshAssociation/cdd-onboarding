@@ -4,6 +4,6 @@ export type VerificationState = {
   termsAccepted?: boolean;
   updatesAccepted?: boolean;
   address?: string;
-  provider?: 'netki' | 'jumio' | 'fractal';
+  provider?: 'netki' | 'jumio' | 'fractal' | 'mock';
   link?: string;
 };

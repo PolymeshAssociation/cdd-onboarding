@@ -9,7 +9,7 @@ export enum VerificationStatus {
 }
 
 export type RouteParams = {
-  provider?: 'jumio' | 'netki';
+  provider?: 'jumio' | 'netki' | 'mock';
   result?: 'success' | 'failed';
 };
 

@@ -8,6 +8,8 @@ const configSchema = z.object({
   LOG_LEVEL: z.enum(['log', 'warn', 'error', 'debug', 'off']),
   H_CAPTCHA_SITE_KEY: z.string().optional(),
   NX_USER_PORTAL_URL: z.string(),
+  FRACTAL_ENABLED: z.enum(['true', 'false']).transform((val) => val === 'true'),
+  MOCK_ENABLED: z.enum(['true', 'false']).transform((val) => val === 'true'),
 });
 
 export const NETWORK_NAMES: Record<PolyNetwork, string> = {
@@ -23,6 +25,8 @@ export default configSchema.parse({
   LOG_LEVEL: process.env.NX_LOG_LEVEL,
   H_CAPTCHA_SITE_KEY: process.env.NX_H_CAPTCHA_SITE_KEY,
   NX_USER_PORTAL_URL: process.env.NX_USER_PORTAL_URL,
+  FRACTAL_ENABLED: process.env.NX_FRACTAL_ENABLED,
+  MOCK_ENABLED: process.env.NX_MOCK_ENABLED,
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

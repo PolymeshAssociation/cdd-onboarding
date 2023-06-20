@@ -18,7 +18,7 @@ const ResultPageContextProvider = ({
   const [stepStatus, setStepStatus] = useState<VerificationStatus[]>([]);
   const navigate = useNavigate();
 
-  if (!provider || !['jumio', 'netki'].includes(provider)) {
+  if (!provider || !['jumio', 'netki', 'mock'].includes(provider)) {
     navigate('/404');
   }
 

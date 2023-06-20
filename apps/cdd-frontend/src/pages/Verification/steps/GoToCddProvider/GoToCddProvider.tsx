@@ -8,10 +8,12 @@ import { VerificationState } from '../index.d';
 import JumioView from './JumioView';
 import { NetkiView } from './NetkiView';
 import FractalView from './FractalView';
+import MockView from './MockView';
 
 export const GoToCddProvider: React.FC<VerificationState> = ({
   link,
   provider,
+  address
 }) => {
   if (provider === 'jumio' && link) {
     return <JumioView link={link} />;
@@ -23,6 +25,10 @@ export const GoToCddProvider: React.FC<VerificationState> = ({
 
   if(provider === 'fractal' && link) {
     return <FractalView link={link} />
+  }
+
+  if(provider === 'mock' && link) {
+    return <MockView link={link } address={address!} />
   }
 
   return (

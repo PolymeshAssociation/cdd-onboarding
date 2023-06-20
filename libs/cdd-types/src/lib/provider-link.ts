@@ -4,7 +4,7 @@ import { createZodDto } from '@anatine/zod-nestjs';
 import { addressZ, hCaptcha } from './utils';
 import { ApiProperty } from '@nestjs/swagger';
 
-const CddProviderZEnum = z.enum(['netki', 'jumio', 'fractal']);
+const CddProviderZEnum = z.enum(['netki', 'jumio', 'fractal', 'mock']);
 
 export type CddProvider = z.TypeOf<typeof CddProviderZEnum>;
 

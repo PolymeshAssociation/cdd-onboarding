@@ -9,7 +9,7 @@ export type ServiceResponse = {
 
 type Payload = {
   address: string;
-  provider: 'netki' | 'jumio' | 'fractal';
+  provider: 'netki' | 'jumio' | 'fractal' | 'mock';
 } & HCaptchaPayload;
 
 const generateProviderLink = async (payload: Payload) => {

@@ -8,6 +8,7 @@ import {
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
 
 import useGetProviderLinkMutation from '../../../../hooks/useGetProviderLinkMutation';
+import config from '../../../../config/constants';
 
 import ErrorLoadingProviderLink from './ErrorLoadingProviderLink';
 import ProviderLogoCard from './ProviderLogoCard';
@@ -28,7 +29,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   const { link } = data || {};
   const { token: hCaptcha } = useHCaptcha()
 
-  const onSelectProvider = (provider: 'netki' | 'jumio' | 'fractal') => {
+  const onSelectProvider = (provider: 'netki' | 'jumio' | 'fractal' | 'mock') => {
     if (!isLoading) {
       setState((prev) => ({ ...prev, provider }));
     }
@@ -61,11 +62,21 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           onSelectProvider={onSelectProvider}
           isSelected={state.provider === 'netki'}
         />
-         <ProviderLogoCard
-          provider="fractal"
-          onSelectProvider={onSelectProvider}
-          isSelected={state.provider === 'fractal'}
-        />
+        { config.FRACTAL_ENABLED &&
+          <ProviderLogoCard
+            provider="fractal"
+            onSelectProvider={onSelectProvider}
+            isSelected={state.provider === 'fractal'}
+          />
+        }
+        {
+          config.MOCK_ENABLED &&
+          <ProviderLogoCard
+            provider="mock"
+            onSelectProvider={onSelectProvider}
+            isSelected={state.provider === 'mock'}
+          />
+        }
         <HCaptchaComponent />
       </Flex>
       <StepFormNavigation
