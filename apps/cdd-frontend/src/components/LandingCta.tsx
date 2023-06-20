@@ -6,13 +6,14 @@ export const LandingCta: React.FC = () => {
   const linkColor = useColorModeValue('navy.500', 'navy.200');
 
   return (
-    <Box textAlign="center">
+    <Box textAlign="center" w="100%">
       <Button
         colorScheme="navy"
-        size={{ base: 'md', sm: 'lg', md: 'lg' }}
+        size={{ base: 'md', sm: 'lg' }}
         as={RouterLink}
         to="/verification"
-        w={{ base: '100%', md: 'unset' }}
+        w={{ base: '100%', md: '250px' }}
+        mx="auto"
         mb="1.5rem"
         display="block"
       >

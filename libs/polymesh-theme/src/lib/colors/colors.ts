@@ -3,9 +3,13 @@ export const colors = {
       light: '#fff',
       dark: '#1e1e1e'
     },
+    heading: {
+      light: '#1e1e1e',
+      dark: '#fff'
+    },
     text: {
       light: '#565656',
-      dark: '#fff'
+      dark: '#fafafa'
     },
     pink: {
       '50': '#fde9ee',
