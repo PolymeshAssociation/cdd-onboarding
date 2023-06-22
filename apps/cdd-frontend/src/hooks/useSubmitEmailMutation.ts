@@ -14,7 +14,8 @@ export const emailFormSchema = z.object({
   termsAccepted: z.boolean().refine(value => value === true, {
     message: "You must accept Polymesh privacy policy to continue.",
   }),
-  updatesAccepted: z.boolean(),
+  newsletterAccepted: z.boolean(),
+  devUpdatesAccepted: z.boolean(),
   hCaptcha
 });
 

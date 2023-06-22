@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Text } from "@chakra-ui/react"
+import { Text } from '@chakra-ui/react';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +24,7 @@ import { VerificationState } from '../index.d';
 import {
   useSubmitEmailMutation,
   emailFormSchema,
-  EmailFormValues
+  EmailFormValues,
 } from '../../../../hooks/useSubmitEmailMutation';
 import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaFormComponent';
 
@@ -37,7 +37,13 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
   state,
   setState,
 }) => {
-  const { email, emailSubmitted, termsAccepted, updatesAccepted } = state;
+  const {
+    email,
+    emailSubmitted,
+    termsAccepted,
+    newsletterAccepted,
+    devUpdatesAccepted,
+  } = state;
   const {
     register,
     handleSubmit,
@@ -49,7 +55,8 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
     defaultValues: {
       email,
       termsAccepted,
-      updatesAccepted,
+      newsletterAccepted,
+      devUpdatesAccepted,
     },
   });
   const { onNext } = useContext(StepFormContext);
@@ -57,12 +64,30 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
     useSubmitEmailMutation();
 
   const { message } = (error as AxiosError) || {};
-  const onSubmit = ({ email, termsAccepted, updatesAccepted, hCaptcha }: EmailFormValues) => {
+  const onSubmit = ({
+    email,
+    termsAccepted,
+    newsletterAccepted,
+    devUpdatesAccepted,
+    hCaptcha,
+  }: EmailFormValues) => {
     onNext();
 
     if (!emailSubmitted || email !== state.email) {
-      mutate({ email, termsAccepted, updatesAccepted, hCaptcha });
-      setState({ ...state, email, termsAccepted, updatesAccepted });
+      mutate({
+        email,
+        termsAccepted,
+        newsletterAccepted,
+        devUpdatesAccepted,
+        hCaptcha,
+      });
+      setState({
+        ...state,
+        email,
+        termsAccepted,
+        newsletterAccepted,
+        devUpdatesAccepted,
+      });
 
       return;
     }
@@ -116,25 +141,33 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
         </FormControl>
 
         <FormErrorMessage>
-            {isError ? message : errors.hCaptcha?.message?.toString()}
-          </FormErrorMessage>
+          {isError ? message : errors.hCaptcha?.message?.toString()}
+        </FormErrorMessage>
 
         <FormControl
-          isInvalid={Boolean(errors.updatesAccepted?.message) || isError}
+          isInvalid={Boolean(errors.newsletterAccepted?.message) || isError}
         >
           <FormLabel>Polymesh Updates</FormLabel>
-          <Checkbox {...register('updatesAccepted')}>
-            Add me to the mailing list
+          <Checkbox {...register('newsletterAccepted')} mb={2}>
+            Receive the monthly Polymesh email newsletter (joining 13,000+
+            subscribers!)
           </Checkbox>
           <FormErrorMessage>
-            {isError ? message : errors.updatesAccepted?.message?.toString()}
+            {isError ? message : errors.newsletterAccepted?.message?.toString()}
+          </FormErrorMessage>
+          <Checkbox {...register('devUpdatesAccepted')}>
+            Receive important developer updates
+          </Checkbox>
+          <FormErrorMessage>
+            {isError ? message : errors.devUpdatesAccepted?.message?.toString()}
           </FormErrorMessage>
           <FormHelperText>
-            Please check this if you want to receive occasional updates from Polymesh
-            Network.
+          Please check the options you want to receive occasional updates for from the Polymesh Association
           </FormHelperText>
         </FormControl>
-        <Text mt={3} color="gray.600" fontSize="0.75rem">* indicates required field</Text>
+        <Text mt={3} color="gray.600" fontSize="0.75rem">
+          * indicates required field
+        </Text>
         <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation

@@ -78,16 +78,19 @@ describe('CddController', () => {
 
   describe('emailAddress', () => {
     it('should call the service and return the result', async () => {
-      mockCddService.processEmail.mockResolvedValue(true);
+      mockCddService.processEmail.mockResolvedValue();
 
-      const response = await controller.emailAddress({
-        email: 'test@email.com',
+      const payload  = {
+        email: 'test@example.com',
         termsAccepted: true,
-        updatesAccepted: true,
+        newsletterAccepted: true,
+        devUpdatesAccepted: true,
         hCaptcha: 'someSecret',
-      });
+      }
 
-      expect(response).toEqual(true);
+      await controller.emailAddress(payload);
+
+      expect(mockCddService.processEmail).toBeCalledWith(payload)
     });
   });
 

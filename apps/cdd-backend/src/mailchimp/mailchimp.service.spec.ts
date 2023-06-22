@@ -6,6 +6,7 @@ import { Logger } from 'winston';
 import { MailchimpService } from './mailchimp.service';
 import { Status } from '@mailchimp/mailchimp_marketing';
 import { MAILCHIMP_CLIENT_PROVIDER } from './mailchimp.provider';
+import { createHash } from 'crypto';
 
 jest.mock('@mailchimp/mailchimp_marketing');
 
@@ -15,7 +16,8 @@ const mockMailchimpClient = {
     get: jest.fn(),
   },
   lists: {
-    addListMember: jest.fn(),
+    setListMember: jest.fn(),
+    updateListMemberTags: jest.fn(),
   },
 };
 
@@ -104,6 +106,7 @@ describe('MailchimpService', () => {
 
   describe('addSubscriberToMarketingList', () => {
     const email = 'test@example.com';
+    const emailHash = createHash('md5').update(email.toLowerCase()).digest('hex');
     const status: Status = 'subscribed';
 
 
@@ -111,42 +114,49 @@ describe('MailchimpService', () => {
       jest.clearAllMocks();
     });
 
-    it('should return true when isEnabled is false', async () => {
+    it('should not call the service if not enabled', async () => {
       isEnabled = false;
       const module = await createTestModule(isEnabled, mockListId)
       service = module.get<MailchimpService>(MailchimpService);
 
-      const result = await service.addSubscriberToMarketingList(email, status);
-      expect(result).toBe(true);
+      await service.addSubscriberToMarketingList(email, status);
+
+      expect(mockMailchimpClient.lists.setListMember).not.toHaveBeenCalled();
     });
 
-    it('should return true when isEnabled is true and Mailchimp returns a successful response', async () => {
-      mockMailchimpClient.lists.addListMember.mockResolvedValue({});
+    it('should call the service and return result', async () => {
+      mockMailchimpClient.lists.setListMember.mockResolvedValue({});
+      mockMailchimpClient.lists.updateListMemberTags.mockResolvedValue({});
 
-      const result = await service.addSubscriberToMarketingList(email, status);
-      expect(result).toBe(true);
-      expect(mockMailchimpClient.lists.addListMember).toHaveBeenCalledWith(
+      await service.addSubscriberToMarketingList(email, status);
+
+      expect(mockMailchimpClient.lists.setListMember).toHaveBeenCalledWith(
         mockListId,
+        emailHash,
         {
           email_address: email,
-          status,
+          status_if_new: status,
           marketing_permissions: undefined,
         }
       );
     });
 
     it('should return true when isEnabled is true and Mailchimp returns an error response', async () => {
-      mockMailchimpClient.lists.addListMember.mockRejectedValue(
+      mockMailchimpClient.lists.setListMember.mockRejectedValue(
+        new Error('Mailchimp Error')
+      );
+      mockMailchimpClient.lists.updateListMemberTags.mockRejectedValue(
         new Error('Mailchimp Error')
       );
 
-      const result = await service.addSubscriberToMarketingList(email, status);
-      expect(result).toBe(true);
-      expect(mockMailchimpClient.lists.addListMember).toHaveBeenCalledWith(
+      await service.addSubscriberToMarketingList(email, status);
+
+      expect(mockMailchimpClient.lists.setListMember).toHaveBeenCalledWith(
         mockListId,
+        emailHash,
         {
           email_address: email,
-          status,
+          status_if_new: status,
           marketing_permissions: undefined,
         }
       );

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import to from 'await-to-js';
+import { createHash } from 'crypto';
 
 import client, { ErrorResponse, Status } from '@mailchimp/mailchimp_marketing';
 import { MAILCHIMP_CLIENT_PROVIDER } from './mailchimp.provider';
@@ -14,6 +15,7 @@ type MarketingPermission = {
 
 type MailchimpPingResponse = client.ping.APIHealthStatus | ErrorResponse
 type MailchimpListResponse = ErrorResponse | client.lists.MembersSuccessResponse
+type ListMemberTag = { name: 'onboarding', status: 'active' } | { name: 'newsletter', status: 'active' | 'inactive' } | { name: 'dev-updates', status: 'active' | 'inactive' }
 
 @Injectable()
 export class MailchimpService {
@@ -66,38 +68,72 @@ export class MailchimpService {
 
   public async addSubscriberToMarketingList(
     email: string,
-    status: Status
-  ): Promise<boolean> {
-    return this.addSubscriberToList(email, this.listId, status);
+    status: Status,
+    subscribeToNewsletter = false,
+    subscribeToDevUpdates = false,
+  ): Promise<void> {
+    return this.addSubscriberToList(email, this.listId, status, subscribeToNewsletter, subscribeToDevUpdates);
   }
+
+
+
 
   private async addSubscriberToList(
     email: string,
     listId: string,
     status: Status,
+    subscribeToNewsletter = false,
+    subscribeToDevUpdates = false,
     marketingPermissions?: MarketingPermission[]
-  ): Promise<boolean> {
+  ): Promise<void> {
     if (!this.isEnabled) {
       this.logger.info('Mailchimp is disabled, skipping addSubscriberToList');
 
-      return true;
+      return;
     }
 
-    const [error, result] = await to<MailchimpListResponse>(this.mailchimpClient.lists.addListMember(listId, {
+    const subscriberHash = createHash('md5').update(email.toLowerCase()).digest('hex');
+
+    const [error, result] = await to<MailchimpListResponse>(this.mailchimpClient.lists.setListMember(listId, subscriberHash,  {
       email_address: email,
-      status,
+      status_if_new: status,
       marketing_permissions: marketingPermissions,
+  
     }));
 
     if(error){
       this.logger.error('Mailchimp Error', { error });
+
+      return;
     }
 
     if (result && this.isMailchimpErrorResponse(result)) {
       this.logger.error('Mailchimp Error', { error: result });  
+
+      return;
     }
 
-    return true;
+    const tags: ListMemberTag[] = [{ name: 'onboarding', status: 'active'}];
+
+    if(subscribeToNewsletter){
+      tags.push({ name: 'newsletter', status: 'active' });
+    }
+
+    if(subscribeToDevUpdates){
+      tags.push({ name: 'dev-updates', status: 'active' });
+    }
+
+    const [tagsError, tagsResult] = await to<object>(this.mailchimpClient.lists.updateListMemberTags(listId, subscriberHash, { tags }))
+
+    if(tagsError){
+      this.logger.error('Mailchimp Error', { tagsError });
+    }
+
+    if (tagsResult && this.isMailchimpErrorResponse(tagsResult)) {
+      this.logger.error('Mailchimp Error', { error: tagsResult });  
+    }
+
+    return;
   }
 
   private isMailchimpErrorResponse(
@@ -105,6 +141,7 @@ export class MailchimpService {
       | client.ping.APIHealthStatus
       | client.lists.MembersSuccessResponse
       | ErrorResponse
+      | object
   ): obj is ErrorResponse {
     return (
       (obj as ErrorResponse).status !== undefined &&

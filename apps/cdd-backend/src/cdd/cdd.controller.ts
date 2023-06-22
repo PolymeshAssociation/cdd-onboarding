@@ -47,7 +47,7 @@ export class CddController {
   }
 
   @Post('/email')
-  async emailAddress(@Body() body: EmailDetailsDto): Promise<boolean> {
+  async emailAddress(@Body() body: EmailDetailsDto): Promise<void> {
     return this.cddService.processEmail(body);
   }
 

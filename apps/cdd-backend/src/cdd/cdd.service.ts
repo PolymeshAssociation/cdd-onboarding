@@ -124,19 +124,15 @@ export class CddService {
 
   public async processEmail({
     email,
-    updatesAccepted,
-  }: EmailDetailsDto): Promise<boolean> {
-    if (updatesAccepted) {
+    newsletterAccepted,
+    devUpdatesAccepted,
+  }: EmailDetailsDto): Promise<void> {
       return this.mailchimpService.addSubscriberToMarketingList(
         email,
-        'subscribed'
+        'subscribed',
+        newsletterAccepted,
+        devUpdatesAccepted
       );
-    }
-
-    return this.mailchimpService.addSubscriberToMarketingList(
-      email,
-      'transactional'
-    );
   }
 
   public async getApplications(
