@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { CircularProgress, Flex } from '@chakra-ui/react';
+import { CircularProgress, Flex, Text } from '@chakra-ui/react';
 
 import { VerificationState } from '../index.d';
 import {

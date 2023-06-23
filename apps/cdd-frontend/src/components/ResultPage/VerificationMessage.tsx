@@ -24,7 +24,7 @@ const MotionStack = chakra(motion.div, {
 });
 
 const VerificationMessage: React.FC = () => {
-  const { globalStatus } = useResultPageContext();
+  const { globalStatus, provider } = useResultPageContext();
   const [complete, setComplete] = useState(false);
 
   return (
@@ -45,7 +45,7 @@ const VerificationMessage: React.FC = () => {
               Failed
             </Heading>
             <Text fontSize="xl" color="red.500" textAlign="center">
-              Something went wrong. Please try again later.
+              { provider === 'mock' ? 'Mock Identity should be created soon. Try refreshing the page.' : 'Something went wrong. Please try again later.'}
             </Text>
           </MotionStack>
         </AnimatePresence>

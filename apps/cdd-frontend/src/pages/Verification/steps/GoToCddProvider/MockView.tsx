@@ -27,7 +27,7 @@ export const MockView: React.FC<CopyLinkProps & {address: string}> = ({ link, ad
   return (
     <OnboardingContainer>
       <Text textAlign="justify">
-        This will create a CDD claim for the address without verifying any documents. Mock CDD is not available for mainnet, it is intended for testing purposes only.
+        This will create a CDD claim for the address without verifying any documents. Mock CDD is for testing purposes only and is not available for mainnet.
       </Text>
       <Text textAlign="justify">
       </Text>

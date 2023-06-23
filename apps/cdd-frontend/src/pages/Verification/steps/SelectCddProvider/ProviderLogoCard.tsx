@@ -5,7 +5,6 @@ import {
   JumioLogo,
   NetkiLogo,
   FractalLogo,
-  LogoCircle,
 } from '@polymeshassociation/polymesh-theme/ui/atoms';
 
 type ProviderLogoCardProps = {
@@ -43,12 +42,7 @@ export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
         {provider === 'jumio' && <JumioLogo boxSize="80%" />}
         {provider === 'netki' && <NetkiLogo boxSize="80%" />}
         {provider === 'fractal' && <FractalLogo boxSize="80%" />}
-        {provider === 'mock' &&
-          <>
-            <LogoCircle variant='color' boxSize="30%" />
-            <Text>Mock CDD (Preferred Option)</Text>
-          </>
-        }
+        {provider === 'mock' && <Text>Mock CDD (Best choice!)</Text> }
       </Flex>
   );
 };
