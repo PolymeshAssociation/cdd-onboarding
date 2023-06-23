@@ -13,6 +13,7 @@ import {
   JumioCddJob,
   NetkiCddJob,
 } from './types';
+import { signerKeyMap } from '../polymesh/polymesh.factory';
 
 @Processor()
 export class CddProcessor {
@@ -62,7 +63,7 @@ export class CddProcessor {
       await this.handleNetkiRestart(jobId, address, netki);
     } else if (state === 'completed') {
       this.logger.debug('handling netki completed', { jobId });
-      await this.createCddClaim(jobId, address);
+      await this.createCddClaim(jobId, address, 'netki');
 
       await this.clearAddressApplications(jobId, address);
     } else {
@@ -120,7 +121,7 @@ export class CddProcessor {
 
     if (status === 'APPROVED_VERIFIED') {
       this.logger.debug('handling jumio approved verified', { jobId });
-      await this.createCddClaim(jobId, address);
+      await this.createCddClaim(jobId, address, 'jumio');
 
       await this.clearAddressApplications(jobId, address);
     } else {
@@ -152,7 +153,7 @@ export class CddProcessor {
       throw new Error('Cannot process mock CDD jobs on mainnet');
     }
 
-    await this.createCddClaim(jobId, address);
+    await this.createCddClaim(jobId, address, 'mock');
 
     await this.clearAddressApplications(jobId, address);
   }
@@ -175,14 +176,22 @@ export class CddProcessor {
 
   private async createCddClaim(
     jobId: JobIdentifier,
-    address: string
+    address: string,
+    signer: 'jumio' | 'netki' | 'mock'
   ): Promise<void> {
     this.logger.info('attempting CDD creation', { jobId, address });
 
-    const registerIdentityTx = await this.polymesh.identities.registerIdentity({
-      targetAccount: address,
-      createCdd: true,
-    });
+    const signingAccount = this.lookupSigningAddress(signer);
+
+    const registerIdentityTx = await this.polymesh.identities.registerIdentity(
+      {
+        targetAccount: address,
+        createCdd: true,
+      },
+      {
+        signingAccount,
+      }
+    );
 
     const createdIdentity = await registerIdentityTx.run();
 
@@ -191,5 +200,16 @@ export class CddProcessor {
       address,
       did: createdIdentity.did,
     });
+  }
+
+  lookupSigningAddress(signer: string): string {
+    const signingAddress = signerKeyMap[signer];
+    if (!signingAddress) {
+      throw new Error(
+        `Signer missing for '${signer}'. Worker service was misconfigured`
+      );
+    }
+
+    return signingAddress;
   }
 }

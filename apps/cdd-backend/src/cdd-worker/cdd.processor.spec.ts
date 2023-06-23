@@ -13,6 +13,7 @@ import { NetkiAccessCode } from '../netki/types';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
+import { signerKeyMap } from '../polymesh/polymesh.factory';
 
 describe('cddProcessor', () => {
   let mockRedis: DeepMocked<AppRedisService>;
@@ -21,6 +22,7 @@ describe('cddProcessor', () => {
   let mockPolymesh: MockPolymesh;
   let processor: CddProcessor;
   let mockRun: jest.Mock;
+  let lookupSignerSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,6 +43,9 @@ describe('cddProcessor', () => {
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
       run: mockRun,
     });
+
+    lookupSignerSpy = jest.spyOn(processor, 'lookupSigningAddress');
+    lookupSignerSpy.mockReturnValue('someAddress');
   });
 
   it('should be defined', () => {
@@ -63,10 +68,13 @@ describe('cddProcessor', () => {
       it('should create CDD claim and clear previous link attempts', async () => {
         await processor.generateCdd(mockJumioJob);
 
-        expect(mockPolymesh.identities.registerIdentity).toHaveBeenCalledWith({
-          targetAccount: address,
-          createCdd: true,
-        });
+        expect(mockPolymesh.identities.registerIdentity).toHaveBeenCalledWith(
+          {
+            targetAccount: address,
+            createCdd: true,
+          },
+          { signingAccount: 'someAddress' }
+        );
         expect(mockRun).toHaveBeenCalled();
         expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
       });
@@ -228,6 +236,23 @@ describe('cddProcessor', () => {
           expectedError
         );
       });
+    });
+  });
+
+  describe('lookupSigningAddress', () => {
+    beforeEach(() => {
+      lookupSignerSpy.mockRestore();
+    });
+
+    it('should return the address if found', () => {
+      signerKeyMap['lookupTest'] = 'someAddress';
+      const result = processor.lookupSigningAddress('lookupTest');
+
+      expect(result).toEqual('someAddress');
+    });
+
+    it('should throw if the address is not found', () => {
+      expect(() => processor.lookupSigningAddress('notFoundKey')).toThrow();
     });
   });
 });

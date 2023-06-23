@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { HashicorpVaultSigningManager } from '@polymeshassociation/hashicorp-vault-signing-manager';
 import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { polymeshFactory } from './polymesh.factory';
+import { polymeshFactory, signerKeyMap } from './polymesh.factory';
 
 /**
  jest auto mock causes polkadot to print a multiple version warning. These are manually implemented to avoid the issue
@@ -19,6 +19,7 @@ const mockHashicorpSigningManager = Object.create(
 Object.assign(mockHashicorpSigningManager, {
   ...createMock<HashicorpVaultSigningManager>(),
   getVaultKeys: getVaultKeyStub,
+  setSs58Format: jest.fn(),
 });
 
 jest.mock('@polymeshassociation/hashicorp-vault-signing-manager', () => ({
@@ -35,7 +36,14 @@ describe('polymesh factory', () => {
   beforeEach(() => {
     mockPolymesh = createMock<Polymesh>();
     configService = createMock<ConfigService>();
-    connectSpy.mockResolvedValue(mockPolymesh);
+
+    connectSpy.mockImplementation(async ({ signingManager }) => {
+      if (signingManager) {
+        console.log(signingManager);
+        signingManager.setSs58Format(42);
+      }
+      return mockPolymesh;
+    });
   });
 
   describe('with no configured signer', () => {
@@ -77,14 +85,11 @@ describe('polymesh factory', () => {
   });
 
   describe('with hashicorp vault signer', () => {
-    const signingKeyName = 'signing-key';
-
     beforeEach(() => {
       configService.get.mockReturnValue({
         vault: {
           url: 'http://example.com',
           token: 'someSecret',
-          key: signingKeyName,
         },
       });
     });
@@ -92,8 +97,14 @@ describe('polymesh factory', () => {
     it('should call Polymesh.connect with a HashicorpVaultSigningManager', async () => {
       getVaultKeyStub.mockResolvedValue([
         {
-          address: 'test-address',
-          name: signingKeyName,
+          address: 'jumio-test-address',
+          name: 'jumio-signing-key',
+          publicKey: '0x00',
+          version: 1,
+        },
+        {
+          address: 'netki-test-address',
+          name: 'netki-signing-key',
           publicKey: '0x00',
           version: 1,
         },
@@ -109,12 +120,21 @@ describe('polymesh factory', () => {
         })
       );
 
-      expect(mockPolymesh.setSigningAccount).toHaveBeenCalledWith(
-        'test-address'
-      );
+      expect(signerKeyMap['jumio']).toEqual('jumio-test-address');
+      expect(signerKeyMap['netki']).toEqual('netki-test-address');
     });
 
-    it('should throw an error if the signing key is not found', async () => {
+    it('should throw an error if the jumio key is not found', async () => {
+      delete signerKeyMap.jumio;
+
+      getVaultKeyStub.mockResolvedValue([]);
+
+      await expect(polymeshFactory(configService)).rejects.toThrowError();
+    });
+
+    it('should throw an error if the netki key is not found', async () => {
+      delete signerKeyMap.netki;
+
       getVaultKeyStub.mockResolvedValue([]);
 
       await expect(polymeshFactory(configService)).rejects.toThrowError();
