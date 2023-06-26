@@ -12,5 +12,5 @@
     "src/**/*.spec.ts",
     "src/**/*.d.ts",
     "src/test-utils/*"
-  ]
+, "src/polymesh/polymesh.factory.not-spec.ts"  ]
 }

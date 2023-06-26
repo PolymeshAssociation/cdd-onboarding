@@ -43,6 +43,8 @@ services:
 
     vault: # transit engine + key needs to be created before signing
         image: vault
+        ports:
+          - 8200:8200
         profiles:
               - auxillary
         entrypoint: vault server -dev -dev-listen-address="0.0.0.0:8200" -dev-root-token-id="root"

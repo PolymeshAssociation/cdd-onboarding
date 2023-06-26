@@ -13,16 +13,16 @@ import { NetkiAccessCode } from '../netki/types';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
-import { signerKeyMap } from '../polymesh/polymesh.factory';
+import { AddressBookService } from '../polymesh/address-book.service';
 
 describe('cddProcessor', () => {
   let mockRedis: DeepMocked<AppRedisService>;
   const address = jumioVerifiedData.customerId;
 
   let mockPolymesh: MockPolymesh;
+  let mockAddressBook: DeepMocked<AddressBookService>;
   let processor: CddProcessor;
   let mockRun: jest.Mock;
-  let lookupSignerSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,21 +31,38 @@ describe('cddProcessor', () => {
         { provide: Polymesh, useValue: new MockPolymesh() },
         { provide: AppRedisService, useValue: createMock<AppRedisService>() },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
+        {
+          provide: AddressBookService,
+          useValue: createMock<AddressBookService>(),
+        },
       ],
     }).compile();
 
     processor = module.get<CddProcessor>(CddProcessor);
     mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
+    mockAddressBook = module.get<typeof mockAddressBook>(AddressBookService);
 
     mockRedis.getNetkiAddress.mockResolvedValue(address);
     mockRun = jest.fn().mockResolvedValue('test-tx-result');
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
       run: mockRun,
     });
+    mockAddressBook.lookupSigningAddress.mockImplementation(
+      (signer: 'jumio' | 'netki' | 'mock') => {
+        if (signer === 'jumio') {
+          return 'jumioSignerAddress';
+        }
+        if (signer === 'netki') {
+          return 'netkiSignerAddress';
+        }
+        if (signer === 'mock') {
+          return 'mockSignerAddress';
+        }
 
-    lookupSignerSpy = jest.spyOn(processor, 'lookupSigningAddress');
-    lookupSignerSpy.mockReturnValue('someAddress');
+        throw new Error('mock signer not found');
+      }
+    );
   });
 
   it('should be defined', () => {
@@ -73,7 +90,7 @@ describe('cddProcessor', () => {
             targetAccount: address,
             createCdd: true,
           },
-          { signingAccount: 'someAddress' }
+          { signingAccount: 'jumioSignerAddress' }
         );
         expect(mockRun).toHaveBeenCalled();
         expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
@@ -125,6 +142,13 @@ describe('cddProcessor', () => {
         it('should create CDD claim and clear previous link attempts', async () => {
           await processor.generateCdd(mockNetkiCompletedJob);
 
+          expect(mockPolymesh.identities.registerIdentity).toHaveBeenCalledWith(
+            {
+              targetAccount: address,
+              createCdd: true,
+            },
+            { signingAccount: 'netkiSignerAddress' }
+          );
           expect(mockRun).toHaveBeenCalled();
           expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
         });
@@ -236,23 +260,6 @@ describe('cddProcessor', () => {
           expectedError
         );
       });
-    });
-  });
-
-  describe('lookupSigningAddress', () => {
-    beforeEach(() => {
-      lookupSignerSpy.mockRestore();
-    });
-
-    it('should return the address if found', () => {
-      signerKeyMap['lookupTest'] = 'someAddress';
-      const result = processor.lookupSigningAddress('lookupTest');
-
-      expect(result).toEqual('someAddress');
-    });
-
-    it('should throw if the address is not found', () => {
-      expect(() => processor.lookupSigningAddress('notFoundKey')).toThrow();
     });
   });
 });

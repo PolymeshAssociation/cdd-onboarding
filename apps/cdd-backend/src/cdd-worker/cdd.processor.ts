@@ -6,6 +6,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { NetkiCallbackDto } from '../netki/types';
+import { AddressBookService } from '../polymesh/address-book.service';
 import {
   CddJob,
   MockCddJob,
@@ -13,12 +14,12 @@ import {
   JumioCddJob,
   NetkiCddJob,
 } from './types';
-import { signerKeyMap } from '../polymesh/polymesh.factory';
 
 @Processor()
 export class CddProcessor {
   constructor(
     private readonly polymesh: Polymesh,
+    private readonly signerLookup: AddressBookService,
     private readonly redis: AppRedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
@@ -181,7 +182,7 @@ export class CddProcessor {
   ): Promise<void> {
     this.logger.info('attempting CDD creation', { jobId, address });
 
-    const signingAccount = this.lookupSigningAddress(signer);
+    const signingAccount = this.signerLookup.lookupSigningAddress(signer);
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity(
       {
@@ -200,16 +201,5 @@ export class CddProcessor {
       address,
       did: createdIdentity.did,
     });
-  }
-
-  lookupSigningAddress(signer: string): string {
-    const signingAddress = signerKeyMap[signer];
-    if (!signingAddress) {
-      throw new Error(
-        `Signer missing for '${signer}'. Worker service was misconfigured`
-      );
-    }
-
-    return signingAddress;
   }
 }

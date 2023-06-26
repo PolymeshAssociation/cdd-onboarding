@@ -11,10 +11,6 @@ const configZ = z
           z.object({
             url: z.string().url(),
             token: z.string(),
-            // key: z.string(),
-            jumioKey: z.string(),
-            netkiKey: z.string(),
-            mockCddKey: z.string().optional(),
           })
         ),
       })
@@ -56,10 +52,6 @@ export const workerEnvConfig = (): WorkerConfig => {
     signer.vault = {
       url: process.env.VAULT_URL,
       token: process.env.VAULT_TOKEN || '',
-      // key: process.env.VAULT_KEY || '',
-      jumioKey: process.env.JUMIO_KEY || '',
-      netkiKey: process.env.NETKI_KEY || '',
-      mockCddKey: process.env.MOCK_CDD_KEY,
     };
   } else if (process.env.MESH_MNEMONIC) {
     signer.mnemonic = process.env.MESH_MNEMONIC;
