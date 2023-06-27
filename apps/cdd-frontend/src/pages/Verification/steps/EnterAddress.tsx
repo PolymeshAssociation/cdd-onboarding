@@ -122,34 +122,30 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           An identity has already been assigned to this address.
         </Text>
         {validCdd ? (
-          <>
-            <Text>The identity has already been verified.</Text>
-            <Text>
-              If you wish to assign new identity to this address you can proceed
-              with a new CDD application.
-            </Text>
-          </>
+          <Text>The identity has already been verified.</Text>
         ) : (
-          <Text>
-            The identity assigned to this account does not have a valid CDD. You
-            can proceed with a new application to re-verify yourself.
-          </Text>
+          <>
+            <Text>
+              The identity assigned to this account does not have a valid CDD.
+              You can proceed with a new application to re-verify yourself.
+            </Text>
+            <StepFormNavigation
+              nextStepLabel="Create New Application"
+              onNext={onNext}
+              nextLoadingLabel={
+                <>
+                  <CircularProgress
+                    size="1.5rem"
+                    isIndeterminate
+                    color="white"
+                    mr="1rem"
+                  />{' '}
+                  Verifying...
+                </>
+              }
+            />
+          </>
         )}
-        <StepFormNavigation
-          nextStepLabel="Create New Application"
-          onNext={onNext}
-          nextLoadingLabel={
-            <>
-              <CircularProgress
-                size="1.5rem"
-                isIndeterminate
-                color="white"
-                mr="1rem"
-              />{' '}
-              Verifying...
-            </>
-          }
-        />
       </Box>
     );
   }
