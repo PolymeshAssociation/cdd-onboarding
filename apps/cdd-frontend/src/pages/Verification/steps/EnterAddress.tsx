@@ -24,6 +24,7 @@ import {
   MenuDivider,
   Text,
   Portal,
+  Heading,
 } from '@chakra-ui/react';
 import { BiImport, BiChevronDown } from 'react-icons/bi';
 import {
@@ -36,14 +37,16 @@ import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
 import usePolyWallet from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
 import config, { NETWORK_NAMES } from '../../../config/constants';
-import HCaptchaComponent, { hCaptcha } from '../../../components/HCaptcha/HCaptchaFormComponent';
+import HCaptchaComponent, {
+  hCaptcha,
+} from '../../../components/HCaptcha/HCaptchaFormComponent';
 
 import { useHCaptcha } from '../../../components/HCaptcha/HCaptchaContext';
 import { useStoredAddressValue } from '../../../hooks/useStoredAddressValue';
 
 const schema = z.object({
   address: addressZ,
-  hCaptcha
+  hCaptcha,
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -71,29 +74,31 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     defaultValues: { address },
   });
   const { onNext } = useContext(StepFormContext);
-  const { token: hCaptcha } = useHCaptcha()
+  const { token: hCaptcha } = useHCaptcha();
   const { setAddress: setStoredAddress } = useStoredAddressValue();
 
-  const { mutate, isLoading, isSuccess, isError, error } =
+  const { mutate, isLoading, isSuccess, isError, error, data } =
     useVerifyAddressMutation();
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
     usePolyWallet({ network: config.NETWORK });
   const { message } = (error as AxiosError) || {};
   const onSubmit = ({ address }: FormValues) => {
     setState({ address });
-    if(hCaptcha){
+    if (hCaptcha) {
       mutate({ address, hCaptcha });
     }
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      if(state.address){
-        setStoredAddress(state.address);
-      }
+    if (isSuccess && data.valid && state.address && !data.applications) {
+      setStoredAddress(state.address);
       onNext();
     }
-  }, [isSuccess, onNext]);
+
+    if (isSuccess && !data.valid && state.address) {
+      setStoredAddress(state.address);
+    }
+  }, [isSuccess, onNext, data, setStoredAddress, state.address]);
 
   useEffect(() => {
     async function init() {
@@ -106,6 +111,90 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const onSetAddress = (address: string) => {
     setValue('address', address);
     trigger('address');
+  };
+
+  if (isSuccess && !data?.valid && data.identity) {
+    const { validCdd } = data.identity;
+    return (
+      <Box>
+        <Heading mb={4}>Existing Identity Found</Heading>
+        <Text mb={2}>
+          An identity has already been assigned to this address.
+        </Text>
+        {validCdd ? (
+          <>
+            <Text>The identity has already been verified.</Text>
+            <Text>
+              If you wish to assign new identity to this address you can proceed
+              with a new CDD application.
+            </Text>
+          </>
+        ) : (
+          <Text>
+            The identity assigned to this account does not have a valid CDD. You
+            can proceed with a new application to re-verify yourself.
+          </Text>
+        )}
+        <StepFormNavigation
+          nextStepLabel="Create New Application"
+          onNext={onNext}
+          nextLoadingLabel={
+            <>
+              <CircularProgress
+                size="1.5rem"
+                isIndeterminate
+                color="white"
+                mr="1rem"
+              />{' '}
+              Verifying...
+            </>
+          }
+        />
+      </Box>
+    );
+  }
+
+  if (isSuccess && data.applications) {
+    return (
+      <Box>
+        <Heading mb={4}>Existing Applications Found</Heading>
+        <Text mb={2}>
+          There are already existing CDD applications bound to this address{' '}
+          <i>{state.address}</i>
+        </Text>
+        <Text mb={2}>
+          It usually takes up to 2 business days for CDD provider to verify your
+          identity.
+        </Text>
+        <Text mb={4} as="span">
+          After 2 business days, if your identity is still not verified, please
+          email{' '}
+          <Link href="mailto:support@polymesh.network">
+            support@polymesh.network
+          </Link>{' '}
+          with your Polymesh key address and the identity verification provider
+          that you selected.
+        </Text>
+        <Text>
+          If you wish you can proceed by creating a new CDD application.
+        </Text>
+        <StepFormNavigation
+          nextStepLabel="Create New Application"
+          onNext={onNext}
+          nextLoadingLabel={
+            <>
+              <CircularProgress
+                size="1.5rem"
+                isIndeterminate
+                color="white"
+                mr="1rem"
+              />{' '}
+              Verifying...
+            </>
+          }
+        />
+      </Box>
+    );
   }
 
   return (
@@ -138,7 +227,6 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                   >
                     <Icon as={BiImport} boxSize="1.5rem" />
                   </Button>
-
                 )}
                 {allAddresses.length > 1 && (
                   <Menu>
@@ -164,26 +252,26 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                       <Icon as={BiImport} boxSize="1.5rem" />
                     </MenuButton>
                     <Portal>
-                    <MenuList zIndex={200} maxW="100vw">
-                      <MenuItem>Select Address</MenuItem>
-                      <MenuDivider />
-                      {allAddresses.map((address) => (
-                        <MenuItem
-                          onClick={() => onSetAddress(address)}
-                          key={address}
-                          maxW="calc(100% -2rem)"
-                          textOverflow="ellipsis"                        
-                          px="1rem"
-                        >
-                          <Text maxW="100%">{address}</Text>
-                        </MenuItem>
-                      ))}
-                    </MenuList>
+                      <MenuList zIndex={200} maxW="100vw">
+                        <MenuItem>Select Address</MenuItem>
+                        <MenuDivider />
+                        {allAddresses.map((address) => (
+                          <MenuItem
+                            onClick={() => onSetAddress(address)}
+                            key={address}
+                            maxW="calc(100% -2rem)"
+                            textOverflow="ellipsis"
+                            px="1rem"
+                          >
+                            <Text maxW="100%">{address}</Text>
+                          </MenuItem>
+                        ))}
+                      </MenuList>
                     </Portal>
                   </Menu>
                 )}
               </InputRightElement>
-              </Tooltip>
+            </Tooltip>
           </InputGroup>
 
           <FormErrorMessage>
@@ -195,8 +283,8 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           {isWalletAvailable && !isCorrectNetwork && (
             <FormHelperText>
               Your Polymesh Wallet is connected to the wrong network. Please
-              connect to the "{NETWORK_NAMES[config.NETWORK]}" network to be able to automatically import
-              addresses from your wallet.
+              connect to the "{NETWORK_NAMES[config.NETWORK]}" network to be
+              able to automatically import addresses from your wallet.
             </FormHelperText>
           )}
           {!isWalletAvailable && (
@@ -216,12 +304,14 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
             </FormHelperText>
           )}
         </FormControl>
-        <Text mt={3} color="gray.600" fontSize="0.75rem">* indicates required field</Text>
+        <Text mt={3} color="gray.600" fontSize="0.75rem">
+          * indicates required field
+        </Text>
 
         <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
-        nextStepLabel="Get started"
+        nextStepLabel="Verify Address"
         nextIsLoading={isLoading}
         nextIsDisabled={!isValid || isLoading}
         nextLoadingLabel={

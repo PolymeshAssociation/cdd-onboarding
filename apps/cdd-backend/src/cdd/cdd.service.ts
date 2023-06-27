@@ -51,7 +51,11 @@ export class CddService {
         throw error;
       });
 
-    const identity = await account.getIdentity();
+      const [applications, identity] = await Promise.all([
+        this.redisService.getApplications(address),
+        account.getIdentity(),
+      ]);
+
     if (identity) {
       const validCdd = await identity.hasValidCdd();
       return {
@@ -60,7 +64,7 @@ export class CddService {
       };
     }
 
-    return { valid: true, identity: null };
+    return { valid: true, identity: null, applications };
   }
 
   public async getProviderLink({

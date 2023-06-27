@@ -2,7 +2,7 @@ import { useQuery } from 'react-query';
 
 import axios from '../services/axios';
 
-type ApplicationInfo = {
+export type ApplicationInfo = {
   provider: string;
   timestamp: string;
 };

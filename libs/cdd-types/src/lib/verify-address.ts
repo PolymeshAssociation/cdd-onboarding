@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { addressZ, hCaptcha } from './utils';
 import { extendApi } from '@anatine/zod-openapi';
 import { createZodDto } from '@anatine/zod-nestjs';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApplicationInfo } from './address-applications';
 
 const VerifyAddressZ = extendApi(z.object({ address: addressZ, hCaptcha }), {
   title: 'Verify an Address',
@@ -44,8 +45,15 @@ export class VerifyAddressResponse {
   })
   readonly identity: IdentityInfo | null;
 
-  constructor(valid: boolean, identity: IdentityInfo | null) {
+  @ApiPropertyOptional({
+    type: ApplicationInfo,
+    description: 'Information about the accounts applications',
+  })
+  readonly applications?: ApplicationInfo[];
+
+  constructor(valid: boolean, identity: IdentityInfo | null, applications?: ApplicationInfo[]) {
     this.valid = valid;
     this.identity = identity;
+    this.applications = applications;
   }
 }
