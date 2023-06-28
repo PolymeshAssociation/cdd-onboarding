@@ -1,10 +1,11 @@
 import React from 'react';
-import { Flex, useMediaQuery, useColorModeValue, Text } from '@chakra-ui/react';
+import { Flex, useMediaQuery, useColorModeValue } from '@chakra-ui/react';
 
 import {
   JumioLogo,
   NetkiLogo,
   FractalLogo,
+  MockCddLogo
 } from '@polymeshassociation/polymesh-theme/ui/atoms';
 
 type ProviderLogoCardProps = {
@@ -42,7 +43,7 @@ export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
         {provider === 'jumio' && <JumioLogo boxSize="80%" />}
         {provider === 'netki' && <NetkiLogo boxSize="80%" />}
         {provider === 'fractal' && <FractalLogo boxSize="80%" />}
-        {provider === 'mock' && <Text>Mock CDD (Best choice!)</Text> }
+        {provider === 'mock' && <MockCddLogo boxSize="100%" /> }
       </Flex>
   );
 };
