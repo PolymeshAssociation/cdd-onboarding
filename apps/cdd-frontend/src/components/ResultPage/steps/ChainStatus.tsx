@@ -3,6 +3,7 @@ import { Text, Link } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 import useGetAddressApplicationsQuery from '../../../hooks/useGetAddressApplicationsQuery';
+import { useStoredAddressValue } from '../../../hooks/useStoredAddressValue';
 import { useResultPageContext } from '../ResultPageContext';
 import { VerificationStatus } from '../types.d';
 
@@ -11,6 +12,7 @@ import StepTemplate, { StepTemplateProps } from './StepTemplate';
 const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
   const { setStepResult, activeStep, address, stepStatus, provider } =
     useResultPageContext();
+  const { setAddress } = useStoredAddressValue();
   const { isLoading, data, isFetched } = useGetAddressApplicationsQuery(
     address,
     activeStep === index
@@ -32,7 +34,11 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
     if (!did && isFetched) {
       setStepResult(index, VerificationStatus.FAILED);
     }
-  }, [did, index, isFetched, setStepResult]);
+
+    if (isFetched) {
+      setAddress(null);
+    }
+  }, [did, index, isFetched, setAddress, setStepResult]);
 
   if (isLoading) {
     return (
@@ -42,7 +48,10 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
     );
   }
 
-  if (localStatus === VerificationStatus.FAILED && Boolean(applications?.length)) {
+  if (
+    localStatus === VerificationStatus.FAILED &&
+    Boolean(applications?.length)
+  ) {
     return (
       <StepTemplate title="Identity not found" index={index}>
         <Text mb={2} as="span">
@@ -56,8 +65,12 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
         </Text>
         <Text mb={2} as="span">
           After 2 business days, if your identity is still not verified, please
-          email <Link href='mailto:support@polymesh.network'>support@polymesh.network</Link> with your Polymesh key address and the
-          identity verification provider that you selected.
+          email{' '}
+          <Link href="mailto:support@polymesh.network">
+            support@polymesh.network
+          </Link>{' '}
+          with your Polymesh key address and the identity verification provider
+          that you selected.
         </Text>
       </StepTemplate>
     );
@@ -83,13 +96,21 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
     return (
       <StepTemplate title="Identity not found" index={index}>
         <Text mb={2} as="span">
-          Sorry we were not able to find any applications associated to this address. Please start <Link to="/verification" as={RouterLink}>onboarding process</Link> to create an identity.
+          Sorry we were not able to find any applications associated to this
+          address. Please start{' '}
+          <Link to="/verification" as={RouterLink}>
+            onboarding process
+          </Link>{' '}
+          to create an identity.
         </Text>
 
         <Text mb={2} as="span">
-          If you are having problems with the onboarding process, please
-          email <Link href='mailto:support@polymesh.network'>support@polymesh.network</Link> with your Polymesh key address and the
-          identity verification provider that you selected.
+          If you are having problems with the onboarding process, please email{' '}
+          <Link href="mailto:support@polymesh.network">
+            support@polymesh.network
+          </Link>{' '}
+          with your Polymesh key address and the identity verification provider
+          that you selected.
         </Text>
       </StepTemplate>
     );

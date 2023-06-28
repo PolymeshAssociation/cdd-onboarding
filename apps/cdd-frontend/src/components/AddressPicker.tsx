@@ -70,13 +70,13 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
   };
 
   useEffect(() => {
-    connectToWallet()
+    connectToWallet();
   }, [connectToWallet]);
 
   useEffect(() => {
-    if(isValid){
-        const address = getValues('address');
-        onSubmit({ address });
+    if (isValid) {
+      const address = getValues('address');
+      onSubmit({ address });
     }
   }, [isValid, address, onSubmit, getValues]);
 
@@ -93,7 +93,7 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
               <InputRightElement width="4.5rem">
                 {allAddresses.length === 1 && (
                   <Button
-                    onClick={() => onSetAddress(allAddresses[0])}
+                    onClick={() => onSetAddress(allAddresses[0].address)}
                     size="sm"
                     h="2rem"
                     position="absolute"
@@ -137,15 +137,19 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
                       <MenuList zIndex={200} maxW="100vw">
                         <MenuItem>Select Address</MenuItem>
                         <MenuDivider />
-                        {allAddresses.map((address: string) => (
+                        {allAddresses.map(({ address, name }) => (
                           <MenuItem
                             onClick={() => onSetAddress(address)}
                             key={address}
-                            maxW="calc(100% -2rem)"
+                            w={{ base: '100vw', md: '600px'}}
+
                             textOverflow="ellipsis"
                             px="1rem"
+                            display="flex"
+                            justifyContent="space-between"
                           >
-                            <Text maxW="100%">{address}</Text>
+                            <Text as="span" mr={1}>{name}:</Text>
+                            <Text as="span">{address}</Text>
                           </MenuItem>
                         ))}
                       </MenuList>
@@ -186,7 +190,6 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
             </FormHelperText>
           )}
         </FormControl>
-
       </Box>
       {children}
     </form>

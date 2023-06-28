@@ -36,17 +36,22 @@ type UsePolyWallerInput = {
   network: PolyNetwork;
 };
 
-export type UsePolyWaller = (input: UsePolyWallerInput) => {
+type AddressWithName = {
+  address: string;
+  name: string;
+}
+
+export type UsePolyWallet = (input: UsePolyWallerInput) => {
   connectToWallet: () => Promise<void>;
   isWalletAvailable: boolean;
   isCorrectNetwork: boolean;
-  allAddresses: string[];
-  selectedAddress: string | null;
+  allAddresses: AddressWithName[];
+  selectedAddress: string | null | AddressWithName;
 };
 
-export const usePolyWallet: UsePolyWaller = ({ network }) => {
-  const [allAddresses, setAllAddresses] = useState<string[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+export const usePolyWallet: UsePolyWallet = ({ network }) => {
+  const [allAddresses, setAllAddresses] = useState<AddressWithName[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<string | null | AddressWithName>(null);
   const [pollyWallet, setPollyWallet] = useState<PolyWallet>();
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
@@ -68,7 +73,10 @@ export const usePolyWallet: UsePolyWaller = ({ network }) => {
 
     const foundAccounts = await web3Accounts({ extensions: ['polywallet'] });
 
-    const addresses = foundAccounts.map(({ address }) => address);
+    logger.debug("Found accounts: ", foundAccounts);
+
+
+    const addresses = foundAccounts.map(({ address, meta }) => ({ address, name: meta.name })) as AddressWithName[];
 
     logger.debug("Found addresses: ", addresses);
 

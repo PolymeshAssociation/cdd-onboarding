@@ -100,6 +100,13 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     }
   }, [isSuccess, onNext, data, setStoredAddress, state.address]);
 
+  const onCreateNewApplication = () => {
+    if(state.address){
+      setStoredAddress(state.address);
+    }
+    onNext();
+  }
+
   useEffect(() => {
     async function init() {
       await connectToWallet();
@@ -131,7 +138,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
             </Text>
             <StepFormNavigation
               nextStepLabel="Create New Application"
-              onNext={onNext}
+              onNext={onCreateNewApplication}
               nextLoadingLabel={
                 <>
                   <CircularProgress
@@ -176,7 +183,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
         </Text>
         <StepFormNavigation
           nextStepLabel="Create New Application"
-          onNext={onNext}
+          onNext={onCreateNewApplication}
           nextLoadingLabel={
             <>
               <CircularProgress
@@ -207,7 +214,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
               <InputRightElement width="4.5rem">
                 {allAddresses.length === 1 && (
                   <Button
-                    onClick={() => onSetAddress(allAddresses[0])}
+                    onClick={() => onSetAddress(allAddresses[0].address)}
                     size="md"
                     h="2.5rem"
                     position="absolute"
@@ -251,15 +258,19 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                       <MenuList zIndex={200} maxW="100vw">
                         <MenuItem>Select Address</MenuItem>
                         <MenuDivider />
-                        {allAddresses.map((address) => (
+                        {allAddresses.map(({ address, name }) => (
                           <MenuItem
                             onClick={() => onSetAddress(address)}
                             key={address}
-                            maxW="calc(100% -2rem)"
+
+                            w={{ base: '100vw', md: '600px'}}
                             textOverflow="ellipsis"
                             px="1rem"
+                            display="flex"
+                            justifyContent="space-between"
                           >
-                            <Text maxW="100%">{address}</Text>
+                            <Text mr={1}>{name}:</Text>
+                            <Text>{address}</Text>
                           </MenuItem>
                         ))}
                       </MenuList>

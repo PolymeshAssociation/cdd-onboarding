@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { logger } from '../services/logger';
 
 /**
  * @param {string} key - A key to identify the value.
@@ -10,6 +11,9 @@ const setData = <T>(key: string, value: T, ttl?: number) => {
             value,
             ...(ttl && { ttl: Date.now() + (ttl * 1000) } ),
         }
+
+        logger.debug(`useLocalStorage:setData ${key} = ${value}`);
+
      
         // store data in LocalStorage 
         localStorage.setItem(key, JSON.stringify(data));
@@ -51,15 +55,18 @@ const useLocalStorage = <T>(key: string, defaultValue: T, ttl?: number) => {
       } catch (error) {
         currentValue = defaultValue;
       }
+
+      logger.debug(`useLocalStorage: ${key} = ${currentValue}`);
   
       return currentValue;
     });
+
+    const saveValue = (newValue: T) => {
+      setValue(newValue);
+      setData<T>(key, newValue, ttl);
+    }
   
-    useEffect(() => {
-      setData<T>(key, value, ttl)
-    }, [value, key, ttl]);
-  
-    return [value, setValue] as [T, React.Dispatch<React.SetStateAction<T>>]
+    return [value, saveValue] as [T, React.Dispatch<React.SetStateAction<T>>]
   };
   
   export default useLocalStorage;
