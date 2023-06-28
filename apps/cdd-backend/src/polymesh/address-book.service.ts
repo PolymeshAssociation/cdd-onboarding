@@ -13,31 +13,30 @@ export class AddressBookService {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    console.log('in on module init...');
     if (isVaultSigner(this.signingManager)) {
       const keys = await this.signingManager.getVaultKeys();
       keys.forEach((key) => {
         if (key.name.includes('jumio')) {
-          this.insertKey('jumio', key.address);
+          this.insertAddress('jumio', key.address);
         }
 
         if (key.name.includes('netki')) {
-          this.insertKey('netki', key.address);
+          this.insertAddress('netki', key.address);
         }
 
         if (key.name.includes('mock')) {
-          this.insertKey('mock', key.address);
+          this.insertAddress('mock', key.address);
         }
       });
     } else {
       const [firstAccount] = await this.signingManager.getAccounts();
-      this.addressBook['jumio'] = firstAccount;
-      this.addressBook['netki'] = firstAccount;
-      this.addressBook['mock'] = firstAccount;
+      this.insertAddress('jumio', firstAccount);
+      this.insertAddress('netki', firstAccount);
+      this.insertAddress('mock', firstAccount);
     }
   }
 
-  lookupSigningAddress(signer: 'jumio' | 'netki' | 'mock'): string {
+  public findAddress(signer: 'jumio' | 'netki' | 'mock'): string {
     const signerAddress = this.addressBook[signer];
     if (!signerAddress) {
       throw new Error(`config error: key for '${signer}' was not found`);
@@ -46,7 +45,7 @@ export class AddressBookService {
     return signerAddress;
   }
 
-  insertKey(name: string, address: string): void {
+  public insertAddress(name: string, address: string): void {
     if (this.addressBook[name]) {
       throw new Error(
         `config error: multiple keys found containing '${name}' in their name`
@@ -57,10 +56,10 @@ export class AddressBookService {
   }
 }
 
-function isVaultSigner(
+const isVaultSigner = (
   signingManager: SigningManager | undefined
-): signingManager is HashicorpVaultSigningManager {
+): signingManager is HashicorpVaultSigningManager => {
   return (
     !!signingManager && signingManager instanceof HashicorpVaultSigningManager
   );
-}
+};

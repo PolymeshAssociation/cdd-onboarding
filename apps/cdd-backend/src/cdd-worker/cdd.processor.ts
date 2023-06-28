@@ -182,7 +182,7 @@ export class CddProcessor {
   ): Promise<void> {
     this.logger.info('attempting CDD creation', { jobId, address });
 
-    const signingAccount = this.signerLookup.lookupSigningAddress(signer);
+    const signingAccount = this.signerLookup.findAddress(signer);
 
     const registerIdentityTx = await this.polymesh.identities.registerIdentity(
       {

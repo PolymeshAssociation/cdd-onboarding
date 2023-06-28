@@ -48,7 +48,7 @@ describe('cddProcessor', () => {
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
       run: mockRun,
     });
-    mockAddressBook.lookupSigningAddress.mockImplementation(
+    mockAddressBook.findAddress.mockImplementation(
       (signer: 'jumio' | 'netki' | 'mock') => {
         if (signer === 'jumio') {
           return 'jumioSignerAddress';

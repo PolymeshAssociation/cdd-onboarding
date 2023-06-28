@@ -36,32 +36,36 @@ describe('AddressBookService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should lookup address', () => {
-    const result = service.lookupSigningAddress('jumio');
+  describe('findAddress', () => {
+    it('should find a known address', () => {
+      const result = service.findAddress('jumio');
 
-    expect(result).toBeDefined();
+      expect(result).toBeDefined();
+    });
+
+    it('should throw if address is not found', () => {
+      const expectedError = new Error(
+        "config error: key for 'not-a-provider' was not found"
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(() => service.findAddress('not-a-provider' as any)).toThrow(
+        expectedError
+      );
+    });
   });
 
-  it('should throw if address is not found', () => {
-    const expectedError = new Error(
-      "config error: key for 'not-a-provider' was not found"
-    );
+  describe('insertAddress', () => {
+    it('should throw on key name collision', () => {
+      service.insertAddress('some-key', 'someAddress');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => service.lookupSigningAddress('not-a-provider' as any)).toThrow(
-      expectedError
-    );
-  });
+      const expectedError = new Error(
+        "config error: multiple keys found containing 'some-key' in their name"
+      );
 
-  it('should throw on key name collision', () => {
-    service.insertKey('some-key', 'someAddress');
-
-    const expectedError = new Error(
-      "config error: multiple keys found containing 'some-key' in their name"
-    );
-
-    expect(() => service.insertKey('some-key', 'someAddress')).toThrow(
-      expectedError
-    );
+      expect(() => service.insertAddress('some-key', 'someAddress')).toThrow(
+        expectedError
+      );
+    });
   });
 });
