@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link } from '@chakra-ui/react';
+import { Link, useColorModeValue } from '@chakra-ui/react';
 
 import {
   QuestionsAnswers,
   QuestionItem,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
+import { Section } from '@polymeshassociation/polymesh-theme/ui/molecules/Section/Section';
 
 const questionsAnswers: QuestionItem[] = [
   {
@@ -70,9 +71,11 @@ const questionsAnswers: QuestionItem[] = [
       'I want to become an operator and run a node on Polymesh. How do I onboard?',
     answer: (
       <>
-        To learn more about becoming a node operator on Polymesh,{' '}
-          You can learn more about becoming a node operator on Polymesh,{' '} 
-          <Link href="https://polymesh.network/node-operators" isExternal>here</Link>
+        To learn more about becoming a node operator on Polymesh, You can learn
+        more about becoming a node operator on Polymesh,{' '}
+        <Link href="https://polymesh.network/node-operators" isExternal>
+          here
+        </Link>
       </>
     ),
   },
@@ -95,11 +98,26 @@ const questionsAnswers: QuestionItem[] = [
   },
 ];
 
-export const LandingQuestionsAnswers: React.FC = () => (
-  <QuestionsAnswers
-    title="Frequently Asked Questions"
-    items={questionsAnswers}
-  />
-);
+export const LandingQuestionsAnswers: React.FC = () => {
+  const bgImage = useColorModeValue('blocks.svg', 'blocks-dark.svg');
+
+  return (
+    <Section
+      title="Frequently Asked Questions"
+      position="relative"
+      bgImage={{ xl: `/assets/img/${bgImage}` }}
+      bgSize={{ xl: '55% 500px', '2xl': "70% 450px" }}
+      bgRepeat="no-repeat"
+      bgPosition={{
+        xl: 'calc(60vw + (100vw - 1440px)/2) 100px',
+        '2xl': 'calc(50vw + (80vw - 1440px)/2) 100px',
+      }}
+      display="flex"
+      alignItems={{ base: "center", xl: "flex-start" }}
+    >
+      <QuestionsAnswers items={questionsAnswers} />
+    </Section>
+  );
+};
 
 export default LandingQuestionsAnswers;

@@ -28,7 +28,7 @@ export const Hero: React.FC<HeroProps> = ({ title, subtitle, cta, align }) => {
 
   return (
     <SectionContainer>
-        <VStack align={justify} maxW={{ base: "100%", md: "50%"}}>
+        <VStack align={justify} w="100%">
           <Heading
             as="h1"
             fontSize="3rem"
@@ -37,6 +37,8 @@ export const Hero: React.FC<HeroProps> = ({ title, subtitle, cta, align }) => {
             fontWeight={600}
             lineHeight="140%"
             letterSpacing="-0.03em"
+            textAlign="center"
+            w="100%"
           >
             {title}
           </Heading>
@@ -46,6 +48,8 @@ export const Hero: React.FC<HeroProps> = ({ title, subtitle, cta, align }) => {
             color={subheadingColor}
             my="0.75rem !important"
             lineHeight="1.5em"
+            textAlign="center"
+            w="100%"
           >
             {subtitle}
           </Heading>

@@ -1,6 +1,5 @@
 export * from './Logo';
 export * from './SectionContainer';
-export * from './LandingImage';
 export * from './FooterContainer';
 export * from './JumioLogo';
 export * from './FractalLogo';
