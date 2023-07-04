@@ -3,6 +3,7 @@ import { Logger } from 'winston';
 import { mockHttpContext } from '../test-utils/mocks';
 import { HCaptchaGuard } from './hcaptcha.guard';
 import { verify } from 'hcaptcha';
+import { ConfigService } from '@nestjs/config';
 
 jest.mock('hcaptcha', () => ({
   verify: jest.fn(),
@@ -13,7 +14,11 @@ describe('hCaptcha guard', () => {
   let mockVerify: jest.MockedFunction<typeof verify>;
 
   beforeEach(() => {
-    hCaptchaGuard = new HCaptchaGuard('someSecret', createMock<Logger>());
+    hCaptchaGuard = new HCaptchaGuard(
+      'someSecret',
+      createMock<Logger>(),
+      createMock<ConfigService>()
+    );
     mockVerify = (verify as jest.Mock).mockReset();
   });
 
@@ -36,6 +41,15 @@ describe('hCaptcha guard', () => {
       const canActivate = await hCaptchaGuard.canActivate(httpContext);
 
       expect(canActivate).toBe(false);
+    });
+
+    it('should return true if hCaptcha is disabled', async () => {
+      const httpContext = mockHttpContext('::1', '', { hCaptcha: 'someToken' });
+      hCaptchaGuard.enabled = false;
+
+      const canActivate = await hCaptchaGuard.canActivate(httpContext);
+
+      expect(canActivate).toBe(true);
     });
 
     it('should throw if hCaptcha is not provided', () => {

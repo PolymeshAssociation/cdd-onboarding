@@ -11,7 +11,7 @@ services:
          - redis-data:/data
 
     mesh:
-        image: ${CHAIN_IMAGE:-polymeshassociation/polymesh:latest-develop-debian}
+        image: ${CHAIN_IMAGE:-polymeshassociation/polymesh:5.4.0-develop-debian}
         init: true # Faster shutdown when enabled
         restart: unless-stopped
         ports: # expose ports to localhost

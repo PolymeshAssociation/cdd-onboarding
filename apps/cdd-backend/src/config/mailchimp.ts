@@ -5,10 +5,7 @@ const mailchimpZ = z
     mailchimp: z.object({
       apiKey: z.string().describe('mailchimp api key'),
       serverPrefix: z.string().describe('mailchimp server prefix'),
-      isEnabled: z.coerce
-        .boolean()
-        .optional()
-        .describe('mailchimp capture email enabled'),
+      isEnabled: z.enum(['true', 'false']).transform((val) => val === 'true'),
       listId: z.string().describe('mailchimp list id'),
     }),
   })

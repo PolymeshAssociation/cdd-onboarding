@@ -26,13 +26,22 @@ export const HCaptchaGuardCredentialsProvider: Provider = {
 
 @Injectable()
 export class HCaptchaGuard implements CanActivate {
+  isEnabled: boolean;
+
   constructor(
     @Inject(HCAPTCHA_GUARD_CREDENTIALS_PROVIDER)
     private readonly secretKey: string,
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
-  ) {}
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    config: ConfigService
+  ) {
+    this.isEnabled = config.getOrThrow('hCaptcha.isEnabled');
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (!this.isEnabled) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const token = request.body.hCaptcha;
 

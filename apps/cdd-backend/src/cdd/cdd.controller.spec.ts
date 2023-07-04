@@ -12,6 +12,7 @@ import {
 } from '../common/hcaptcha.guard';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { ConfigService } from '@nestjs/config';
 
 const address = 'some-address';
 describe('CddController', () => {
@@ -34,6 +35,7 @@ describe('CddController', () => {
           useValue: 'someSecret',
         },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
+        { provide: ConfigService, useValue: createMock<ConfigService>() },
       ],
       controllers: [CddController],
     }).compile();
@@ -80,17 +82,17 @@ describe('CddController', () => {
     it('should call the service and return the result', async () => {
       mockCddService.processEmail.mockResolvedValue();
 
-      const payload  = {
+      const payload = {
         email: 'test@example.com',
         termsAccepted: true,
         newsletterAccepted: true,
         devUpdatesAccepted: true,
         hCaptcha: 'someSecret',
-      }
+      };
 
       await controller.emailAddress(payload);
 
-      expect(mockCddService.processEmail).toBeCalledWith(payload)
+      expect(mockCddService.processEmail).toBeCalledWith(payload);
     });
   });
 

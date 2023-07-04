@@ -84,6 +84,7 @@ const configZ = z
     hCaptcha: z
       .object({
         secretKey: z.string().describe('hCaptcha secret key'),
+        isEnabled: z.enum(['true', 'false']).transform((val) => val === 'true'),
       })
       .describe('hCaptcha related config'),
   })
@@ -132,6 +133,7 @@ export const serverEnvConfig = (): ServerConfig => {
     fractalUrl: process.env.FRACTAL_URL,
     hCaptcha: {
       secretKey: process.env.HCAPTCHA_SECRET_KEY,
+      isEnabled: process.env.HCAPTCHA_IS_ENABLED,
     },
   };
 
