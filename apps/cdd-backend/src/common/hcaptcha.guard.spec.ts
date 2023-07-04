@@ -45,7 +45,7 @@ describe('hCaptcha guard', () => {
 
     it('should return true if hCaptcha is disabled', async () => {
       const httpContext = mockHttpContext('::1', '', { hCaptcha: 'someToken' });
-      hCaptchaGuard.enabled = false;
+      hCaptchaGuard.isEnabled = false;
 
       const canActivate = await hCaptchaGuard.canActivate(httpContext);
 
