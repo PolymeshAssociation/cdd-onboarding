@@ -90,7 +90,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   };
 
   useEffect(() => {
-    if (isSuccess && data.valid && state.address && !data.applications) {
+    if (isSuccess && data.valid && state.address && !data.applications.length) {
       setStoredAddress(state.address);
       onNext();
     }
@@ -157,7 +157,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     );
   }
 
-  if (isSuccess && data.applications) {
+  if (isSuccess && data.applications.length) {
     return (
       <Box>
         <Heading mb={4}>Existing Applications Found</Heading>
