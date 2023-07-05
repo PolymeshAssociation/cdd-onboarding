@@ -7,7 +7,7 @@ export type ApplicationInfo = {
   timestamp: string;
 };
 
-export type ServiceResponse = {
+export type GetAddressApplicationsServiceResponse = {
   address: string;
   applications: ApplicationInfo[];
   did?: string;
@@ -22,7 +22,7 @@ const getAddressApplications = async ({ address }: Payload) => {
     return null;
   }
   
-  const { data } = await axios.get<ServiceResponse>(`/applications/${address}`);
+  const { data } = await axios.get<GetAddressApplicationsServiceResponse>(`/applications/${address}`);
 
   return data;
 };

@@ -1,0 +1,14 @@
+#captcha-container > div {
+  border: none !important;
+  width: 298px;
+  height: 71px;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 0 auto;
+}
+
+#captcha-container > div > iframe {
+  border: unset !important;
+  outline: unset !important;
+  transform: translate(-2px, -3px);
+}

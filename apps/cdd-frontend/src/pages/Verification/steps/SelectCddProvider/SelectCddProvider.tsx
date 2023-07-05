@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { CircularProgress, Flex, Text } from '@chakra-ui/react';
+import { CircularProgress, Flex, Box } from '@chakra-ui/react';
 
 import { VerificationState } from '../index.d';
 import {
@@ -13,7 +13,8 @@ import config from '../../../../config/constants';
 import ErrorLoadingProviderLink from './ErrorLoadingProviderLink';
 import ProviderLogoCard from './ProviderLogoCard';
 import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaComponent';
-import { useHCaptcha } from '../../../../components/HCaptcha/HCaptchaContext';
+
+import { useCaptcha } from '../../../../hooks';
 
 type SelectCddProviderProps = {
   setState: React.Dispatch<React.SetStateAction<VerificationState>>;
@@ -27,8 +28,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   const { onNext } = useContext(StepFormContext);
   const { mutate, isLoading, isError, data } = useGetProviderLinkMutation();
   const { link } = data || {};
-  const { token: hCaptcha } = useHCaptcha()
-
+  const { token: hCaptcha } = useCaptcha()
   const onSelectProvider = (provider: 'netki' | 'jumio' | 'fractal' | 'mock') => {
     if (!isLoading) {
       setState((prev) => ({ ...prev, provider }));
@@ -77,8 +77,11 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
             isSelected={state.provider === 'mock'}
           />
         }
-        <HCaptchaComponent />
+        
       </Flex>
+      <Box mt={4}>
+        <HCaptchaComponent mt={8} />
+      </Box>
       <StepFormNavigation
         nextStepLabel="Next"
         nextIsDisabled={!state.provider}

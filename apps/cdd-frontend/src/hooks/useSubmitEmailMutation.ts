@@ -1,7 +1,7 @@
 import { useMutation } from 'react-query';
 import { z } from 'zod';
 
-import { hCaptcha } from '../components/HCaptcha/HCaptchaFormComponent';
+import { hCaptcha, useCaptcha } from './useCaptcha';
 
 import axios from '../services/axios';
 
@@ -28,7 +28,15 @@ const submitEmail = async (payload: EmailFormValues) => {
 };
 
 export const useSubmitEmailMutation = () => {
-  return useMutation(submitEmail);
+  const mutation =  useMutation(submitEmail);
+  const { captchaRef } = useCaptcha();
+
+  const onMutate = (payload: EmailFormValues) => {
+    mutation.mutate(payload);
+    captchaRef.current?.resetCaptcha();
+  }
+
+  return { ...mutation, mutate: onMutate }
 };
 
 export default useSubmitEmailMutation;

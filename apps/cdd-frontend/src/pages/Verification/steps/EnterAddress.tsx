@@ -31,25 +31,17 @@ import {
   StepFormContext,
   StepFormNavigation,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
-import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 
 import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
 import usePolyWallet from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
 import config, { NETWORK_NAMES } from '../../../config/constants';
-import HCaptchaComponent, {
-  hCaptcha,
-} from '../../../components/HCaptcha/HCaptchaFormComponent';
 
-import { useHCaptcha } from '../../../components/HCaptcha/HCaptchaContext';
-import { useStoredAddressValue } from '../../../hooks/useStoredAddressValue';
+import HCaptchaComponent from '../../../components/HCaptcha/HCaptchaFormComponent';
+import { useStoredAddressValue, verifyAddressSchema, VerifyAddressPayload } from '../../../hooks';
 
-const schema = z.object({
-  address: addressZ,
-  hCaptcha,
-});
 
-type FormValues = z.infer<typeof schema>;
+
 
 type EnterAddressProps = {
   state: VerificationState;
@@ -68,13 +60,12 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     formState: { errors, isValid },
     setValue,
     trigger,
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  } = useForm<VerifyAddressPayload>({
+    resolver: zodResolver(verifyAddressSchema),
     mode: 'onTouched',
     defaultValues: { address },
   });
   const { onNext } = useContext(StepFormContext);
-  const { token: hCaptcha } = useHCaptcha();
   const { setAddress: setStoredAddress } = useStoredAddressValue();
 
   const { mutate, isLoading, isSuccess, isError, error, data } =
@@ -82,11 +73,9 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
     usePolyWallet({ network: config.NETWORK });
   const { message } = (error as AxiosError) || {};
-  const onSubmit = ({ address }: FormValues) => {
+  const onSubmit = ({ address, hCaptcha }: VerifyAddressPayload) => {
     setState({ address });
-    if (hCaptcha) {
-      mutate({ address, hCaptcha });
-    }
+    mutate({ address, hCaptcha });
   };
 
   useEffect(() => {

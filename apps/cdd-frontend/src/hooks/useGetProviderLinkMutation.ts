@@ -1,25 +1,39 @@
 import { useMutation } from 'react-query';
+import { z } from 'zod';
 
-import { HCaptchaPayload } from '../components/HCaptcha';
 import axios from '../services/axios';
+import { useCaptcha, hCaptcha } from './useCaptcha';
 
-export type ServiceResponse = {
+export type GetProviderLinkServiceResponse = {
   link: string;
 };
 
-type Payload = {
-  address: string;
-  provider: 'netki' | 'jumio' | 'fractal' | 'mock';
-} & HCaptchaPayload;
+export const providerLinkSchema = z.object({
+  address: z.string().nonempty(),
+  provider: z.enum(['netki', 'jumio', 'fractal','mock']),
+  hCaptcha,
+});
 
-const generateProviderLink = async (payload: Payload) => {
-  const { data } = await axios.post<ServiceResponse>('provider-link', payload);
+export type GenerateProviderLinkPayload = z.infer<typeof providerLinkSchema>;
+
+
+const generateProviderLink = async (payload: GenerateProviderLinkPayload) => {
+  const { data } = await axios.post<GetProviderLinkServiceResponse>('provider-link', payload);
 
   return data;
 };
 
 export const useGetProviderLinkMutation = () => {
-  return useMutation(generateProviderLink);
+  const mutation =  useMutation(generateProviderLink);
+
+  const { captchaRef } = useCaptcha();
+
+  const onMutate = (payload: GenerateProviderLinkPayload) => {
+    mutation.mutate(payload);
+    captchaRef.current?.resetCaptcha();
+  }
+
+  return { ...mutation, mutate: onMutate }
 };
 
 export default useGetProviderLinkMutation;
