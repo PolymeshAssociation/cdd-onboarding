@@ -15,12 +15,15 @@ type MarketingPermission = {
 
 type MailchimpPingResponse = client.ping.APIHealthStatus | ErrorResponse
 type MailchimpListResponse = ErrorResponse | client.lists.MembersSuccessResponse
-type ListMemberTag = { name: 'onboarding', status: 'active' } | { name: 'newsletter', status: 'active' | 'inactive' } | { name: 'dev-updates', status: 'active' | 'inactive' }
+type ListMemberTag = { name: string, status: 'active' | "inactive" }
 
 @Injectable()
 export class MailchimpService {
   private listId: string;
   private readonly isEnabled: boolean;
+  private onboardingTagName: string;
+  private newsletterTagName: string;
+  private devUpdatesTagName: string;
 
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
@@ -34,6 +37,9 @@ export class MailchimpService {
     this.listId = this.config.getOrThrow('mailchimp.listId');
     this.isEnabled = this.config.getOrThrow('mailchimp.isEnabled');
     this.logger.debug('mailchimp config', { serverPrefix });
+    this.onboardingTagName = this.config.getOrThrow('mailchimp.onboardingTagName');
+    this.newsletterTagName = this.config.getOrThrow('mailchimp.newsletterTagName');
+    this.devUpdatesTagName = this.config.getOrThrow('mailchimp.devUpdatesTagName');
 
     this.mailchimpClient.setConfig({
       apiKey: apiKey,
@@ -113,14 +119,14 @@ export class MailchimpService {
       return;
     }
 
-    const tags: ListMemberTag[] = [{ name: 'onboarding', status: 'active'}];
+    const tags: ListMemberTag[] = [{ name: this.onboardingTagName, status: 'active'}];
 
     if(subscribeToNewsletter){
-      tags.push({ name: 'newsletter', status: 'active' });
+      tags.push({ name: this.newsletterTagName, status: 'active' });
     }
 
     if(subscribeToDevUpdates){
-      tags.push({ name: 'dev-updates', status: 'active' });
+      tags.push({ name: this.devUpdatesTagName, status: 'active' });
     }
 
     const [tagsError, tagsResult] = await to<object>(this.mailchimpClient.lists.updateListMemberTags(listId, subscriberHash, { tags }))
