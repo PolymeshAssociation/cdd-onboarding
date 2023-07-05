@@ -44,7 +44,6 @@ describe('JumioService', () => {
   });
 
   describe('generateLink', () => {
-    const id = 'someUUID';
     const configuredUrl = 'https://example.com';
     it('should make an http request to the configured endpoint', async () => {
       const expectedHeaders = {
@@ -70,7 +69,7 @@ describe('JumioService', () => {
 
       mockConfig.getOrThrow.mockReturnValue(configuredUrl);
 
-      const response = await service.generateLink(id, address);
+      const response = await service.generateLink(address);
 
       expect(response).toEqual(
         expect.objectContaining({
@@ -82,7 +81,7 @@ describe('JumioService', () => {
       expect(postSpy).toHaveBeenCalledWith(
         configuredUrl,
         JSON.stringify({
-          customerInternalReference: id,
+          customerInternalReference: address,
           userReference: address,
         }),
         expectedHeaders
@@ -102,7 +101,7 @@ describe('JumioService', () => {
 
       mockConfig.getOrThrow.mockReturnValue(configuredUrl);
 
-      await expect(service.generateLink(id, address)).rejects.toThrow(
+      await expect(service.generateLink(address)).rejects.toThrow(
         InternalServerErrorException
       );
     });

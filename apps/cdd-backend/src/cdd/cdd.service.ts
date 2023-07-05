@@ -55,10 +55,10 @@ export class CddService {
         throw error;
       });
 
-      const [applications, identity] = await Promise.all([
-        this.redisService.getApplications(address),
-        account.getIdentity(),
-      ]);
+    const [applications, identity] = await Promise.all([
+      this.redisService.getApplications(address),
+      account.getIdentity(),
+    ]);
 
     if (identity) {
       const validCdd = await identity.hasValidCdd();
@@ -84,9 +84,8 @@ export class CddService {
 
     const id = crypto.randomUUID();
     let url, externalId;
-
     if (provider === 'jumio') {
-      const jumioResponse = await this.jumioService.generateLink(id, address);
+      const jumioResponse = await this.jumioService.generateLink(address);
 
       url = jumioResponse.redirectUrl as string;
       externalId = jumioResponse.transactionReference as string;
@@ -127,12 +126,12 @@ export class CddService {
     newsletterAccepted,
     devUpdatesAccepted,
   }: EmailDetailsDto): Promise<void> {
-      return this.mailchimpService.addSubscriberToMarketingList(
-        email,
-        'subscribed',
-        newsletterAccepted,
-        devUpdatesAccepted
-      );
+    return this.mailchimpService.addSubscriberToMarketingList(
+      email,
+      'subscribed',
+      newsletterAccepted,
+      devUpdatesAccepted
+    );
   }
 
   public async getApplications(

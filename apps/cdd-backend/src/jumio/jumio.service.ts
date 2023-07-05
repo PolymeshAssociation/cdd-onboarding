@@ -34,12 +34,10 @@ export class JumioService {
    * @note - docs: https://github.com/Jumio/implementation-guides/blob/master/netverify/netverify-web-v4.md#initiating-a-id-verification-transaction
    */
   public async generateLink(
-    transactionId: string,
     address: string
   ): Promise<JumioGenerateLinkResponse> {
-    this.logger.debug('fetching jumio onboarding link', {
+    this.logger.debug('generating jumio onboarding link', {
       address,
-      transactionId,
     });
 
     const headers = {
@@ -53,7 +51,7 @@ export class JumioService {
       this.http.post(
         url,
         JSON.stringify({
-          customerInternalReference: transactionId,
+          customerInternalReference: address,
           userReference: address,
         }),
         { headers }

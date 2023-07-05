@@ -1,7 +1,6 @@
 import { HealthCheckResponse } from '@cdd-onboarding/cdd-types';
 import { Injectable } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { randomUUID } from 'crypto';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
@@ -68,7 +67,7 @@ export class InfoService {
     let healthy = true;
 
     await this.jumio
-      .generateLink(randomUUID(), Buffer.from('HEALTH-PING').toString('base64'))
+      .generateLink(Buffer.from('HEALTH-PING').toString('base64'))
       .catch(() => {
         healthy = false;
       });
