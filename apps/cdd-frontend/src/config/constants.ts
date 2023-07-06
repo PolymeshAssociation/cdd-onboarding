@@ -5,7 +5,7 @@ import { PolyNetwork } from '../hooks/usePollyWallet';
 const configSchema = z.object({
   API_URL: z.string(),
   NETWORK: z.enum(['local', 'testnet', 'staging', 'mainnet']),
-  SS58_FORMAT: z.number(),
+  SS58_FORMAT: z.coerce.number(),
   LOG_LEVEL: z.enum(['log', 'warn', 'error', 'debug', 'off']),
   H_CAPTCHA_SITE_KEY: z.string().optional(),
   NX_USER_PORTAL_URL: z.string(),
@@ -23,7 +23,7 @@ export const NETWORK_NAMES: Record<PolyNetwork, string> = {
 export default configSchema.parse({
   API_URL: process.env.NX_API_URL,
   NETWORK: process.env.NX_MESH_NETWORK,
-  SS58_FORMAT: process.env.NX_MESH_NETWORK === "mainnet" ? 12 : 42,
+  SS58_FORMAT: process.env.NX_SS58_FORMAT,
   LOG_LEVEL: process.env.NX_LOG_LEVEL,
   H_CAPTCHA_SITE_KEY: process.env.NX_H_CAPTCHA_SITE_KEY,
   NX_USER_PORTAL_URL: process.env.NX_USER_PORTAL_URL,
