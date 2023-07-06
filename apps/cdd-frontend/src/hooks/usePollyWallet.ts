@@ -73,7 +73,7 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
 
     setIsCorrectNetwork(networkMeta.name === network);
 
-    const ss58Format = network === 'local' ? 12 : 42;
+    const ss58Format = network === 'mainnet' ? 12 : 42;
 
     const foundAccounts = await web3Accounts({
       extensions: ['polywallet'],
