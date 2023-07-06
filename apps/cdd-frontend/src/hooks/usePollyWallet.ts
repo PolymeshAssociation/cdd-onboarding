@@ -39,7 +39,7 @@ type UsePolyWallerInput = {
 type AddressWithName = {
   address: string;
   name: string;
-}
+};
 
 export type UsePolyWallet = (input: UsePolyWallerInput) => {
   connectToWallet: () => Promise<void>;
@@ -51,7 +51,9 @@ export type UsePolyWallet = (input: UsePolyWallerInput) => {
 
 export const usePolyWallet: UsePolyWallet = ({ network }) => {
   const [allAddresses, setAllAddresses] = useState<AddressWithName[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState<string | null | AddressWithName>(null);
+  const [selectedAddress, setSelectedAddress] = useState<
+    string | null | AddressWithName
+  >(null);
   const [pollyWallet, setPollyWallet] = useState<PolyWallet>();
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
@@ -71,21 +73,28 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
 
     setIsCorrectNetwork(networkMeta.name === network);
 
-    const foundAccounts = await web3Accounts({ extensions: ['polywallet'] });
+    const ss58Format = network === 'local' ? 12 : 42;
 
-    logger.debug("Found accounts: ", foundAccounts);
+    const foundAccounts = await web3Accounts({
+      extensions: ['polywallet'],
+      ss58Format,
+    });
 
+    logger.debug('Found accounts: ', foundAccounts);
 
-    const addresses = foundAccounts.map(({ address, meta }) => ({ address, name: meta.name })) as AddressWithName[];
+    const addresses = foundAccounts.map(({ address, meta }) => ({
+      address,
+      name: meta.name,
+    })) as AddressWithName[];
 
-    logger.debug("Found addresses: ", addresses);
+    logger.debug('Found addresses: ', addresses);
 
     setAllAddresses(addresses);
 
     if (addresses.length === 1) {
       setSelectedAddress(addresses[0]);
     }
-  },[network, pollyWallet]);
+  }, [network, pollyWallet]);
 
   const connectToWallet = useCallback(async () => {
     logger.debug('Connecting to Polymesh Wallet...');
@@ -94,7 +103,7 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
     const polyWallet = extensions.find(
       (ext) => ext.name === 'polywallet'
     ) as unknown as PolyWallet;
-    
+
     setPollyWallet(polyWallet);
   }, []);
 
@@ -107,13 +116,12 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
 
         pollyWallet.network.subscribe(async () => {
           await loadAddresses();
-        });        
+        });
       }
-    
+
       await loadAddresses();
     }
     reload();
-
   }, [pollyWallet, loadAddresses]);
 
   return {
