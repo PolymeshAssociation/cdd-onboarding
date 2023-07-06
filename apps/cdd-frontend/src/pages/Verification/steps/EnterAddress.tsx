@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Box,
   Input,
@@ -38,10 +37,11 @@ import { VerificationState } from './index.d';
 import config, { NETWORK_NAMES } from '../../../config/constants';
 
 import HCaptchaComponent from '../../../components/HCaptcha/HCaptchaFormComponent';
-import { useStoredAddressValue, verifyAddressSchema, VerifyAddressPayload } from '../../../hooks';
-
-
-
+import {
+  useStoredAddressValue,
+  verifyAddressSchema,
+  VerifyAddressPayload,
+} from '../../../hooks';
 
 type EnterAddressProps = {
   state: VerificationState;
@@ -90,11 +90,11 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   }, [isSuccess, onNext, data, setStoredAddress, state.address]);
 
   const onCreateNewApplication = () => {
-    if(state.address){
+    if (state.address) {
       setStoredAddress(state.address);
     }
     onNext();
-  }
+  };
 
   useEffect(() => {
     async function init() {
@@ -251,8 +251,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                           <MenuItem
                             onClick={() => onSetAddress(address)}
                             key={address}
-
-                            w={{ base: '100vw', md: '600px'}}
+                            w={{ base: '100vw', md: '600px' }}
                             textOverflow="ellipsis"
                             px="1rem"
                             display="flex"
