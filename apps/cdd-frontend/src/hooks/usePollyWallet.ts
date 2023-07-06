@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+
 import { logger } from '../services/logger';
+import config from '../config/constants';
 export interface AddressObject {
   address: string;
   name?: string;
@@ -73,11 +75,9 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
 
     setIsCorrectNetwork(networkMeta.name === network);
 
-    const ss58Format = network === 'local' ? 12 : 42;
-
     const foundAccounts = await web3Accounts({
       extensions: ['polywallet'],
-      ss58Format,
+      ss58Format: config.SS58_FORMAT,
     });
 
     logger.debug('Found accounts: ', foundAccounts);
