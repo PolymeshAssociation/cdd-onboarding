@@ -29,7 +29,7 @@ const addressSchema = z
     if (!valid) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: message && message.includes("mismatch") ? "The supplied address is not encoded with the network's SS58 format" : message ? message : "The supplied address is not valid",
+        message: message && message.includes("mismatch") ? `The supplied address is not valid for ${config.NETWORK} address` : message ? message : "The supplied address is not valid",
       });
     }
   });
