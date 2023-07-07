@@ -32,7 +32,7 @@ import {
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
 
 import useVerifyAddressMutation from '../../../hooks/useVerifyAddressMutation';
-import usePolyWallet from '../../..//hooks/usePollyWallet';
+import useBrowserSigningManager from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
 import config, { NETWORK_NAMES } from '../../../config/constants';
 
@@ -71,7 +71,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { mutate, isLoading, isSuccess, isError, error, data } =
     useVerifyAddressMutation();
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
-    usePolyWallet({ network: config.NETWORK });
+    useBrowserSigningManager({ network: config.NETWORK });
   const { message } = (error as AxiosError) || {};
   const onSubmit = ({ address, hCaptcha }: VerifyAddressPayload) => {
     setState({ address });

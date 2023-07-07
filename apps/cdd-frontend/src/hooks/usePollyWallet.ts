@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 
 import { logger } from '../services/logger';
 import config from '../config/constants';
@@ -10,30 +10,6 @@ export interface AddressObject {
 
 export type PolyNetwork = 'local' | 'staging' | 'testnet' | 'mainnet';
 
-export interface Accounts {
-  get(): Promise<AddressObject[]>;
-  subscribe(
-    handler: (update: AddressObject[]) => void | unknown
-  ): () => Record<string, unknown>;
-}
-
-export type NetworkMeta = {
-  name: PolyNetwork;
-  label?: string;
-  wssUrl: string;
-};
-
-export interface InjectedNetwork {
-  get: () => Promise<NetworkMeta>;
-  subscribe: (cb: (network: NetworkMeta) => void) => () => void;
-}
-
-export interface PolyWallet {
-  network: InjectedNetwork;
-  accounts: Accounts;
-  uid: unknown;
-}
-
 type UsePolyWallerInput = {
   network: PolyNetwork;
 };
@@ -43,7 +19,7 @@ type AddressWithName = {
   name: string;
 };
 
-export type UsePolyWallet = (input: UsePolyWallerInput) => {
+export type UseBrowserSigningManager = (input: UsePolyWallerInput) => {
   connectToWallet: () => Promise<void>;
   isWalletAvailable: boolean;
   isCorrectNetwork: boolean;
@@ -51,17 +27,20 @@ export type UsePolyWallet = (input: UsePolyWallerInput) => {
   selectedAddress: string | null | AddressWithName;
 };
 
-export const usePolyWallet: UsePolyWallet = ({ network }) => {
+export const useBrowserSigningManager: UseBrowserSigningManager = ({
+  network,
+}) => {
   const [allAddresses, setAllAddresses] = useState<AddressWithName[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<
     string | null | AddressWithName
   >(null);
-  const [pollyWallet, setPollyWallet] = useState<PolyWallet>();
+  const [browserSigner, setBrowserSigner] =
+    useState<BrowserExtensionSigningManager>();
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
   const loadAddresses = useCallback(async () => {
-    if (!pollyWallet) {
+    if (!browserSigner) {
       logger.warn('No Polymesh wallet has been connected');
       setIsWalletAvailable(false);
       return;
@@ -70,19 +49,21 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
     logger.debug('Polymesh wallet is present');
 
     setIsWalletAvailable(true);
+    const [accountsWithMeta, walletNetworkInfo] = await Promise.all([
+      browserSigner.getAccountsWithMeta(),
+      browserSigner.getCurrentNetwork(),
+    ]);
 
-    const networkMeta = await pollyWallet.network.get();
+    if (walletNetworkInfo) {
+      setIsCorrectNetwork(walletNetworkInfo.name === network);
+    } else {
+      logger.debug('wallet info was null, assuming network agnostic wallet');
+      setIsCorrectNetwork(true);
+    }
 
-    setIsCorrectNetwork(networkMeta.name === network);
+    logger.debug('Found accounts: ', accountsWithMeta);
 
-    const foundAccounts = await web3Accounts({
-      extensions: ['polywallet'],
-      ss58Format: config.SS58_FORMAT,
-    });
-
-    logger.debug('Found accounts: ', foundAccounts);
-
-    const addresses = foundAccounts.map(({ address, meta }) => ({
+    const addresses = accountsWithMeta.map(({ address, meta }) => ({
       address,
       name: meta.name,
     })) as AddressWithName[];
@@ -94,35 +75,35 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
     if (addresses.length === 1) {
       setSelectedAddress(addresses[0]);
     }
-  }, [network, pollyWallet]);
+  }, [network, browserSigner]);
 
   const connectToWallet = useCallback(async () => {
     logger.debug('Connecting to Polymesh Wallet...');
-    const extensions = await web3Enable('onboarding');
+    const browserSigner = await BrowserExtensionSigningManager.create({
+      appName: 'onboarding',
+      ss58Format: config.SS58_FORMAT,
+      extensionName: 'polywallet',
+    });
 
-    const polyWallet = extensions.find(
-      (ext) => ext.name === 'polywallet'
-    ) as unknown as PolyWallet;
-
-    setPollyWallet(polyWallet);
+    setBrowserSigner(browserSigner);
   }, []);
 
   useEffect(() => {
     async function reload() {
-      if (pollyWallet) {
-        pollyWallet.accounts.subscribe(async () => {
-          await loadAddresses();
+      if (browserSigner) {
+        browserSigner.onAccountChange(async () => {
+          return loadAddresses();
         });
 
-        pollyWallet.network.subscribe(async () => {
-          await loadAddresses();
+        browserSigner.onNetworkChange(async () => {
+          return loadAddresses();
         });
       }
 
       await loadAddresses();
     }
     reload();
-  }, [pollyWallet, loadAddresses]);
+  }, [browserSigner, loadAddresses]);
 
   return {
     connectToWallet,
@@ -134,4 +115,4 @@ export const usePolyWallet: UsePolyWallet = ({ network }) => {
   };
 };
 
-export default usePolyWallet;
+export default useBrowserSigningManager;

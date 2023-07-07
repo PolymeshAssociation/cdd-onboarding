@@ -87,7 +87,7 @@
     "@opentelemetry/resources": "^1.9.1",
     "@opentelemetry/sdk-node": "^0.35.1",
     "@opentelemetry/semantic-conventions": "^1.9.1",
-    "@polkadot/extension-dapp": "0.44.9 ",
+    "@polymeshassociation/browser-extension-signing-manager": "^1.4.0",
     "@polymeshassociation/hashicorp-vault-signing-manager": "2.1.0",
     "@polymeshassociation/local-signing-manager": "2.1.0",
     "@polymeshassociation/polymesh-sdk": "20.1.0",

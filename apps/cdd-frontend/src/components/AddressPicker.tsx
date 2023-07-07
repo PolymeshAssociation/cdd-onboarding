@@ -25,7 +25,7 @@ import {
 import { BiImport, BiChevronDown } from 'react-icons/bi';
 import { addressZ } from '@cdd-onboarding/cdd-types/utils';
 
-import usePolyWallet from '../hooks/usePollyWallet';
+import useBrowserSigningManager from '../hooks/usePollyWallet';
 import config, { NETWORK_NAMES } from '../config/constants';
 
 const schema = z.object({
@@ -62,7 +62,7 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
     defaultValues: { address },
   });
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
-    usePolyWallet({ network: config.NETWORK });
+    useBrowserSigningManager({ network: config.NETWORK });
 
   const onSetAddress = (address: string) => {
     setValue('address', address);

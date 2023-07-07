@@ -4108,7 +4108,7 @@
     eventemitter3 "^5.0.0"
     rxjs "^7.8.0"
 
-"@polkadot/extension-dapp@0.44.9 ":
+"@polkadot/extension-dapp@^0.44.7":
   version "0.44.9"
   resolved "https://registry.yarnpkg.com/@polkadot/extension-dapp/-/extension-dapp-0.44.9.tgz#0ed8ba7442e36b1dde950c90767a07b13eb2cb81"
   integrity sha512-xYY9bg4y2YW1ORWTflrPBypYueCpzajlYsU1CWuPP9fzKsdfd97wwa+dIYYvLbJy7tcivC+uIT3BpaFaJn2mXg==
@@ -4393,6 +4393,16 @@
     "@types/websocket" "^1.0.5"
     websocket "^1.0.34"
 
+"@polymeshassociation/browser-extension-signing-manager@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/browser-extension-signing-manager/-/browser-extension-signing-manager-1.4.0.tgz#e67f1566c0c977ab40c70e33b5ea30802c452e57"
+  integrity sha512-Wqx8CGhbhKAQbAVQtsp/42NZGwToR41SFVbS2dTN1fm41QB0jQrbJTSXUGlKBH6fEMHIIezsVXsmrbL2hfS+uw==
+  dependencies:
+    "@polkadot/extension-dapp" "^0.44.7"
+    "@polkadot/util" "^10.4.2"
+    "@polkadot/util-crypto" "^10.4.2"
+    "@polymeshassociation/signing-manager-types" "^2.0.0"
+
 "@polymeshassociation/hashicorp-vault-signing-manager@2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@polymeshassociation/hashicorp-vault-signing-manager/-/hashicorp-vault-signing-manager-2.1.0.tgz#1fb400a9d0887afc3ce71781aa6b87cd1fbd2663"
@@ -4444,7 +4454,7 @@
   resolved "https://registry.yarnpkg.com/@polymeshassociation/signing-manager-types/-/signing-manager-types-1.2.4.tgz#5a6f5570c203e47a2a6c690edfe320fce54a383b"
   integrity sha512-B01juQe5h75LIV2KEwxhyaSGLKWevJUlEi4x1+5WI5YEL3BZGkV5an7eqFh0WW5jTuHGELw6kHq3rt6pEFTByw==
 
-"@polymeshassociation/signing-manager-types@^2.1.0":
+"@polymeshassociation/signing-manager-types@^2.0.0", "@polymeshassociation/signing-manager-types@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@polymeshassociation/signing-manager-types/-/signing-manager-types-2.1.0.tgz#c4c6e27e93d3d98de5c28a92862bcab7fb527a6c"
   integrity sha512-UJaaFuHeHtduN42bU5GUhJ7JgExhWvcF5751jHxGg7Gj4xjQyiaNvpQsejYeOlUoALnZ1McmB3nPrbm03TeNKA==
