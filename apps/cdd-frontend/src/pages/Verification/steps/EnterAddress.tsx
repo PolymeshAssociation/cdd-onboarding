@@ -68,7 +68,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { onNext } = useContext(StepFormContext);
   const { setAddress: setStoredAddress } = useStoredAddressValue();
 
-  const { mutate, isLoading, isSuccess, isError, error, data } =
+  const { mutate, isLoading, isSuccess, isError, error, data, reset } =
     useVerifyAddressMutation();
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
     useBrowserSigningManager({ network: config.NETWORK });
@@ -108,6 +108,14 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
     setValue('address', address);
     trigger('address');
   };
+
+  const onClearAddress = () => {
+    setValue('address', '');
+    trigger('address');
+    setStoredAddress(null);
+    setState({ address: undefined });
+    reset();
+  }
 
   if (isSuccess && !data?.valid && data.identity) {
     const { validCdd } = data.identity;
@@ -173,6 +181,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
         <StepFormNavigation
           nextStepLabel="Create New Application"
           onNext={onCreateNewApplication}
+          onBack={onClearAddress}
           nextLoadingLabel={
             <>
               <CircularProgress

@@ -15,7 +15,7 @@ export const StepFormNavigation: React.FC<
     | 'nextIsError'
     | 'nextLoadingLabel'
     | 'onNext'
-  >
+  > & { onBack?: () => void }
 > = ({
   nextStepLabel,
   nextLoadingLabel,
@@ -23,6 +23,7 @@ export const StepFormNavigation: React.FC<
   nextIsLoading = false,
   nextIsError = false,
   onNext,
+  onBack: onOverrideBack,
 }) => {
   const { onBack, activeStep } = useContext(StepFormContext);
   const bgColor = useColorModeValue('white', 'gray.900');
@@ -45,7 +46,7 @@ export const StepFormNavigation: React.FC<
     >
       {activeStep > 0 && (
         <Button
-          onClick={onBack}
+          onClick={onOverrideBack ? onOverrideBack : onBack}
           leftIcon={<MdKeyboardBackspace />}
           variant="ghost"
         >
