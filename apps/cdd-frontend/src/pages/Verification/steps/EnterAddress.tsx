@@ -158,7 +158,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           It usually takes up to 2 business days for CDD provider to verify your
           identity.
         </Text>
-        <Text mb={4} as="span">
+        <Text mb={2} as="span">
           After 2 business days, if your identity is still not verified, please
           email{' '}
           <Link href="mailto:support@polymesh.network">
