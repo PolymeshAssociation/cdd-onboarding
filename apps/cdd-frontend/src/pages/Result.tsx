@@ -10,7 +10,7 @@ import ResultPageContextProvider from '../components/ResultPage/ResultPageContex
 const ResultPage: React.FC = () => {
   return (
       <ResultPageContextProvider>
-        <Stack flex={1} justifyContent="center" alignItems="center" p="6">
+        <Stack justifyContent="center" alignItems="center" p="6">
           <Heading size="3xl" mt={8} mb={12}>
             Polymesh Identity
           </Heading>
