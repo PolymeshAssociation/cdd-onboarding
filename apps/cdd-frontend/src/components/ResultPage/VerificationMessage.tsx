@@ -24,12 +24,12 @@ const MotionStack = chakra(motion.div, {
 });
 
 const VerificationMessage: React.FC = () => {
-  const { globalStatus, } = useResultPageContext();
+  const { globalStatus, providerResult, provider } = useResultPageContext();
   const [complete, setComplete] = useState(false);
 
   return (
     <>
-      {globalStatus === VerificationStatus.FAILED && (
+      {globalStatus === VerificationStatus.FAILED && providerResult === "failed" && provider && (
         <AnimatePresence>
           <MotionStack
             justifyContent="center"
@@ -41,8 +41,39 @@ const VerificationMessage: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <Heading size="2xl" mb="2rem">
-              Processing
+            <Heading size="2xl" display="flex" mb="2rem">
+              <Text mr="-6px">Unsuccessful</Text>
+            </Heading>
+            <Text fontSize="xl" textAlign="center">
+              We regret to inform you that your identity verification attempt through {provider.toLocaleUpperCase()} was unsuccessful.
+            </Text>
+            <Text fontSize="xl" textAlign="center">
+              Please review your submitted details and try again.
+            </Text>
+          </MotionStack>
+        </AnimatePresence>
+      )}
+
+
+      {globalStatus === VerificationStatus.FAILED && providerResult !== "failed" && (
+        <AnimatePresence>
+          <MotionStack
+            justifyContent="center"
+            alignItems="center"
+            display="flex"
+            flexDirection="column"
+            flex={1}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Heading size="2xl" display="flex" mb="2rem">
+              <Text mr="-6px">Processing</Text>
+              <Lottie
+                animationData={dots}
+                loop
+                style={{ width: 32, height: 32 }}
+              />
             </Heading>
             <Text fontSize="xl" textAlign="center">
               Identity should be created soon.
