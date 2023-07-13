@@ -68,7 +68,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
 
   const { mutate, isLoading, isSuccess, isError, error, data, reset } =
     useVerifyAddressMutation();
-  const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
+  const { connectToWallet, isCorrectNetwork, isWalletAvailable, allAddresses } =
     useBrowserSigningManager({ network: config.NETWORK });
   const { message } = (error as AxiosError) || {};
   const onSubmit = ({ address }: VerifyAddressPayload) => {
@@ -251,9 +251,10 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                       <Icon as={BiImport} boxSize="1.5rem" />
                     </MenuButton>
                     <Portal>
-                      <MenuList zIndex={200} maxW="100vw">
+                      <MenuList zIndex={200} maxW="100vw" overflowX="clip">
                         <MenuItem>Select Address</MenuItem>
                         <MenuDivider />
+                        <Box maxH="30vh" overflowY="auto" overflowX="hidden">
                         {allAddresses.map(({ address, name }) => (
                           <MenuItem
                             onClick={() => onSetAddress(address)}
@@ -263,11 +264,14 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
                             px="1rem"
                             display="flex"
                             justifyContent="space-between"
+                            flexDirection={{ base: 'column', md: 'row' }}
+                            alignItems="flex-start"
                           >
-                            <Text mr={1}>{name}:</Text>
-                            <Text>{address}</Text>
+                            <Text mr={1} color="pink.500">{name}</Text>
+                            <Text fontSize={{ base: '0.7rem', md: "1rem"}} w={{ base: "100%", md: "unset"}}>{address}</Text>
                           </MenuItem>
                         ))}
+                        </Box>
                       </MenuList>
                     </Portal>
                   </Menu>

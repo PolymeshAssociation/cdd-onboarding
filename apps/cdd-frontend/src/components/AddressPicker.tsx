@@ -137,21 +137,24 @@ const AddressPicker: React.FC<AddressPickerProps> = ({
                       <MenuList zIndex={200} maxW="100vw">
                         <MenuItem>Select Address</MenuItem>
                         <MenuDivider />
+                        <Box maxH="30vh" overflowY="auto" overflowX="hidden">
                         {allAddresses.map(({ address, name }) => (
                           <MenuItem
                             onClick={() => onSetAddress(address)}
                             key={address}
-                            w={{ base: '100vw', md: '600px'}}
-
+                            w={{ base: '100vw', md: '600px' }}
                             textOverflow="ellipsis"
                             px="1rem"
                             display="flex"
                             justifyContent="space-between"
+                            flexDirection={{ base: 'column', md: 'row' }}
+                            alignItems="flex-start"
                           >
-                            <Text as="span" mr={1}>{name}:</Text>
-                            <Text as="span">{address}</Text>
+                            <Text mr={1} color="pink.500">{name}</Text>
+                            <Text fontSize={{ base: '0.7rem', md: "1rem"}} w={{ base: "100%", md: "unset"}}>{address}</Text>
                           </MenuItem>
                         ))}
+                        </Box>
                       </MenuList>
                     </Portal>
                   </Menu>
