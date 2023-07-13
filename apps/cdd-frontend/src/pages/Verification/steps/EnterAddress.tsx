@@ -36,7 +36,6 @@ import useBrowserSigningManager from '../../..//hooks/usePollyWallet';
 import { VerificationState } from './index.d';
 import config, { NETWORK_NAMES } from '../../../config/constants';
 
-import HCaptchaComponent from '../../../components/HCaptcha/HCaptchaFormComponent';
 import {
   useStoredAddressValue,
   verifyAddressSchema,
@@ -54,7 +53,6 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
 }) => {
   const { address } = state;
   const {
-    control,
     register,
     handleSubmit,
     formState: { errors, isValid },
@@ -73,9 +71,9 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
   const { connectToWallet, allAddresses, isCorrectNetwork, isWalletAvailable } =
     useBrowserSigningManager({ network: config.NETWORK });
   const { message } = (error as AxiosError) || {};
-  const onSubmit = ({ address, hCaptcha }: VerifyAddressPayload) => {
+  const onSubmit = ({ address }: VerifyAddressPayload) => {
     setState({ address });
-    mutate({ address, hCaptcha });
+    mutate({ address });
   };
 
   useEffect(() => {
@@ -312,7 +310,6 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           * indicates required field
         </Text>
 
-        <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
         nextStepLabel="Verify Address"

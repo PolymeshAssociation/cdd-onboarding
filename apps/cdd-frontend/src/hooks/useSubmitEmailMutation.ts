@@ -1,7 +1,6 @@
 import { useMutation } from 'react-query';
 import { z } from 'zod';
 
-import { hCaptcha, useCaptcha } from './useCaptcha';
 
 import axios from '../services/axios';
 
@@ -16,7 +15,6 @@ export const emailFormSchema = z.object({
   }),
   newsletterAccepted: z.boolean(),
   devUpdatesAccepted: z.boolean(),
-  hCaptcha
 });
 
 export type EmailFormValues = z.infer<typeof emailFormSchema>;
@@ -28,15 +26,7 @@ const submitEmail = async (payload: EmailFormValues) => {
 };
 
 export const useSubmitEmailMutation = () => {
-  const mutation =  useMutation(submitEmail);
-  const { captchaRef } = useCaptcha();
-
-  const onMutate = (payload: EmailFormValues) => {
-    mutation.mutate(payload);
-    captchaRef.current?.resetCaptcha();
-  }
-
-  return { ...mutation, mutate: onMutate }
+  return useMutation(submitEmail);
 };
 
 export default useSubmitEmailMutation;

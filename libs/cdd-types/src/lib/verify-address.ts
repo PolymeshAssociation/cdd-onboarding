@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { addressZ, hCaptcha } from './utils';
+import { addressZ } from './utils';
 import { extendApi } from '@anatine/zod-openapi';
 import { createZodDto } from '@anatine/zod-nestjs';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ApplicationInfo } from './address-applications';
 
-const VerifyAddressZ = extendApi(z.object({ address: addressZ, hCaptcha }), {
+const VerifyAddressZ = extendApi(z.object({ address: addressZ }), {
   title: 'Verify an Address',
   description: 'verify an address is eligible for onboarding',
 });

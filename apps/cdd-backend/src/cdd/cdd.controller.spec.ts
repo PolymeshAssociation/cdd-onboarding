@@ -57,7 +57,6 @@ describe('CddController', () => {
 
       const response = await controller.verifyAddress({
         address,
-        hCaptcha: 'someSecret',
       });
 
       expect(response).toEqual(new VerifyAddressResponse(true, null));

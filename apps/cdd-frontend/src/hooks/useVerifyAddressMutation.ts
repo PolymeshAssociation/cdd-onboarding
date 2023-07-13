@@ -5,7 +5,6 @@ import { z } from 'zod';
 import axios from '../services/axios';
 import config from '../config/constants';
 
-import { hCaptcha, useCaptcha } from './useCaptcha';
 import { ApplicationInfo } from './useGetAddressApplicationsQuery';
 
 type IdentityInfo = {
@@ -36,7 +35,6 @@ const addressSchema = z
 
 export const verifyAddressSchema = z.object({
   address: addressSchema,
-  hCaptcha,
 });
 
 export type VerifyAddressPayload = z.infer<typeof verifyAddressSchema>;
@@ -51,15 +49,7 @@ const verifyAddress = async (payload: VerifyAddressPayload) => {
 };
 
 export const useVerifyAddressMutation = () => {
-  const mutation = useMutation(verifyAddress);
-  const { captchaRef } = useCaptcha();
-
-  const onMutate = (payload: VerifyAddressPayload) => {
-    mutation.mutate(payload);
-    captchaRef.current?.resetCaptcha();
-  };
-
-  return { ...mutation, mutate: onMutate };
+  return useMutation(verifyAddress);
 };
 
 export default useVerifyAddressMutation;

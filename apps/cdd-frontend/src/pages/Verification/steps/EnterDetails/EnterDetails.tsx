@@ -26,7 +26,6 @@ import {
   emailFormSchema,
   EmailFormValues,
 } from '../../../../hooks/useSubmitEmailMutation';
-import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaFormComponent';
 
 type EnterDetailsProps = {
   state: VerificationState;
@@ -47,7 +46,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isValid },
   } = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
@@ -69,7 +67,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
     termsAccepted,
     newsletterAccepted,
     devUpdatesAccepted,
-    hCaptcha,
   }: EmailFormValues) => {
     onNext();
 
@@ -79,7 +76,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
         termsAccepted,
         newsletterAccepted,
         devUpdatesAccepted,
-        hCaptcha,
       });
       setState({
         ...state,
@@ -140,10 +136,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
           </FormHelperText>
         </FormControl>
 
-        <FormErrorMessage>
-          {isError ? message : errors.hCaptcha?.message?.toString()}
-        </FormErrorMessage>
-
         <FormControl
           isInvalid={Boolean(errors.newsletterAccepted?.message) || isError}
         >
@@ -168,7 +160,6 @@ export const EnterDetails: React.FC<EnterDetailsProps> = ({
         <Text mt={3} color="gray.600" fontSize="0.75rem">
           * indicates required field
         </Text>
-        <HCaptchaComponent control={control} />
       </Box>
       <StepFormNavigation
         nextStepLabel="Next Step"
