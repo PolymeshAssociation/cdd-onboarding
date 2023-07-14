@@ -157,7 +157,6 @@ describe('CddService', () => {
         newsletterAccepted: true,
         devUpdatesAccepted: true,
         termsAccepted: true,
-        hCaptcha: 'someSecret',
       };
       await service.processEmail(payload);
 
@@ -174,7 +173,6 @@ describe('CddService', () => {
         newsletterAccepted: false,
         devUpdatesAccepted: false,
         termsAccepted: true,
-        hCaptcha: 'someSecret',
       };
       await service.processEmail(payload);
 
