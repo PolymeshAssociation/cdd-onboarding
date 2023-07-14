@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { extendApi } from '@anatine/zod-openapi';
 import { createZodDto } from '@anatine/zod-nestjs';
-import { hCaptcha } from './utils';
 
 export const emailFormSchema = z.object({
   email: z.string().email(),
@@ -10,7 +9,6 @@ export const emailFormSchema = z.object({
   }),
   newsletterAccepted: z.boolean(),
   devUpdatesAccepted: z.boolean(),
-  hCaptcha
 });
 
 export const EmailDetailsZ = extendApi(emailFormSchema, {
