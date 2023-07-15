@@ -10,6 +10,10 @@ FROM nginx:stable-alpine3.17
 ################################################################
 
 COPY --chown=root:root docker/replace-env-var-placeholders.sh /usr/local/bin/
+COPY --chown=root:root docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+################################################################
+
 COPY --from=builder --chown=root:root /app/env.var.list /srv/
 COPY --from=builder --chown=root:root /app/builder/dist/apps/cdd-frontend /usr/share/nginx/html
 
