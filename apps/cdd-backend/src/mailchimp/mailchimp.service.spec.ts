@@ -86,7 +86,7 @@ describe('MailchimpService', () => {
     });
 
     it('should return true when isEnabled is true and Mailchimp returns a successful response', async () => {
-      mockMailchimpClient.ping.get.mockResolvedValue({});
+      mockMailchimpClient.ping.get.mockResolvedValue({ health_status: "Everything's Chimpy!"});
 
       const result = await service.ping();
       expect(result).toBe(true);

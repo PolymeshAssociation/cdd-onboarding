@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -13,7 +13,7 @@ type MarketingPermission = {
   enabled: boolean;
 };
 
-type MailchimpPingResponse = client.ping.APIHealthStatus | ErrorResponse
+type MailchimpPingResponse = client.ping.APIHealthStatus
 type MailchimpListResponse = ErrorResponse | client.lists.MembersSuccessResponse
 type ListMemberTag = { name: string, status: 'active' | "inactive" }
 
@@ -61,7 +61,7 @@ export class MailchimpService {
       throw new Error('Mailchimp Error');
     }
 
-    if(result && this.isMailchimpErrorResponse(result)){
+    if(result && !result.health_status){
       this.logger.error('Mailchimp Error', { error: result });
 
       throw new Error('Mailchimp Error');
@@ -80,8 +80,6 @@ export class MailchimpService {
   ): Promise<void> {
     return this.addSubscriberToList(email, this.listId, status, subscribeToNewsletter, subscribeToDevUpdates);
   }
-
-
 
 
   private async addSubscriberToList(
@@ -113,8 +111,8 @@ export class MailchimpService {
       return;
     }
 
-    if (result && this.isMailchimpErrorResponse(result)) {
-      this.logger.error('Mailchimp Error', { error: result });  
+    if (result && result.status !== 'subscribed') {
+      this.logger.error('Mailchimp Error Adding Subscriber', result);  
 
       return;
     }
@@ -129,34 +127,10 @@ export class MailchimpService {
       tags.push({ name: this.devUpdatesTagName, status: 'active' });
     }
 
-    const [tagsError, tagsResult] = await to<object>(this.mailchimpClient.lists.updateListMemberTags(listId, subscriberHash, { tags }))
+    const [tagsError] = await to<object>(this.mailchimpClient.lists.updateListMemberTags(listId, subscriberHash, { tags }))
 
     if(tagsError){
       this.logger.error('Mailchimp Error', { tagsError });
     }
-
-    if (tagsResult && this.isMailchimpErrorResponse(tagsResult)) {
-      this.logger.error('Mailchimp Error', { error: tagsResult });  
-    }
-
-    return;
-  }
-
-  private isMailchimpErrorResponse(
-    obj:
-      | client.ping.APIHealthStatus
-      | client.lists.MembersSuccessResponse
-      | ErrorResponse
-      | object
-  ): obj is ErrorResponse {
-    return (
-      (obj as ErrorResponse).status !== undefined &&
-      ![
-        HttpStatus.OK,
-        HttpStatus.CREATED,
-        HttpStatus.ACCEPTED,
-        HttpStatus.NO_CONTENT,
-      ].includes((obj as ErrorResponse).status)
-    );
   }
 }
