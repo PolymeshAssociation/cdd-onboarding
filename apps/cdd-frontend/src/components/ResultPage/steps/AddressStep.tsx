@@ -54,6 +54,7 @@ const AddressStep: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
   if (!address && localStatus !== VerificationStatus.PROCESSING) {
     return (
       <StepTemplate title="Please select your address" index={index}>
+        <strong>Note: </strong>Alternatively check on the device you began the onboarding process with. This usually happens when starting on a PC and completing the onboarding process using a phone.
         <AddressPicker onSubmit={({ address }) => setAddress(address)} />
       </StepTemplate>
     );
