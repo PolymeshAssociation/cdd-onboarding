@@ -52,6 +52,26 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
     localStatus === VerificationStatus.FAILED &&
     Boolean(applications?.length)
   ) {
+    if (provider === 'mock') {
+      return (
+        <StepTemplate title="Identity not created" index={index}>
+          <Text mb={2} as="span">
+            Mock identity not yet created. It is expected to take a few minutes
+            at most. Try refreshing the page to check again
+          </Text>
+
+          <Text mb={2} as="span">
+            If you are having problems with the onboarding process, please email{' '}
+            <Link href="mailto:support@polymesh.network">
+              support@polymesh.network
+            </Link>{' '}
+            with your Polymesh key address and the identity verification
+            provider that you selected.
+          </Text>
+        </StepTemplate>
+      );
+    }
+
     return (
       <StepTemplate title="Identity not found" index={index}>
         <Text mb={2} as="span">
@@ -74,22 +94,6 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
         </Text>
       </StepTemplate>
     );
-  }
-
-  if(provider === 'mock') {
-    return (
-      <StepTemplate title="Identity not created" index={index}>
-        <Text mb={2} as="span">
-          Mock identity not yet created. It is expected to take a few minutes at most. Try refreshing the page to check again
-        </Text>
-
-        <Text mb={2} as="span">
-          If you are having problems with the onboarding process, please
-          email <Link href='mailto:support@polymesh.network'>support@polymesh.network</Link> with your Polymesh key address and the
-          identity verification provider that you selected.
-        </Text>
-      </StepTemplate>
-    )
   }
 
   if (localStatus === VerificationStatus.FAILED) {
