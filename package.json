@@ -130,6 +130,5 @@
     "@polkadot/networks": "12.4.2",
     "@polkadot/util-crypto": "12.4.2",
     "@polkadot/x-bigint": "12.4.2"
-  },
-  "packageManager": "yarn@3.4.1"
+  }
 }
