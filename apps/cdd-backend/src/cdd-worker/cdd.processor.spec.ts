@@ -14,6 +14,7 @@ import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { AddressBookService } from '../polymesh/address-book.service';
+import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
 
 describe('cddProcessor', () => {
   let mockRedis: DeepMocked<AppRedisService>;
@@ -99,10 +100,33 @@ describe('cddProcessor', () => {
       it('should log and throw errors', async () => {
         const testError = new Error('test error');
         mockRun.mockRejectedValue(testError);
+        const mockAccount = createMock<Account>();
+        mockAccount.getIdentity.mockResolvedValue(null);
+
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue(
+          mockAccount
+        );
 
         await expect(processor.generateCdd(mockJumioJob)).rejects.toThrow(
           testError
         );
+      });
+
+      it('on run error it should check if a CDD claim exists and mark job as complete', async () => {
+        const testError = new Error('test error');
+        mockRun.mockRejectedValue(testError);
+
+        const mockAccount = createMock<Account>();
+        const mockIdentity = createMock<Identity>();
+        mockAccount.getIdentity.mockResolvedValue(mockIdentity);
+
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue(
+          mockAccount
+        );
+
+        await expect(
+          processor.generateCdd(mockJumioJob)
+        ).resolves.not.toThrow();
       });
 
       it('should perform no operation if status is not "VERIFIED_APPROVED"', async () => {

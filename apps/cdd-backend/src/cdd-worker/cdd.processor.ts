@@ -14,6 +14,7 @@ import {
   JumioCddJob,
   NetkiCddJob,
 } from './types';
+import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 
 @Processor()
 export class CddProcessor {
@@ -184,6 +185,36 @@ export class CddProcessor {
 
     const signingAccount = this.signerLookup.findAddress(signer);
 
+    /**
+     * If there is an error, but they already have a CDD then the job can be marked as complete.
+     * It is expected to happen when user's try with multiple providers
+     *
+     * @note at the time of writing the SDK prepare check does not check for this condition.
+     * If it does throw a prepare error then this handler should be adopted for it to keep the
+     * error queue clean.
+     */
+    const existingCddRecovery = async (error: Error): Promise<Identity> => {
+      const account = await this.polymesh.accountManagement.getAccount({
+        address,
+      });
+
+      const identity = await account.getIdentity();
+      if (identity) {
+        this.logger.warn(
+          'Swallowing error. A CDD claim was already made for the address',
+          {
+            jobId,
+            address,
+            error,
+          }
+        );
+
+        return identity;
+      }
+
+      throw error;
+    };
+
     const registerIdentityTx = await this.polymesh.identities.registerIdentity(
       {
         targetAccount: address,
@@ -194,7 +225,9 @@ export class CddProcessor {
       }
     );
 
-    const createdIdentity = await registerIdentityTx.run();
+    const createdIdentity = await registerIdentityTx
+      .run()
+      .catch(async (error) => existingCddRecovery(error));
 
     this.logger.info('created CDD claim', {
       jobId,
