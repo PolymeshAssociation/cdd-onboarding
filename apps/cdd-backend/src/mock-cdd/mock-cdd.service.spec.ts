@@ -3,6 +3,7 @@ import { getQueueToken } from '@nestjs/bull';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Queue } from 'bull';
 import { MockCddService } from './mock-cdd.service';
+import { bullJobOptions } from '../config/consts';
 
 describe('MockCddService', () => {
   let service: MockCddService;
@@ -33,10 +34,13 @@ describe('MockCddService', () => {
 
       await service.queueMockCddJob(mockJob);
 
-      expect(mockQueue.add).toHaveBeenCalledWith({
-        type: 'mock',
-        value: mockJob,
-      });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        {
+          type: 'mock',
+          value: mockJob,
+        },
+        bullJobOptions
+      );
     });
   });
 });

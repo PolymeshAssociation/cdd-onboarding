@@ -14,6 +14,7 @@ import { firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
 import { CddJob } from '../cdd-worker/types';
 import { JumioCallbackDto, JumioGenerateLinkResponse } from './types';
+import { bullJobOptions } from '../config/consts';
 
 @Injectable()
 export class JumioService {
@@ -83,6 +84,6 @@ export class JumioService {
       value: request,
     };
 
-    await this.queue.add(job);
+    await this.queue.add(job, bullJobOptions);
   }
 }

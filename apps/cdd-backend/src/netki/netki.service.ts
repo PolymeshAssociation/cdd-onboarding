@@ -22,6 +22,7 @@ import {
   NetkiBusinessInfoPageResponse,
   NetkiBusinessInfo,
 } from './types';
+import { bullJobOptions } from '../config/consts';
 
 @Injectable()
 export class NetkiService {
@@ -169,7 +170,7 @@ export class NetkiService {
       value: jobInfo,
     };
 
-    await this.queue.add(job);
+    await this.queue.add(job, bullJobOptions);
   }
 
   private async logError(error: Error) {

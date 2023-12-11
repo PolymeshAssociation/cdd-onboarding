@@ -14,6 +14,7 @@ import { NetkiAccessLinkModel } from '../app-redis/models/netki-access-link.mode
 import { CddJob } from '../cdd-worker/types';
 import { NetkiService } from './netki.service';
 import { NetkiCallbackDto } from './types';
+import { bullJobOptions } from '../config/consts';
 
 describe('NetkiService', () => {
   let service: NetkiService;
@@ -131,10 +132,13 @@ describe('NetkiService', () => {
 
       await service.queueCddJob(fakeInfo);
 
-      expect(mockQueue.add).toHaveBeenCalledWith({
-        type: 'netki',
-        value: fakeInfo,
-      });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        {
+          type: 'netki',
+          value: fakeInfo,
+        },
+        bullJobOptions
+      );
     });
   });
 });

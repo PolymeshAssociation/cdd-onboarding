@@ -5,21 +5,24 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosHeaders, AxiosResponse } from 'axios';
 import { of } from 'rxjs';
 import { JumioService } from './jumio.service';
-import { JumioGenerateLinkResponse } from './types';
+import { JumioCallbackDto, JumioGenerateLinkResponse } from './types';
 
 import { InternalServerErrorException } from '@nestjs/common';
 import { getQueueToken } from '@nestjs/bull';
-import { Queue } from 'bull';
+import { Job, Queue } from 'bull';
 
 import v4OKResponse from '../test-utils/jumio-http/v4-initiate-ok.json';
 import unauthorizedResponse from '../test-utils/jumio-http/unauthorized.json';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { bullJobOptions } from '../config/consts';
+import { CddJob } from '../cdd-worker/types';
 
 describe('JumioService', () => {
   let service: JumioService;
   let mockHttp: DeepMocked<HttpService>;
   let mockConfig: DeepMocked<ConfigService>;
+  let mockQueue: DeepMocked<Queue>;
 
   const address = 'someAddress';
 
@@ -37,6 +40,7 @@ describe('JumioService', () => {
     service = module.get<JumioService>(JumioService);
     mockHttp = module.get<typeof mockHttp>(HttpService);
     mockConfig = module.get<typeof mockConfig>(ConfigService);
+    mockQueue = module.get<typeof mockQueue>(getQueueToken(''));
   });
 
   it('should be defined', () => {
@@ -103,6 +107,24 @@ describe('JumioService', () => {
 
       await expect(service.generateLink(address)).rejects.toThrow(
         InternalServerErrorException
+      );
+    });
+  });
+
+  describe('queueCddJob', () => {
+    it('should call the queue with a netki job', async () => {
+      mockQueue.add.mockResolvedValue({} as Job<CddJob>);
+
+      const fakeInfo = {} as JumioCallbackDto;
+
+      await service.queueApplication(fakeInfo);
+
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        {
+          type: 'jumio',
+          value: fakeInfo,
+        },
+        bullJobOptions
       );
     });
   });

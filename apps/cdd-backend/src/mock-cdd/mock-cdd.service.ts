@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import { CddJob } from '../cdd-worker/types';
 import { MockCddDto } from './types';
+import { bullJobOptions } from '../config/consts';
 
 @Injectable()
 export class MockCddService {
@@ -14,6 +15,6 @@ export class MockCddService {
       value: jobInfo,
     };
 
-    await this.queue.add(job);
+    await this.queue.add(job, bullJobOptions);
   }
 }
