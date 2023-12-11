@@ -111,8 +111,8 @@ describe('JumioService', () => {
     });
   });
 
-  describe('queueCddJob', () => {
-    it('should call the queue with a netki job', async () => {
+  describe('queueApplication', () => {
+    it('should call the queue with a jumio job', async () => {
       mockQueue.add.mockResolvedValue({} as Job<CddJob>);
 
       const fakeInfo = {} as JumioCallbackDto;
