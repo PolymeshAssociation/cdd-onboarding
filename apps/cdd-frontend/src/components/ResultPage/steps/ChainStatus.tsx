@@ -57,7 +57,7 @@ const ChainStatus: React.FC<Pick<StepTemplateProps, 'index'>> = ({ index }) => {
         <StepTemplate title="Identity not created" index={index}>
           <Text mb={2} as="span">
             Mock identity not yet created. It is expected to take a few minutes
-            at most. Try refreshing the page to check again
+            at most. Try refreshing the page to check again.
           </Text>
 
           <Text mb={2} as="span">

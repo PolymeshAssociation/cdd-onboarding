@@ -295,7 +295,7 @@ export const EnterAddress: React.FC<EnterAddressProps> = ({
           )}
           {!isWalletAvailable && (
             <FormHelperText>
-              Your don't have a Polymesh Wallet connected. Approve the request
+              You don't have a Polymesh Wallet connected. Approve the request
               to connect to Polymesh wallet or get from{' '}
               <Link
                 color="navy"

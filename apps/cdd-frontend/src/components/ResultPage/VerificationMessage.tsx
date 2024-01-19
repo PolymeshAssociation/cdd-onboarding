@@ -3,6 +3,7 @@ import {
   Box,
   chakra,
   Heading,
+  Link,
   shouldForwardProp,
   Text,
 } from '@chakra-ui/react';
@@ -75,9 +76,14 @@ const VerificationMessage: React.FC = () => {
                 style={{ width: 32, height: 32 }}
               />
             </Heading>
-            <Text fontSize="xl" textAlign="center">
-              Identity should be created soon.
+            <Text fontSize="xl" textAlign="center" mb="2rem">
+              Identity should be created soon
             </Text>
+
+            <Text textAlign="center">
+              Bookmark <Link href={window.location.href}>this page</Link> and return later to check your onboarding status
+            </Text>
+
           </MotionStack>
         </AnimatePresence>
       )}
