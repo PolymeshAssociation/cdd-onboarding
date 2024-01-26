@@ -2,7 +2,7 @@
 
 import os from 'node:os';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -26,7 +26,7 @@ const telemetryEnvConfig = (): TelemetryConfig | undefined => {
     hostname: process.env.OTLP_HOSTNAME,
     service: process.env.OTLP_SERVICE,
   };
-  
+
 
   if (rawConfig.url) {
     return telemetryZ.parse(rawConfig);
