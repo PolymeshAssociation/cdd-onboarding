@@ -37,4 +37,26 @@ describe('MetricsController', () => {
       expect(result).toEqual({ count: 7 });
     });
   });
+
+  describe('job stats', () => {
+    it('should call and return the service result', async () => {
+      mockService.getJobQueueStats.mockResolvedValue({
+        active: 1,
+        completed: 2,
+        failed: 3,
+        waiting: 4,
+        oldestSeconds: 5,
+      });
+
+      const result = await controller.getJobQueueStats();
+
+      expect(result).toEqual({
+        active: 1,
+        completed: 2,
+        failed: 3,
+        waiting: 4,
+        oldestSeconds: 5,
+      });
+    });
+  });
 });
