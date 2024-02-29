@@ -45,10 +45,11 @@ export class CddProcessor {
   private async handleNetki({ value: netki }: NetkiCddJob): Promise<void> {
     const {
       identity: {
-        transaction_identity: { client_guid: id },
+        transaction_identity: { client_guid: guid },
         state,
       },
     } = netki;
+    const id = guid.toLowerCase(); // netki codes are supposed to be lower case + digits. Sometimes clients cause them to be capitalized though
     const jobId: JobIdentifier = { id, provider: 'netki' };
 
     this.logger.info('starting netki job', { jobId, state });

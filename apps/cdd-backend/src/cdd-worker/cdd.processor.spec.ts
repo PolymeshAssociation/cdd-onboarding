@@ -177,6 +177,16 @@ describe('cddProcessor', () => {
           expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
         });
 
+        it('should convert client_guid to lower case', async () => {
+          const uppercaseIdJob = { ...mockNetkiCompletedJob };
+          uppercaseIdJob.data.value.identity.transaction_identity.client_guid =
+            'ABC';
+
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(mockRedis.getNetkiAddress).toHaveBeenCalledWith('abc');
+        });
+
         it('should throw if the address for the netki job is not found', async () => {
           mockRedis.getNetkiAddress.mockRejectedValue(new Error('some error'));
 
