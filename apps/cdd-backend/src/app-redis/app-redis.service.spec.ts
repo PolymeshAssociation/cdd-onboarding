@@ -1,5 +1,6 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import Redis from 'ioredis';
+import { Logger } from 'winston';
 import { AppRedisService } from './app-redis.service';
 import { CddApplicationModel } from './models/cdd-application.model';
 import { NetkiAccessLinkModel } from './models/netki-access-link.model';
@@ -7,13 +8,16 @@ import { netkiAddressPrefixer, netkiAvailableCodesPrefix } from './utils';
 
 describe('AppRedisService', () => {
   let redis: DeepMocked<Redis>;
+  let logger: DeepMocked<Logger>;
   let service: AppRedisService;
 
   const address = 'someAddress';
 
   beforeEach(() => {
     redis = createMock<Redis>();
-    service = new AppRedisService(redis);
+    logger = createMock<Logger>();
+
+    service = new AppRedisService(redis, logger);
   });
 
   describe('applications', () => {

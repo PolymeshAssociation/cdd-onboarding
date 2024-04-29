@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Redis } from 'ioredis';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 import { CddApplicationModel } from './models/cdd-application.model';
 import { NetkiAccessLinkModel } from './models/netki-access-link.model';
 import {
@@ -10,7 +12,10 @@ import {
 
 @Injectable()
 export class AppRedisService {
-  constructor(private readonly redis: Redis) {}
+  constructor(
+    private readonly redis: Redis,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
+  ) {}
 
   async getApplications(address: string): Promise<CddApplicationModel[]> {
     const rawApplications = await this.redis.smembers(address);
@@ -57,6 +62,12 @@ export class AppRedisService {
 
     const total = await this.redis.scard(netkiAvailableCodesPrefix);
 
+    this.logger.info('added new netki codes', {
+      attemptedToAdd: newCodes.length,
+      added,
+      total,
+    });
+
     return { added, total };
   }
 
@@ -74,6 +85,7 @@ export class AppRedisService {
     await this.setNetkiCodeToAddress(code, address);
 
     const key = netkiAddressPrefixer(code);
+    this.logger.info('allocating netki code for address', { code, address });
     await this.redis.set(key, address);
   }
 
