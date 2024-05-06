@@ -98,7 +98,18 @@ describe('NetkiService', () => {
       const mockResponse = {
         data: {
           results: [
-            { id: '123', code: 'abc', created: new Date().toISOString() },
+            {
+              id: '123',
+              code: 'abc',
+              created: new Date().toISOString(),
+              parent_code: null,
+            },
+            {
+              id: '345',
+              code: 'def',
+              created: new Date().toISOString(),
+              parent_code: null,
+            },
           ],
         },
       } as AxiosResponse;
@@ -115,12 +126,15 @@ describe('NetkiService', () => {
         .spyOn(mockHttp, 'post')
         .mockImplementation(() => of(mockAccessResponse));
 
-      mockRedis.getAllocatedNetkiCodes.mockResolvedValue(new Set());
+      mockRedis.getAllocatedNetkiCodes.mockResolvedValue(new Set(['def']));
       mockRedis.pushNetkiCodes.mockResolvedValue({ added: 1, total: 3 });
 
       const result = await service.fetchAccessCodes();
 
       expect(result).toEqual({ added: 1, total: 3 });
+      expect(mockRedis.pushNetkiCodes).toHaveBeenCalledWith([
+        expect.objectContaining({ code: 'abc' }),
+      ]);
     });
   });
 

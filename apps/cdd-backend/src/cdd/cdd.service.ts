@@ -116,7 +116,7 @@ export class CddService {
       timestamp: new Date().toISOString(),
     };
 
-    this.redisService.setApplication(address, application);
+    await this.redisService.setApplication(address, application);
 
     return application.url;
   }

@@ -1,3 +1,7 @@
+import {
+  BusinessLinkDto,
+  BusinessLinkResponse,
+} from '@cdd-onboarding/cdd-types';
 import { HttpStatus, UseGuards } from '@nestjs/common';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -29,5 +33,12 @@ export class NetkiController {
   })
   public async callback(@Body() data: NetkiCallbackDto) {
     await this.service.queueCddJob(data);
+  }
+
+  @Post('/business-link')
+  async businessLink(
+    @Body() body: BusinessLinkDto
+  ): Promise<BusinessLinkResponse> {
+    return this.service.allocateLinkForBusiness(body);
   }
 }

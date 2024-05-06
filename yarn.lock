@@ -4509,16 +4509,15 @@
     "@polkadot/util-crypto" "^12.4.2"
     "@polymeshassociation/signing-manager-types" "^3.1.0"
 
-"@polymeshassociation/hashicorp-vault-signing-manager@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.npmjs.org/@polymeshassociation/hashicorp-vault-signing-manager/-/hashicorp-vault-signing-manager-3.2.0.tgz"
-  integrity sha512-HtHz/q/8O6D6/YYwpmh0qh2WdC+opMM1+Gu99ZPUfBstshgh5OY7oCfAH699V/BA67O9Ai5UGPf8L9AIxTGrBA==
+"@polymeshassociation/hashicorp-vault-signing-manager@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/hashicorp-vault-signing-manager/-/hashicorp-vault-signing-manager-3.3.0.tgz#c23bd6454140c5b2f09c86177555d89a6b0eed33"
+  integrity sha512-RekwhZPX3pIUiLQG69ub4zoF5znXmjO6pqXOoth0JizovF5qsqT0aviJ4ZkzL68VHzvmlWwgK0iEFaYFxorqew==
   dependencies:
     "@polkadot/util" "^12.4.2"
     "@polkadot/util-crypto" "^12.4.2"
     "@polymeshassociation/signing-manager-types" "^3.2.0"
     cross-fetch "^3.1.5"
-    lodash "^4.17.21"
 
 "@polymeshassociation/local-signing-manager@^3.2.0":
   version "3.2.0"
@@ -4527,10 +4526,10 @@
   dependencies:
     "@polymeshassociation/signing-manager-types" "^3.2.0"
 
-"@polymeshassociation/polymesh-sdk@^24.0.0":
-  version "24.0.0"
-  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-24.0.0.tgz#fbb121c89395f52ca67373c0130a86dd48ef5714"
-  integrity sha512-Z5+v3Emsv+NBiwPAPVt2FxJElj/aF2sWW9hZ7Vewt7+9ym3yvSzJtH1cnGbXjGaZd1mxN9osEUFxgrEZnhcL6Q==
+"@polymeshassociation/polymesh-sdk@^24.3.0":
+  version "24.3.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-24.3.0.tgz#1c7f647fd7cd4af94b6a0a0430f24343d5adda94"
+  integrity sha512-86h+7UjSQWiv3cquHPx2bfz0jETq10pUW5EtfgtVxAL2b4SqLWrW+cKQ+/QHkKISiCgQ8494mgpzFOxxY+JBSA==
   dependencies:
     "@apollo/client" "^3.8.1"
     "@polkadot/api" "10.9.1"

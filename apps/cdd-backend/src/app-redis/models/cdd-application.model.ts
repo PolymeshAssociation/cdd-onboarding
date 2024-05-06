@@ -7,4 +7,5 @@ export interface CddApplicationModel {
   provider: CddProvider;
   timestamp: string;
   externalId: string;
+  isBusiness?: boolean;
 }

@@ -44,7 +44,6 @@ describe('cddProcessor', () => {
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
     mockAddressBook = module.get<typeof mockAddressBook>(AddressBookService);
 
-    mockRedis.getNetkiAddress.mockResolvedValue(address);
     mockRun = jest.fn().mockResolvedValue('test-tx-result');
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
       run: mockRun,

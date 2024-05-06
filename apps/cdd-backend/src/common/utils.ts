@@ -14,3 +14,6 @@ export const getExpiryFromJwt = (token: string): Date => {
 
   return new Date(payload.exp * 1000);
 };
+
+export const uuidRegex =
+  /^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i;

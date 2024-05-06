@@ -15,6 +15,7 @@ import {
   NetkiCddJob,
 } from './types';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
+import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
 
 @Processor()
 export class CddProcessor {
@@ -54,21 +55,40 @@ export class CddProcessor {
 
     this.logger.info('starting netki job', { jobId, state });
 
-    const address = await this.redis.getNetkiAddress(id);
-    if (!address) {
-      throw new Error('netki code was not associated to the address');
+    const [address, businessApplication] = await Promise.all([
+      this.redis.getNetkiAddress(id),
+      this.redis.getNetkiBusinessApplication(id),
+    ]);
+
+    if (!address && !businessApplication) {
+      throw new Error('no information associated to netki code');
     }
 
     this.logger.info('netki job info retrieved', { jobId, address, state });
 
     if (state === 'restarted') {
       this.logger.debug('handling netki restart', { jobId });
-      await this.handleNetkiRestart(jobId, address, netki);
+      if (address) {
+        await this.handleNetkiRestart(jobId, address, netki);
+      } else if (businessApplication) {
+        await this.handleNetkiRestartForBusiness(
+          jobId,
+          businessApplication,
+          netki
+        );
+      }
     } else if (state === 'completed') {
       this.logger.debug('handling netki completed', { jobId });
-      await this.createCddClaim(jobId, address, 'netki');
-
-      await this.clearAddressApplications(jobId, address);
+      if (address) {
+        await this.createCddClaim(jobId, address, 'netki');
+        await this.clearAddressApplications(jobId, address);
+      } else if (businessApplication?.address) {
+        await this.createCddClaim(jobId, businessApplication.address, 'netki'); // should this get its own key?
+      } else {
+        this.logger.info(
+          'no address was associated to netki application, no CDD claim is being made'
+        );
+      }
     } else {
       this.logger.info('netki state did not have a handler - no action taken', {
         jobId,
@@ -110,6 +130,36 @@ export class CddProcessor {
     });
 
     await this.redis.setNetkiCodeToAddress(childCode.code, address);
+  }
+
+  private async handleNetkiRestartForBusiness(
+    jobId: JobIdentifier,
+    application: NetkiBusinessApplicationModel,
+    netki: NetkiCallbackDto
+  ): Promise<void> {
+    const {
+      identity: {
+        transaction_identity: {
+          identity_access_code: { child_codes: childCodes },
+        },
+      },
+    } = netki;
+
+    const childCode = childCodes[0];
+
+    if (!childCode) {
+      throw new Error(
+        'property `child_codes` was not found in restart webhook payload'
+      );
+    }
+
+    this.logger.debug('allocating restart access code', {
+      jobId,
+      applicationId: application.id,
+      childCode,
+    });
+
+    await this.redis.setNetkiCodeToBusiness(childCode.code, application);
   }
 
   private async handleJumio({ value: jumio }: JumioCddJob): Promise<void> {

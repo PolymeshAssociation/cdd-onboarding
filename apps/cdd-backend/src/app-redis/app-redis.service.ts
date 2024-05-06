@@ -4,10 +4,13 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CddApplicationModel } from './models/cdd-application.model';
 import { NetkiAccessLinkModel } from './models/netki-access-link.model';
+import { NetkiBusinessApplicationModel } from './models/netki-business-application.model';
 import {
   netkiAllocatedCodePrefix,
   netkiAvailableCodesPrefix,
   netkiAddressPrefixer,
+  netkiBusinessAppPrefixer,
+  netkiBusinessAppPrefix,
 } from './utils';
 
 @Injectable()
@@ -24,10 +27,10 @@ export class AppRedisService {
   }
 
   async setApplication(
-    address: string,
+    id: string,
     application: CddApplicationModel
   ): Promise<void> {
-    await this.redis.sadd(address, JSON.stringify(application));
+    await this.redis.sadd(id, JSON.stringify(application));
   }
 
   async clearApplications(address: string): Promise<void> {
@@ -37,13 +40,39 @@ export class AppRedisService {
   async setNetkiCodeToAddress(code: string, address: string): Promise<void> {
     const prefixedKey = netkiAddressPrefixer(code);
 
+    this.logger.debug('allocating netki code for address', { code, address });
+
     await this.redis.set(prefixedKey, address);
+  }
+
+  async setNetkiCodeToBusiness(
+    code: string,
+    application: NetkiBusinessApplicationModel
+  ): Promise<void> {
+    const prefixedKey = netkiBusinessAppPrefixer(code);
+
+    this.logger.debug('allocating netki code for business', {
+      code,
+      applicationId: application.id,
+    });
+
+    await this.redis.set(prefixedKey, JSON.stringify(application));
   }
 
   async getNetkiAddress(code: string): Promise<string | null> {
     const netkiAccessCodeKey = netkiAddressPrefixer(code);
 
     return this.redis.get(netkiAccessCodeKey);
+  }
+
+  async getNetkiBusinessApplication(
+    code: string
+  ): Promise<NetkiBusinessApplicationModel | null> {
+    const businessKey = netkiBusinessAppPrefixer(code);
+
+    const result = await this.redis.get(businessKey);
+
+    return result ? JSON.parse(result) : null;
   }
 
   async clearNetkiAddress(code: string): Promise<void> {
@@ -81,21 +110,21 @@ export class AppRedisService {
     return JSON.parse(rawCode);
   }
 
-  async allocateNetkiCode(code: string, address: string): Promise<void> {
-    await this.setNetkiCodeToAddress(code, address);
-
-    const key = netkiAddressPrefixer(code);
-    this.logger.info('allocating netki code for address', { code, address });
-    await this.redis.set(key, address);
-  }
-
   async getAllocatedNetkiCodes(): Promise<Set<string>> {
-    const allocatedCodes = await this.redis.keys(
-      `${netkiAllocatedCodePrefix}*`
-    );
+    const [allocatedIndividualCodes, allocatedBusinessCodes] =
+      await Promise.all([
+        this.redis.keys(`${netkiAllocatedCodePrefix}*`),
+        this.redis.keys(`${netkiBusinessAppPrefix}*`),
+      ]);
+
+    console.log({ allocatedIndividualCodes, allocatedBusinessCodes });
 
     return new Set(
-      allocatedCodes.map((code) => code.replace(netkiAllocatedCodePrefix, ''))
+      [...allocatedIndividualCodes, ...allocatedBusinessCodes].map((code) =>
+        code
+          .replace(netkiAllocatedCodePrefix, '')
+          .replace(netkiBusinessAppPrefix, '')
+      )
     );
   }
 

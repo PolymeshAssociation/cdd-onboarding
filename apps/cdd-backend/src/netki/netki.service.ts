@@ -22,12 +22,16 @@ import {
   NetkiBusinessInfoPageResponse,
   NetkiBusinessInfo,
 } from './types';
+import crypto from 'node:crypto';
 import { bullJobOptions } from '../config/consts';
+import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
+import { BusinessLinkDto } from '@cdd-onboarding/cdd-types';
 
 @Injectable()
 export class NetkiService {
   private baseUrl: string;
   private linkBaseUrl: string;
+  private businessBaseUrl: string;
   private readonly businessId: string;
   private userAuth: { username: string; password: string };
   private accessToken = '';
@@ -42,6 +46,7 @@ export class NetkiService {
     this.businessId = config.getOrThrow('netki.businessId');
     this.baseUrl = config.getOrThrow('netki.url');
     this.linkBaseUrl = config.getOrThrow('netki.linkUrl');
+    this.businessBaseUrl = config.get('netki.linkUrl') ?? 'not-configured';
     this.userAuth = {
       username: config.getOrThrow('netki.username'),
       password: config.getOrThrow('netki.password'),
@@ -59,12 +64,37 @@ export class NetkiService {
 
     const url = `${this.linkBaseUrl}?service_code=${accessCode.code}&applicationId=${address}`;
 
-    await this.redis.allocateNetkiCode(accessCode.code, address);
+    await this.redis.setNetkiCodeToAddress(accessCode.code, address);
 
     return {
       ...accessCode,
       url,
     };
+  }
+
+  public async allocateLinkForBusiness(
+    data: BusinessLinkDto
+  ): Promise<NetkiBusinessApplicationModel> {
+    const id = crypto.randomUUID();
+    const accessCode = await this.redis.popNetkiAccessLink();
+
+    if (!accessCode) {
+      throw new InternalServerErrorException('Netki codes exhausted');
+    }
+
+    const link = `${this.businessBaseUrl}?access_code=${accessCode.code}`;
+
+    const netkiApplication: NetkiBusinessApplicationModel = {
+      id,
+      link,
+      address: data.address,
+      accessCode: accessCode.code,
+      timestamp: new Date().toISOString(),
+    };
+
+    await this.redis.setNetkiCodeToBusiness(accessCode.code, netkiApplication);
+
+    return netkiApplication;
   }
 
   public async getBusinessInfo(): Promise<NetkiBusinessInfo> {
@@ -109,7 +139,8 @@ export class NetkiService {
     const newLinks = codeResponse?.data?.results
       .filter(
         // filter any code that has been allocated, the presence of `parent code` implies Netki has allocated the code
-        ({ id, parent_code }) => !allocatedCodes.has(id) && parent_code === null
+        ({ code, parent_code }) =>
+          !allocatedCodes.has(code) && parent_code === null
       )
       .map(({ id, code, created, is_active: isActive }: NetkiAccessCode) => ({
         id,
