@@ -11,6 +11,7 @@ import {
   netkiAddressPrefixer,
   netkiBusinessAppPrefixer,
   netkiBusinessAppPrefix,
+  netkiBusinessToAddressPrefixer,
 } from './utils';
 
 @Injectable()
@@ -81,23 +82,22 @@ export class AppRedisService {
     await this.redis.del(netkiAccessCodeKey);
   }
 
-  async pushNetkiCodes(
-    newCodes: NetkiAccessLinkModel[]
-  ): Promise<{ added: number; total: number }> {
+  async pushNetkiCodes(newCodes: NetkiAccessLinkModel[]): Promise<number> {
     const added = await this.redis.sadd(
       netkiAvailableCodesPrefix,
       newCodes.map((link) => JSON.stringify(link))
     );
 
-    const total = await this.redis.scard(netkiAvailableCodesPrefix);
-
     this.logger.info('added new netki codes', {
       attemptedToAdd: newCodes.length,
       added,
-      total,
     });
 
-    return { added, total };
+    return added;
+  }
+
+  async getAccessCodeCount(): Promise<number> {
+    return this.redis.scard(netkiAvailableCodesPrefix);
   }
 
   async popNetkiAccessLink(): Promise<NetkiAccessLinkModel | null> {
@@ -117,8 +117,6 @@ export class AppRedisService {
         this.redis.keys(`${netkiBusinessAppPrefix}*`),
       ]);
 
-    console.log({ allocatedIndividualCodes, allocatedBusinessCodes });
-
     return new Set(
       [...allocatedIndividualCodes, ...allocatedBusinessCodes].map((code) =>
         code
@@ -126,6 +124,26 @@ export class AppRedisService {
           .replace(netkiBusinessAppPrefix, '')
       )
     );
+  }
+
+  async setBusinessIdToAddress(
+    businessId: string,
+    address: string
+  ): Promise<void> {
+    const prefixedKey = netkiBusinessToAddressPrefixer(businessId);
+
+    this.logger.debug('associating netki business ID to address', {
+      businessId,
+      address,
+    });
+
+    await this.redis.set(prefixedKey, address);
+  }
+
+  async getNetkiBusinessAddress(businessId: string): Promise<string | null> {
+    const businessKey = netkiBusinessToAddressPrefixer(businessId);
+
+    return this.redis.get(businessKey);
   }
 
   async availableNetkiCodeCount(): Promise<number> {

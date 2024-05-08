@@ -6,8 +6,6 @@ import {
   EmailDetailsDto,
   AddressApplicationsResponse,
   AddressApplicationsParamsDto,
-  BusinessLinkDto,
-  BusinessLinkResponse,
 } from '@cdd-onboarding/cdd-types';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
@@ -47,8 +45,6 @@ export class CddController {
 
     return new ProviderLinkResponse(link);
   }
-
-
 
   @Post('/email')
   async emailAddress(@Body() body: EmailDetailsDto): Promise<void> {

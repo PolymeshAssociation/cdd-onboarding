@@ -13,3 +13,11 @@ export const allowedBasicAuthZ = z
     'A comma separated list of `user:password` combinations that can POST webhooks'
   )
   .default(['someUser:somePassword']);
+
+export const allowedApiKeysZ = z
+  .string()
+  .array()
+  .describe(
+    'A comma separated list of api keys that authorize KYB applications'
+  )
+  .default([]);

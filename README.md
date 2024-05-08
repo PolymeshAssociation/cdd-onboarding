@@ -69,3 +69,33 @@ If you haven't used Redis, `npx redis-commander` should bring up a simple [web b
 ### Understand this workspace
 
 Run `nx graph` to see a diagram of the dependencies of the projects.
+
+## General Flow
+
+Users can choose one of 3 providers: Fractal, Jumio and Netki and provide an address to onboard as their primary key.
+
+### Fractal
+
+If the user selects Fractal they will be directed to Fractal's platform who will handle the onboarding process in its entirety. In this case the CDD service is only providing a link and has no more involvement.
+
+### Jumio
+
+If the user selects Jumio a UUID will be generated and templated into a URL for the user to complete their identity verification at. After the user uploads their documents and are verified, Jumio will dispatch a callback to our server, which will in turn be processed by our worker to create the user's CDD claim.
+
+The user will be redirected to our frontend page, and the link will contain their address so we can provide accurate information about their application status.
+
+### Netki
+
+If the user selects Netki an access code will be associated to their provided address. This access code is templated into a URL to direct the user to verify their identity via mobile device. When the documents are verified Netki will dispatch a callback to our server, which will use the included access code
+
+Netki does not allow a client ID to be specified so an access code to address lookup must be maintained. If the user restarts the flow they will be issued a new access code and our server will receive a callback to update the lookup.
+
+The user will be redirect to our frontend page, but the redirect link will no contain the access code nor the address. This makes it difficult to determine the application status after their redirect, especially in the case when they started on desktop and were redirected to mobile for verification.
+
+#### Business
+
+Netki also offers support for KYB. For this flow an access code is allocated manually via API. The business submitter will need to verify their identity personally in addition to uploading business documents.
+
+When the individual verifies their identity a callback will be issued containing the access code an business id. Our worker will create an association from this business ID to the address if it was provided in the access code generation.
+
+When the business is verified Netki will issue another webhook where the business ID to address lookup will be used to create the CDD claim.

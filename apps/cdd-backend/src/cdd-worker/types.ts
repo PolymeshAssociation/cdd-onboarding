@@ -1,9 +1,9 @@
 import { CddProvider } from '@cdd-onboarding/cdd-types';
 import { JumioCallbackDto } from '../jumio/types';
 import { MockCddDto } from '../mock-cdd/types';
-import { NetkiCallbackDto } from '../netki/types';
+import { NetkiBusinessCallbackDto, NetkiCallbackDto } from '../netki/types';
 
-export type CddJob = JumioCddJob | NetkiCddJob | MockCddJob;
+export type CddJob = JumioCddJob | NetkiCddJob | NetkiBusinessJob | MockCddJob;
 
 export interface JumioCddJob {
   value: JumioCallbackDto;
@@ -13,6 +13,11 @@ export interface JumioCddJob {
 export interface NetkiCddJob {
   value: NetkiCallbackDto;
   type: 'netki';
+}
+
+export interface NetkiBusinessJob {
+  value: NetkiBusinessCallbackDto;
+  type: 'netki-kyb';
 }
 
 export interface MockCddJob {

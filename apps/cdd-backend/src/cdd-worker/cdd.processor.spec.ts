@@ -4,7 +4,12 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
 import { MockPolymesh } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
-import { JumioCddJob, MockCddJob, NetkiCddJob } from './types';
+import {
+  JumioCddJob,
+  MockCddJob,
+  NetkiBusinessJob,
+  NetkiCddJob,
+} from './types';
 import { JumioCallbackDto } from '../jumio/types';
 
 import jumioVerifiedData from '../test-utils/jumio-http/webhook-approved-verified.json';
@@ -192,6 +197,85 @@ describe('cddProcessor', () => {
           await expect(
             processor.generateCdd(mockNetkiCompletedJob)
           ).rejects.toThrowError();
+        });
+
+        it('should assign the address to business ID in case of a business application', async () => {
+          mockNetkiCompletedJob.data.value.identity.transaction_identity.identity_access_code.business =
+            'netkiBusinessId';
+
+          mockRedis.getNetkiAddress.mockResolvedValue(null);
+          mockRedis.getNetkiBusinessApplication.mockResolvedValue({
+            id: 'someId',
+            accessCode: 'someCode',
+            link: 'someLink',
+            address: 'someAddress',
+            timestamp: new Date().toISOString(),
+          });
+
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(mockRedis.setBusinessIdToAddress).toHaveBeenCalledWith(
+            'netkiBusinessId',
+            'someAddress'
+          );
+        });
+
+        it('should throw an error if there is no business in the callback', async () => {
+          mockRedis.getNetkiAddress.mockResolvedValue(null);
+          mockRedis.getNetkiBusinessApplication.mockResolvedValue({
+            id: 'someId',
+            accessCode: 'someCode',
+            link: 'someLink',
+            address: 'someAddress',
+            timestamp: new Date().toISOString(),
+          });
+
+          await expect(
+            processor.generateCdd(mockNetkiCompletedJob)
+          ).rejects.toThrow();
+        });
+      });
+
+      describe('netki business job', () => {
+        let mockNetkiCompletedJob: Job<NetkiBusinessJob>;
+
+        beforeEach(() => {
+          mockNetkiCompletedJob = {
+            ...createMock<Job>(),
+            data: {
+              type: 'netki-kyb',
+              value: {
+                parent_business: 'someBusinessId',
+                status: 'accepted',
+              },
+            },
+          };
+        });
+
+        it('should create a cdd claim', async () => {
+          mockRedis.getNetkiBusinessAddress.mockResolvedValue('someAddress');
+
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(mockPolymesh.identities.registerIdentity).toHaveBeenCalledWith(
+            {
+              targetAccount: 'someAddress',
+              createCdd: true,
+            },
+            { signingAccount: 'netkiSignerAddress' }
+          );
+        });
+
+        it('should not create a cdd claim if status is not accepted', async () => {
+          mockRedis.getNetkiBusinessAddress.mockResolvedValue('someAddress');
+
+          mockNetkiCompletedJob.data.value.status = 'rejected';
+
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(
+            mockPolymesh.identities.registerIdentity
+          ).not.toHaveBeenCalled();
         });
       });
 

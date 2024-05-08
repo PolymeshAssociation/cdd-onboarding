@@ -1,5 +1,6 @@
 # Environment
 .env
+.nx
 
 # compiled output
 dist

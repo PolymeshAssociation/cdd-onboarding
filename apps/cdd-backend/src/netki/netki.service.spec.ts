@@ -94,6 +94,13 @@ describe('NetkiService', () => {
   });
 
   describe('fetchAccessCodes', () => {
+    const mockAccessResponse = {
+      data: {
+        access:
+          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY3ODg5MzI1NiwianRpIjoiZDVjYzU0YjViNzgyNDA0YmJhYzM2ZDVkMDdmYzU1ZDIiLCJ1c2VyX2lkIjoiYWJkZWU2ZTQtM2I3Ny00YjI0LWEwMjUtOGVkNDAzNzM5NzAzIn0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      },
+    } as AxiosResponse;
+
     it('should return the amount fetched and total amount of codes', async () => {
       const mockResponse = {
         data: {
@@ -114,20 +121,13 @@ describe('NetkiService', () => {
         },
       } as AxiosResponse;
 
-      const mockAccessResponse = {
-        data: {
-          access:
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY3ODg5MzI1NiwianRpIjoiZDVjYzU0YjViNzgyNDA0YmJhYzM2ZDVkMDdmYzU1ZDIiLCJ1c2VyX2lkIjoiYWJkZWU2ZTQtM2I3Ny00YjI0LWEwMjUtOGVkNDAzNzM5NzAzIn0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        },
-      } as AxiosResponse;
-
       jest.spyOn(mockHttp, 'get').mockImplementation(() => of(mockResponse));
       jest
         .spyOn(mockHttp, 'post')
         .mockImplementation(() => of(mockAccessResponse));
 
       mockRedis.getAllocatedNetkiCodes.mockResolvedValue(new Set(['def']));
-      mockRedis.pushNetkiCodes.mockResolvedValue({ added: 1, total: 3 });
+      mockRedis.pushNetkiCodes.mockResolvedValue(1);
 
       const result = await service.fetchAccessCodes();
 
@@ -135,6 +135,50 @@ describe('NetkiService', () => {
       expect(mockRedis.pushNetkiCodes).toHaveBeenCalledWith([
         expect.objectContaining({ code: 'abc' }),
       ]);
+    });
+
+    it('should loop through all of the pages', async () => {
+      const mockPageOne = {
+        data: {
+          next: 'http://example.com?offset=1',
+          results: [
+            {
+              id: '123',
+              code: 'abc',
+              created: new Date().toISOString(),
+              parent_code: null,
+            },
+          ],
+        },
+      } as AxiosResponse;
+
+      const mockPageTwo = {
+        data: {
+          next: null,
+          results: [
+            {
+              id: '345',
+              code: 'def',
+              created: new Date().toISOString(),
+              parent_code: null,
+            },
+          ],
+        },
+      } as AxiosResponse;
+
+      jest
+        .spyOn(mockHttp, 'post')
+        .mockImplementation(() => of(mockAccessResponse));
+      jest.spyOn(mockHttp, 'get').mockImplementationOnce(() => of(mockPageOne));
+      jest.spyOn(mockHttp, 'get').mockImplementationOnce(() => of(mockPageTwo));
+
+      mockRedis.getAllocatedNetkiCodes.mockResolvedValue(new Set());
+      mockRedis.pushNetkiCodes.mockResolvedValue(1);
+
+      const result = await service.fetchAccessCodes();
+
+      expect(result).toEqual({ added: 2, total: 3 });
+      expect(mockRedis.pushNetkiCodes).toHaveBeenCalledTimes(2);
     });
   });
 

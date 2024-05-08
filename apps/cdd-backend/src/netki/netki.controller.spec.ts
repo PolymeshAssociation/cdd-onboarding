@@ -2,10 +2,11 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { API_KEY_GUARD_CREDENTIALS_PROVIDER } from '../common/api-key.guard';
 import { BASIC_AUTH_CREDENTIALS_PROVIDER } from '../common/basic-auth.guard';
 import { NetkiController } from './netki.controller';
 import { NetkiService } from './netki.service';
-import { NetkiCallbackDto } from './types';
+import { NetkiBusinessCallbackDto, NetkiCallbackDto } from './types';
 
 describe('NetkiController', () => {
   let controller: NetkiController;
@@ -21,6 +22,10 @@ describe('NetkiController', () => {
         },
         {
           provide: BASIC_AUTH_CREDENTIALS_PROVIDER,
+          useValue: [],
+        },
+        {
+          provide: API_KEY_GUARD_CREDENTIALS_PROVIDER,
           useValue: [],
         },
         {
@@ -59,6 +64,19 @@ describe('NetkiController', () => {
       await controller.callback(fakeData as unknown as NetkiCallbackDto);
 
       expect(mockService.queueCddJob).toHaveBeenCalledWith(fakeData);
+    });
+  });
+
+  describe('business callback', () => {
+    it('should call the service', async () => {
+      const fakeData = 'test-data';
+      mockService.queueBusinessJob.mockResolvedValue(undefined);
+
+      await controller.businessCallback(
+        fakeData as unknown as NetkiBusinessCallbackDto
+      );
+
+      expect(mockService.queueBusinessJob).toHaveBeenCalledWith(fakeData);
     });
   });
 });

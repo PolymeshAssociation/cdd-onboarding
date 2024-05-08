@@ -5,9 +5,14 @@ import {
 import { HttpStatus, UseGuards } from '@nestjs/common';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiKeyGuard } from '../common/api-key.guard';
 import { BasicAuthGuard } from '../common/basic-auth.guard';
 import { NetkiService } from './netki.service';
-import { NetkiCallbackDto, NetkiFetchCodesResponse } from './types';
+import {
+  NetkiBusinessCallbackDto,
+  NetkiCallbackDto,
+  NetkiFetchCodesResponse,
+} from './types';
 
 @Controller('netki')
 @ApiTags('netki')
@@ -35,7 +40,20 @@ export class NetkiController {
     await this.service.queueCddJob(data);
   }
 
+  @Post('/business/callback')
+  @ApiBody({
+    type: NetkiCallbackDto,
+  })
+  @UseGuards(BasicAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  public async businessCallback(@Body() data: NetkiBusinessCallbackDto) {
+    await this.service.queueBusinessJob(data);
+  }
+
   @Post('/business-link')
+  @UseGuards(ApiKeyGuard)
   async businessLink(
     @Body() body: BusinessLinkDto
   ): Promise<BusinessLinkResponse> {

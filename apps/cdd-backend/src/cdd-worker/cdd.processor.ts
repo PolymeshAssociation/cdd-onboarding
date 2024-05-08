@@ -13,6 +13,7 @@ import {
   JobIdentifier,
   JumioCddJob,
   NetkiCddJob,
+  NetkiBusinessJob,
 } from './types';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
@@ -36,6 +37,8 @@ export class CddProcessor {
       await this.handleNetki(job.data);
     } else if (job.data.type === 'mock') {
       await this.handleMockJob(job.data);
+    } else if (job.data.type === 'netki-kyb') {
+      await this.handleNetkiBusiness(job.data);
     } else {
       throw new Error('unknown CDD job type encountered');
     }
@@ -43,10 +46,44 @@ export class CddProcessor {
     this.logger.info('finished processing CDD job', { jobId: job.id });
   }
 
+  private async handleNetkiBusiness({
+    value: { parent_business: businessId, status },
+  }: NetkiBusinessJob): Promise<void> {
+    if (status !== 'accepted') {
+      this.logger.info(
+        'netki business callback did not have accepted status. No action will be taken'
+      );
+
+      return;
+    }
+
+    const address = await this.redis.getNetkiBusinessAddress(businessId);
+
+    if (!address) {
+      this.logger.info(
+        'there was no address associated to the business ID - no action will be taken',
+        {
+          businessId,
+        }
+      );
+
+      return;
+    }
+
+    await this.createCddClaim(
+      { id: businessId, provider: 'netki' },
+      address,
+      'netki'
+    );
+  }
+
   private async handleNetki({ value: netki }: NetkiCddJob): Promise<void> {
     const {
       identity: {
-        transaction_identity: { client_guid: guid },
+        transaction_identity: {
+          client_guid: guid,
+          identity_access_code: { business },
+        },
         state,
       },
     } = netki;
@@ -55,21 +92,25 @@ export class CddProcessor {
 
     this.logger.info('starting netki job', { jobId, state });
 
-    const [address, businessApplication] = await Promise.all([
+    const [individualAddress, businessApplication] = await Promise.all([
       this.redis.getNetkiAddress(id),
       this.redis.getNetkiBusinessApplication(id),
     ]);
 
-    if (!address && !businessApplication) {
+    if (!individualAddress && !businessApplication) {
       throw new Error('no information associated to netki code');
     }
 
-    this.logger.info('netki job info retrieved', { jobId, address, state });
+    this.logger.info('netki job info retrieved', {
+      jobId,
+      address: individualAddress,
+      state,
+    });
 
     if (state === 'restarted') {
       this.logger.debug('handling netki restart', { jobId });
-      if (address) {
-        await this.handleNetkiRestart(jobId, address, netki);
+      if (individualAddress) {
+        await this.handleNetkiRestart(jobId, individualAddress, netki);
       } else if (businessApplication) {
         await this.handleNetkiRestartForBusiness(
           jobId,
@@ -79,20 +120,35 @@ export class CddProcessor {
       }
     } else if (state === 'completed') {
       this.logger.debug('handling netki completed', { jobId });
-      if (address) {
-        await this.createCddClaim(jobId, address, 'netki');
-        await this.clearAddressApplications(jobId, address);
+      if (individualAddress) {
+        await this.createCddClaim(jobId, individualAddress, 'netki');
+        await this.clearAddressApplications(jobId, individualAddress);
       } else if (businessApplication?.address) {
-        await this.createCddClaim(jobId, businessApplication.address, 'netki'); // should this get its own key?
+        if (!business) {
+          this.logger.error(
+            'no business ID was in callback for business application',
+            { jobId, address: businessApplication.address }
+          );
+
+          throw new Error(
+            'No business ID was in callback, but it was expected'
+          );
+        }
+
+        await this.redis.setBusinessIdToAddress(
+          business,
+          businessApplication.address
+        );
       } else {
         this.logger.info(
-          'no address was associated to netki application, no CDD claim is being made'
+          'no address was associated to netki business application, no business ID association will be made'
         );
       }
     } else {
       this.logger.info('netki state did not have a handler - no action taken', {
         jobId,
-        address,
+        address: individualAddress,
+        businessApplicationId: businessApplication?.id,
         state,
       });
     }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { allowedBasicAuthZ, allowedIpsZ } from './internal';
+import { allowedApiKeysZ, allowedBasicAuthZ, allowedIpsZ } from './internal';
 
 const configZ = z
   .object({
@@ -73,6 +73,7 @@ const configZ = z
             'http URL users will be directed to when onboarding with Netki'
           ),
         allowedBasicAuth: allowedBasicAuthZ,
+        allowedApiKeys: allowedApiKeysZ,
       })
       .describe('Netki related config'),
 
@@ -127,6 +128,9 @@ export const serverEnvConfig = (): ServerConfig => {
       businessId: process.env.NETKI_BUSINESS_ID,
       linkUrl: process.env.NETKI_LINK_URL,
       allowedBasicAuth: process.env.NETKI_ALLOWED_BASIC_AUTH?.split(',').map(
+        (credential) => credential.trim()
+      ),
+      allowedApiKeys: process.env.NETKI_ALLOWED_API_KEYS?.split(',').map(
         (credential) => credential.trim()
       ),
     },

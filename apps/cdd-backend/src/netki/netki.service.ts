@@ -21,6 +21,7 @@ import {
   NetkiFetchCodesResponse,
   NetkiBusinessInfoPageResponse,
   NetkiBusinessInfo,
+  NetkiBusinessCallbackDto,
 } from './types';
 import crypto from 'node:crypto';
 import { bullJobOptions } from '../config/consts';
@@ -115,41 +116,56 @@ export class NetkiService {
   }
 
   public async fetchAccessCodes(): Promise<NetkiFetchCodesResponse> {
-    await this.fetchAccessToken();
-
-    const { businessId, headers } = this;
-
-    const url = this.pathToUrl(
+    const { businessId } = this;
+    let url: string = this.pathToUrl(
       `business/businesses/${businessId}/access-codes/?is_active=true`
     );
 
-    const codeResponse = await firstValueFrom(
-      this.http
-        .get<NetkiAccessCodePageResponse>(url, { headers })
-        .pipe(catchError((error) => this.logError(error)))
-    );
-
-    if (!codeResponse?.data.results) {
-      this.logError(new Error('no results were present in fetch response'));
-      throw new InternalServerErrorException();
-    }
-
     const allocatedCodes = await this.redis.getAllocatedNetkiCodes();
 
-    const newLinks = codeResponse?.data?.results
-      .filter(
-        // filter any code that has been allocated, the presence of `parent code` implies Netki has allocated the code
-        ({ code, parent_code }) =>
-          !allocatedCodes.has(code) && parent_code === null
-      )
-      .map(({ id, code, created, is_active: isActive }: NetkiAccessCode) => ({
-        id,
-        code,
-        created,
-        isActive,
-      }));
+    let added = 0;
+    while (url !== null) {
+      await this.fetchAccessToken();
 
-    return this.redis.pushNetkiCodes(newLinks);
+      const { headers } = this;
+
+      const codeResponse = await firstValueFrom(
+        this.http
+          .get<NetkiAccessCodePageResponse>(url, { headers })
+          .pipe(catchError((error) => this.logError(error)))
+      );
+
+      if (!codeResponse?.data.results) {
+        this.logError(new Error('no results were present in fetch response'));
+        throw new InternalServerErrorException();
+      }
+
+      const newLinks = codeResponse?.data?.results
+        .filter(
+          // filter any code that has been allocated, the presence of `parent code` implies Netki has allocated the code, for something like a user restart
+          ({ code, parent_code }) =>
+            !allocatedCodes.has(code) && parent_code === null
+        )
+        .map(({ id, code, created, is_active: isActive }: NetkiAccessCode) => ({
+          id,
+          code,
+          created,
+          isActive,
+        }));
+
+      const codesAdded = await this.redis.pushNetkiCodes(newLinks);
+      added += codesAdded;
+
+      if (codeResponse.data.next) {
+        url = codeResponse.data.next;
+      } else {
+        break;
+      }
+    }
+
+    const total = await this.redis.getAccessCodeCount();
+
+    return { added, total };
   }
 
   private get headers(): Record<string, string> {
@@ -161,7 +177,7 @@ export class NetkiService {
     };
   }
 
-  private async fetchAccessToken() {
+  private async fetchAccessToken(): Promise<void> {
     if (this.accessToken) {
       // don't refresh is access isn't expired
       const expiry = getExpiryFromJwt(this.accessToken);
@@ -198,6 +214,17 @@ export class NetkiService {
   public async queueCddJob(jobInfo: NetkiCallbackDto): Promise<void> {
     const job: CddJob = {
       type: 'netki',
+      value: jobInfo,
+    };
+
+    await this.queue.add(job, bullJobOptions);
+  }
+
+  public async queueBusinessJob(
+    jobInfo: NetkiBusinessCallbackDto
+  ): Promise<void> {
+    const job: CddJob = {
+      type: 'netki-kyb',
       value: jobInfo,
     };
 

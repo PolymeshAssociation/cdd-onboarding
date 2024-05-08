@@ -18,6 +18,7 @@ const NetkiCallbackZ = extendApi(
         identity_access_code: z.object({
           code: z.string(),
           child_codes: z.array(NetkiAccessCodeZ),
+          business: z.optional(z.string()),
         }),
       }),
       state: z.string(),
@@ -26,6 +27,17 @@ const NetkiCallbackZ = extendApi(
 );
 
 export class NetkiCallbackDto extends createZodDto(NetkiCallbackZ) {}
+
+const NetkiBusinessCallbackZ = extendApi(
+  z.object({
+    parent_business: z.string(),
+    status: z.string(),
+  })
+);
+
+export class NetkiBusinessCallbackDto extends createZodDto(
+  NetkiBusinessCallbackZ
+) {}
 
 export interface NetkiAccessCode {
   id: string;
@@ -58,8 +70,8 @@ export type NetkiAccessCodePageResponse =
 
 type NetkiPaginatedResponse<T> = {
   count: number;
-  next: null;
-  previous: null;
+  next: string | null;
+  previous: string | null;
   results: T[];
 };
 
