@@ -30,8 +30,10 @@ export class NetkiCallbackDto extends createZodDto(NetkiCallbackZ) {}
 
 const NetkiBusinessCallbackZ = extendApi(
   z.object({
-    parent_business: z.string(),
-    status: z.string(),
+    business: z.object({
+      parent_business: z.string(),
+      status: z.string(),
+    }),
   })
 );
 

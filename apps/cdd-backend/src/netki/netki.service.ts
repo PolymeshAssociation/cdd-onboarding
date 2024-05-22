@@ -47,7 +47,7 @@ export class NetkiService {
     this.businessId = config.getOrThrow('netki.businessId');
     this.baseUrl = config.getOrThrow('netki.url');
     this.linkBaseUrl = config.getOrThrow('netki.linkUrl');
-    this.businessBaseUrl = config.get('netki.linkUrl') ?? 'not-configured';
+    this.businessBaseUrl = config.get('netki.businessLinkUrl') ?? '';
     this.userAuth = {
       username: config.getOrThrow('netki.username'),
       password: config.getOrThrow('netki.password'),

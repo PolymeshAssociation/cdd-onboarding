@@ -47,7 +47,9 @@ export class CddProcessor {
   }
 
   private async handleNetkiBusiness({
-    value: { parent_business: businessId, status },
+    value: {
+      business: { parent_business: businessId, status },
+    },
   }: NetkiBusinessJob): Promise<void> {
     if (status !== 'accepted') {
       this.logger.info(

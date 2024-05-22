@@ -127,6 +127,7 @@ export const serverEnvConfig = (): ServerConfig => {
       password: process.env.NETKI_PASSWORD,
       businessId: process.env.NETKI_BUSINESS_ID,
       linkUrl: process.env.NETKI_LINK_URL,
+      businessLinkUrl: process.env.NETKI_BUSINESS_LINK_URL,
       allowedBasicAuth: process.env.NETKI_ALLOWED_BASIC_AUTH?.split(',').map(
         (credential) => credential.trim()
       ),

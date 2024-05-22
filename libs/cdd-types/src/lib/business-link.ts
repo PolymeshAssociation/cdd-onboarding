@@ -6,7 +6,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export const BusinessLinkZ = extendApi(
   z.object({
-    address: addressZ,
+    address: z.optional(addressZ),
   }),
   {
     title: 'Generate a KYB Link',

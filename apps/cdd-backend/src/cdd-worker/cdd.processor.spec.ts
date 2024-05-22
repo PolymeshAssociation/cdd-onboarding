@@ -245,8 +245,10 @@ describe('cddProcessor', () => {
             data: {
               type: 'netki-kyb',
               value: {
-                parent_business: 'someBusinessId',
-                status: 'accepted',
+                business: {
+                  parent_business: 'someBusinessId',
+                  status: 'accepted',
+                },
               },
             },
           };
@@ -269,7 +271,7 @@ describe('cddProcessor', () => {
         it('should not create a cdd claim if status is not accepted', async () => {
           mockRedis.getNetkiBusinessAddress.mockResolvedValue('someAddress');
 
-          mockNetkiCompletedJob.data.value.status = 'rejected';
+          mockNetkiCompletedJob.data.value.business.status = 'rejected';
 
           await processor.generateCdd(mockNetkiCompletedJob);
 
