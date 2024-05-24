@@ -72,6 +72,10 @@ const configZ = z
           .describe(
             'http URL users will be directed to when onboarding with Netki'
           ),
+        businessLinkUrl: z
+          .string()
+          .default('')
+          .describe('URL for the business onboarding form'),
         allowedBasicAuth: allowedBasicAuthZ,
         allowedApiKeys: allowedApiKeysZ,
       })
