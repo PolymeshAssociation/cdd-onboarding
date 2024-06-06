@@ -28,4 +28,7 @@ export const addressZ = extendApi(
   }
 );
 
-export const hCaptcha = z.string().nonempty("hCaptcha validation token is required");
+export const hCaptcha =
+  process.env['HCAPTCHA_IS_ENABLED'] === 'true'
+    ? z.string().nonempty('hCaptcha validation token is required')
+    : z.optional(z.string());
