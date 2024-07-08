@@ -137,6 +137,34 @@ describe('NetkiService', () => {
       ]);
     });
 
+    it('should not call redis if no new codes are added', async () => {
+      const mockResponse = {
+        data: {
+          results: [
+            {
+              id: '345',
+              code: 'def',
+              created: new Date().toISOString(),
+              parent_code: null,
+            },
+          ],
+        },
+      } as AxiosResponse;
+
+      jest.spyOn(mockHttp, 'get').mockImplementation(() => of(mockResponse));
+      jest
+        .spyOn(mockHttp, 'post')
+        .mockImplementation(() => of(mockAccessResponse));
+
+      mockRedis.getAllocatedNetkiCodes.mockResolvedValue(new Set(['def']));
+      mockRedis.pushNetkiCodes.mockResolvedValue(1);
+
+      const result = await service.fetchAccessCodes();
+
+      expect(result).toEqual({ added: 0, total: 2 });
+      expect(mockRedis.pushNetkiCodes).not.toHaveBeenCalled();
+    });
+
     it('should loop through all of the pages', async () => {
       const mockPageOne = {
         data: {

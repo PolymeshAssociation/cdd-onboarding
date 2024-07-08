@@ -153,8 +153,10 @@ export class NetkiService {
           isActive,
         }));
 
-      const codesAdded = await this.redis.pushNetkiCodes(newLinks);
-      added += codesAdded;
+      if (newLinks.length) {
+        const codesAdded = await this.redis.pushNetkiCodes(newLinks);
+        added += codesAdded;
+      }
 
       if (codeResponse.data.next) {
         url = codeResponse.data.next;
