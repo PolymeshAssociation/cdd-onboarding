@@ -33,6 +33,7 @@ const NetkiBusinessCallbackZ = extendApi(
     business: z.object({
       parent_business: z.string(),
       status: z.string(),
+      name: z.string(),
     }),
   })
 );

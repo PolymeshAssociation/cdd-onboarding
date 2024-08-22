@@ -2,7 +2,7 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
-import { MockPolymesh } from '../test-utils/mocks';
+import { MockPolymesh, slackAppMock } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
 import {
   JumioCddJob,
@@ -48,6 +48,9 @@ describe('cddProcessor', () => {
     mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
     mockAddressBook = module.get<typeof mockAddressBook>(AddressBookService);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (processor as any).slackApp = slackAppMock;
 
     mockRun = jest.fn().mockResolvedValue('test-tx-result');
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
@@ -167,6 +170,32 @@ describe('cddProcessor', () => {
           };
         });
 
+        it('should send a Slack message if the status is hold', async () => {
+          mockNetkiCompletedJob.data.value.identity.state = 'hold';
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(slackAppMock.client.chat.postMessage).toHaveBeenNthCalledWith(
+            1,
+            {
+              token: expect.any(String),
+              channel: expect.any(String),
+              text: 'A Netki Onboarding application requires review',
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: ':warning: Netki CDD application with access code *xyz* has been placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.',
+                  },
+                },
+              ],
+            }
+          );
+          expect(
+            mockPolymesh.identities.registerIdentity
+          ).not.toHaveBeenCalled();
+        });
+
         it('should create CDD claim and clear previous link attempts', async () => {
           await processor.generateCdd(mockNetkiCompletedJob);
 
@@ -248,6 +277,7 @@ describe('cddProcessor', () => {
                 business: {
                   parent_business: 'someBusinessId',
                   status: 'accepted',
+                  name: 'Some Business Name',
                 },
               },
             },
@@ -266,6 +296,60 @@ describe('cddProcessor', () => {
             },
             { signingAccount: 'netkiSignerAddress' }
           );
+        });
+
+        it('should send a slack message if business application status is open', async () => {
+          mockNetkiCompletedJob.data.value.business.status = 'open';
+
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(slackAppMock.client.chat.postMessage).toHaveBeenNthCalledWith(
+            2,
+            {
+              token: expect.any(String),
+              channel: expect.any(String),
+              text: 'New Netki business application requires review',
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: ':bell: Netki Business CDD application received from *Some Business Name*.\n:mag: Please review and process in the Netki dashboard.',
+                  },
+                },
+              ],
+            }
+          );
+          expect(
+            mockPolymesh.identities.registerIdentity
+          ).not.toHaveBeenCalled();
+        });
+
+        it('should send a slack message if business application status is hold', async () => {
+          mockNetkiCompletedJob.data.value.business.status = 'hold';
+
+          await processor.generateCdd(mockNetkiCompletedJob);
+
+          expect(slackAppMock.client.chat.postMessage).toHaveBeenNthCalledWith(
+            3,
+            {
+              token: expect.any(String),
+              channel: expect.any(String),
+              text: 'Netki business application on requires review',
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: ':warning: Netki Business CDD application from *Some Business Name* was placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.',
+                  },
+                },
+              ],
+            }
+          );
+          expect(
+            mockPolymesh.identities.registerIdentity
+          ).not.toHaveBeenCalled();
         });
 
         it('should not create a cdd claim if status is not accepted', async () => {

@@ -17,15 +17,23 @@ import {
 } from './types';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
+import { App as SlackApp } from '@slack/bolt';
 
 @Processor()
 export class CddProcessor {
+  private slackApp: SlackApp;
+
   constructor(
     private readonly polymesh: Polymesh,
     private readonly signerLookup: AddressBookService,
     private readonly redis: AppRedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
-  ) {}
+  ) {
+    this.slackApp = new SlackApp({
+      signingSecret: process.env.SLACK_SIGNING_SECRET,
+      token: process.env.SLACK_BOT_TOKEN,
+    });
+  }
 
   @Process()
   async generateCdd(job: Job<CddJob>) {
@@ -48,35 +56,71 @@ export class CddProcessor {
 
   private async handleNetkiBusiness({
     value: {
-      business: { parent_business: businessId, status },
+      business: { parent_business: businessId, status, name },
     },
   }: NetkiBusinessJob): Promise<void> {
-    if (status !== 'accepted') {
-      this.logger.info(
-        'netki business callback did not have accepted status. No action will be taken'
-      );
+    switch (status) {
+      case 'open':
+        await this.slackApp.client.chat.postMessage({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: process.env.SLACK_CHANNEL || '',
+          text: 'New Netki business application requires review',
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `:bell: Netki Business CDD application received from *${name}*.\n:mag: Please review and process in the Netki dashboard.`,
+              },
+            },
+          ],
+        });
+        break;
 
-      return;
-    }
+      case 'hold':
+        await this.slackApp.client.chat.postMessage({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: process.env.SLACK_CHANNEL || '',
+          text: 'Netki business application on requires review',
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `:warning: Netki Business CDD application from *${name}* was placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.`,
+              },
+            },
+          ],
+        });
+        break;
 
-    const address = await this.redis.getNetkiBusinessAddress(businessId);
+      case 'accepted': {
+        const address = await this.redis.getNetkiBusinessAddress(businessId);
 
-    if (!address) {
-      this.logger.info(
-        'there was no address associated to the business ID - no action will be taken',
-        {
-          businessId,
+        if (!address) {
+          this.logger.info(
+            'there was no address associated to the business ID - no action will be taken',
+            {
+              businessId,
+            }
+          );
+
+          return;
         }
-      );
 
-      return;
+        await this.createCddClaim(
+          { id: businessId, provider: 'netki' },
+          address,
+          'netki'
+        );
+        break;
+      }
+
+      default:
+        this.logger.info(
+          `netki business callback with status ${status} does not have a handler. No action will be taken`
+        );
     }
-
-    await this.createCddClaim(
-      { id: businessId, provider: 'netki' },
-      address,
-      'netki'
-    );
   }
 
   private async handleNetki({ value: netki }: NetkiCddJob): Promise<void> {
@@ -84,7 +128,7 @@ export class CddProcessor {
       identity: {
         transaction_identity: {
           client_guid: guid,
-          identity_access_code: { business },
+          identity_access_code: { business, code },
         },
         state,
       },
@@ -109,50 +153,75 @@ export class CddProcessor {
       state,
     });
 
-    if (state === 'restarted') {
-      this.logger.debug('handling netki restart', { jobId });
-      if (individualAddress) {
-        await this.handleNetkiRestart(jobId, individualAddress, netki);
-      } else if (businessApplication) {
-        await this.handleNetkiRestartForBusiness(
-          jobId,
-          businessApplication,
-          netki
-        );
-      }
-    } else if (state === 'completed') {
-      this.logger.debug('handling netki completed', { jobId });
-      if (individualAddress) {
-        await this.createCddClaim(jobId, individualAddress, 'netki');
-        await this.clearAddressApplications(jobId, individualAddress);
-      } else if (businessApplication?.address) {
-        if (!business) {
-          this.logger.error(
-            'no business ID was in callback for business application',
-            { jobId, address: businessApplication.address }
-          );
-
-          throw new Error(
-            'No business ID was in callback, but it was expected'
+    switch (state) {
+      case 'restarted':
+        this.logger.debug('handling netki restart', { jobId });
+        if (individualAddress) {
+          await this.handleNetkiRestart(jobId, individualAddress, netki);
+        } else if (businessApplication) {
+          await this.handleNetkiRestartForBusiness(
+            jobId,
+            businessApplication,
+            netki
           );
         }
+        break;
 
-        await this.redis.setBusinessIdToAddress(
-          business,
-          businessApplication.address
-        );
-      } else {
+      case 'completed':
+        this.logger.debug('handling netki completed', { jobId });
+        if (individualAddress) {
+          await this.createCddClaim(jobId, individualAddress, 'netki');
+          await this.clearAddressApplications(jobId, individualAddress);
+        } else if (businessApplication?.address) {
+          if (!business) {
+            this.logger.error(
+              'no business ID was in callback for business application',
+              { jobId, address: businessApplication.address }
+            );
+
+            throw new Error(
+              'No business ID was in callback, but it was expected'
+            );
+          }
+
+          await this.redis.setBusinessIdToAddress(
+            business,
+            businessApplication.address
+          );
+        } else {
+          this.logger.info(
+            'no address was associated to netki business application, no business ID association will be made'
+          );
+        }
+        break;
+
+      case 'hold':
+        await this.slackApp.client.chat.postMessage({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: process.env.SLACK_CHANNEL || '',
+          text: 'A Netki Onboarding application requires review',
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `:warning: Netki CDD application with access code *${code}* has been placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.`,
+              },
+            },
+          ],
+        });
+        break;
+
+      default:
         this.logger.info(
-          'no address was associated to netki business application, no business ID association will be made'
+          `netki state ${state} did not have a handler - no action taken`,
+          {
+            jobId,
+            address: individualAddress,
+            businessApplicationId: businessApplication?.id,
+            state,
+          }
         );
-      }
-    } else {
-      this.logger.info('netki state did not have a handler - no action taken', {
-        jobId,
-        address: individualAddress,
-        businessApplicationId: businessApplication?.id,
-        state,
-      });
     }
 
     this.logger.info('netki CDD job completed successfully', {
