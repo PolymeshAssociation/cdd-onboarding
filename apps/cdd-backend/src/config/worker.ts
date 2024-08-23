@@ -29,6 +29,20 @@ const configZ = z
           .describe('Polymesh chain node ws url'),
       })
       .describe('Polymesh chain related config'),
+
+    slackApp: z
+      .object({
+        signingSecret: z
+          .string()
+          .describe('Slack signing secret for verifying requests'),
+        botToken: z
+          .string()
+          .describe('Slack bot OAuth token for authentication'),
+        channel: z
+          .string()
+          .describe('Slack channel ID where messages will be posted'),
+      })
+      .describe('Slack app related config'),
   })
   .describe('config values needed for "worker" mode');
 
@@ -63,6 +77,11 @@ export const workerEnvConfig = (): WorkerConfig => {
     signer,
     polymesh: {
       nodeUrl: process.env.MESH_NODE_URL,
+    },
+    slackApp: {
+      signingSecret: process.env.SLACK_SIGNING_SECRET || '',
+      botToken: process.env.SLACK_BOT_TOKEN || '',
+      channel: process.env.SLACK_CHANNEL || '',
     },
   };
 

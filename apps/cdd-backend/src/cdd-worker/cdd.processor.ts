@@ -17,23 +17,17 @@ import {
 } from './types';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
-import { App as SlackApp } from '@slack/bolt';
+import { SlackMessageService } from '../slack/slackMessage.service';
 
 @Processor()
 export class CddProcessor {
-  private slackApp: SlackApp;
-
   constructor(
     private readonly polymesh: Polymesh,
     private readonly signerLookup: AddressBookService,
     private readonly redis: AppRedisService,
+    private readonly slackMessageService: SlackMessageService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
-  ) {
-    this.slackApp = new SlackApp({
-      signingSecret: process.env.SLACK_SIGNING_SECRET,
-      token: process.env.SLACK_BOT_TOKEN,
-    });
-  }
+  ) {}
 
   @Process()
   async generateCdd(job: Job<CddJob>) {
@@ -61,36 +55,16 @@ export class CddProcessor {
   }: NetkiBusinessJob): Promise<void> {
     switch (status) {
       case 'open':
-        await this.slackApp.client.chat.postMessage({
-          token: process.env.SLACK_BOT_TOKEN,
-          channel: process.env.SLACK_CHANNEL || '',
-          text: 'New Netki business application requires review',
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `:bell: Netki Business CDD application received from *${name}*.\n:mag: Please review and process in the Netki dashboard.`,
-              },
-            },
-          ],
+        await this.slackMessageService.sendMessage({
+          header: 'New Netki business application requires review',
+          body: `:bell: Netki Business CDD application received from *${name}*.\n:mag: Please review and process in the Netki dashboard.`,
         });
         break;
 
       case 'hold':
-        await this.slackApp.client.chat.postMessage({
-          token: process.env.SLACK_BOT_TOKEN,
-          channel: process.env.SLACK_CHANNEL || '',
-          text: 'Netki business application on requires review',
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `:warning: Netki Business CDD application from *${name}* was placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.`,
-              },
-            },
-          ],
+        await this.slackMessageService.sendMessage({
+          header: 'Netki business application on requires review',
+          body: `:warning: Netki Business CDD application from *${name}* was placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.`,
         });
         break;
 
@@ -196,19 +170,9 @@ export class CddProcessor {
         break;
 
       case 'hold':
-        await this.slackApp.client.chat.postMessage({
-          token: process.env.SLACK_BOT_TOKEN,
-          channel: process.env.SLACK_CHANNEL || '',
-          text: 'A Netki Onboarding application requires review',
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `:warning: Netki CDD application with access code *${code}* has been placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.`,
-              },
-            },
-          ],
+        await this.slackMessageService.sendMessage({
+          header: 'A Netki Onboarding application requires review',
+          body: `:warning: Netki CDD application with access code *${code}* has been placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.`,
         });
         break;
 

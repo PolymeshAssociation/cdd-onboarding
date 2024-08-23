@@ -111,11 +111,3 @@ export class MockPolymesh {
     },
   };
 }
-
-export const slackAppMock = {
-  client: {
-    chat: {
-      postMessage: jest.fn().mockResolvedValue(true),
-    },
-  },
-};

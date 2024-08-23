@@ -2,7 +2,7 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
-import { MockPolymesh, slackAppMock } from '../test-utils/mocks';
+import { MockPolymesh } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
 import {
   JumioCddJob,
@@ -20,6 +20,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { AddressBookService } from '../polymesh/address-book.service';
 import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
+import { SlackMessageService } from '../slack/slackMessage.service';
 
 describe('cddProcessor', () => {
   let mockRedis: DeepMocked<AppRedisService>;
@@ -28,6 +29,7 @@ describe('cddProcessor', () => {
   let mockPolymesh: MockPolymesh;
   let mockAddressBook: DeepMocked<AddressBookService>;
   let processor: CddProcessor;
+  let mockSlackMessage: DeepMocked<SlackMessageService>;
   let mockRun: jest.Mock;
 
   beforeEach(async () => {
@@ -36,6 +38,10 @@ describe('cddProcessor', () => {
         CddProcessor,
         { provide: Polymesh, useValue: new MockPolymesh() },
         { provide: AppRedisService, useValue: createMock<AppRedisService>() },
+        {
+          provide: SlackMessageService,
+          useValue: createMock<SlackMessageService>(),
+        },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
         {
           provide: AddressBookService,
@@ -48,10 +54,7 @@ describe('cddProcessor', () => {
     mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
     mockAddressBook = module.get<typeof mockAddressBook>(AddressBookService);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (processor as any).slackApp = slackAppMock;
-
+    mockSlackMessage = module.get<typeof mockSlackMessage>(SlackMessageService);
     mockRun = jest.fn().mockResolvedValue('test-tx-result');
     mockPolymesh.identities.registerIdentity.mockResolvedValue({
       run: mockRun,
@@ -174,23 +177,10 @@ describe('cddProcessor', () => {
           mockNetkiCompletedJob.data.value.identity.state = 'hold';
           await processor.generateCdd(mockNetkiCompletedJob);
 
-          expect(slackAppMock.client.chat.postMessage).toHaveBeenNthCalledWith(
-            1,
-            {
-              token: expect.any(String),
-              channel: expect.any(String),
-              text: 'A Netki Onboarding application requires review',
-              blocks: [
-                {
-                  type: 'section',
-                  text: {
-                    type: 'mrkdwn',
-                    text: ':warning: Netki CDD application with access code *xyz* has been placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.',
-                  },
-                },
-              ],
-            }
-          );
+          expect(mockSlackMessage.sendMessage).toHaveBeenCalledWith({
+            header: 'A Netki Onboarding application requires review',
+            body: ':warning: Netki CDD application with access code *xyz* has been placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.',
+          });
           expect(
             mockPolymesh.identities.registerIdentity
           ).not.toHaveBeenCalled();
@@ -303,23 +293,10 @@ describe('cddProcessor', () => {
 
           await processor.generateCdd(mockNetkiCompletedJob);
 
-          expect(slackAppMock.client.chat.postMessage).toHaveBeenNthCalledWith(
-            2,
-            {
-              token: expect.any(String),
-              channel: expect.any(String),
-              text: 'New Netki business application requires review',
-              blocks: [
-                {
-                  type: 'section',
-                  text: {
-                    type: 'mrkdwn',
-                    text: ':bell: Netki Business CDD application received from *Some Business Name*.\n:mag: Please review and process in the Netki dashboard.',
-                  },
-                },
-              ],
-            }
-          );
+          expect(mockSlackMessage.sendMessage).toHaveBeenCalledWith({
+            header: 'New Netki business application requires review',
+            body: ':bell: Netki Business CDD application received from *Some Business Name*.\n:mag: Please review and process in the Netki dashboard.',
+          });
           expect(
             mockPolymesh.identities.registerIdentity
           ).not.toHaveBeenCalled();
@@ -330,23 +307,11 @@ describe('cddProcessor', () => {
 
           await processor.generateCdd(mockNetkiCompletedJob);
 
-          expect(slackAppMock.client.chat.postMessage).toHaveBeenNthCalledWith(
-            3,
-            {
-              token: expect.any(String),
-              channel: expect.any(String),
-              text: 'Netki business application on requires review',
-              blocks: [
-                {
-                  type: 'section',
-                  text: {
-                    type: 'mrkdwn',
-                    text: ':warning: Netki Business CDD application from *Some Business Name* was placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.',
-                  },
-                },
-              ],
-            }
-          );
+          expect(mockSlackMessage.sendMessage).toHaveBeenCalledWith({
+            header: 'Netki business application on requires review',
+            body: ':warning: Netki Business CDD application from *Some Business Name* was placed on *HOLD*.\n:mag: Please review and process in the Netki dashboard.',
+          });
+
           expect(
             mockPolymesh.identities.registerIdentity
           ).not.toHaveBeenCalled();
