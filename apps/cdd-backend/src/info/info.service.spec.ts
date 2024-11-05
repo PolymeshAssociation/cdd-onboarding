@@ -19,6 +19,7 @@ const meshResponse = new PolymeshNetworkResponse(
   {
     name: 'test',
     version: new BigNumber(1),
+    genesisHash: '0x01',
   }
 );
 const meshHealthy = new HealthCheckResponse<PolymeshNetworkResponse>(
@@ -102,6 +103,7 @@ describe('InfoService', () => {
       mockPolymesh.network.getNetworkProperties.mockResolvedValue({
         name: 'test',
         version: new BigNumber(1),
+        genesisHash: '0x01',
       });
       const response = await service.polymeshInfo();
 
