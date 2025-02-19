@@ -11,7 +11,7 @@ const questionsAnswers: QuestionItem[] = [
   {
     question: 'What is the onboarding process?',
     answer:
-      'Polymesh onboarding consists of a series of identity checks that confirm users are who they say they are through our CDD providers, Fractal, Netki or Jumio. Users provide information and documentation confirming their identities through Fractal/Netki/Jumio and are given access once validated. This onboarding process is the backbone of Polymesh uID (unique identity), ensuring users have a single identity on the blockchain.',
+      'Polymesh onboarding consists of a series of identity checks that confirm users are who they say they are through our CDD providers, Netki or Jumio. Users provide information and documentation confirming their identities through Netki/Jumio and are given access once validated. This onboarding process is the backbone of Polymesh uID (unique identity), ensuring users have a single identity on the blockchain.',
   },
   {
     question: 'What is CDD and identity validation?',
@@ -32,7 +32,7 @@ const questionsAnswers: QuestionItem[] = [
         approach to identity validation. Learn more about the issues you might
         be facing with CDD onboarding through{' '}
         <Link href="https://www.netki.com/resources" isExternal>
-          Fractal
+          Netki
         </Link>{' '}
         or{' '}
         <Link href="https://support.jumio.com/hc/en-us" isExternal>

@@ -15,28 +15,22 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import crypto from 'node:crypto';
 import { Logger } from 'winston';
-import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
 import { AppRedisService } from '../app-redis/app-redis.service';
+import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CddService {
-  private fractalUrl: string;
-
   constructor(
     private readonly polymesh: Polymesh,
     private readonly jumioService: JumioService,
     private readonly netkiService: NetkiService,
     private readonly redisService: AppRedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    private readonly mailchimpService: MailchimpService,
-    config: ConfigService
-  ) {
-    this.fractalUrl = config.get('fractalUrl') || '';
-  }
+    private readonly mailchimpService: MailchimpService
+  ) {}
 
   public async verifyAddress(address: string): Promise<VerifyAddressResponse> {
     if (!this.polymesh.accountManagement.isValidAddress({ address })) {
@@ -96,9 +90,6 @@ export class CddService {
 
       url = accessCode.url;
       externalId = accessCode.id;
-    } else if (provider === 'fractal') {
-      url = this.fractalUrl;
-      externalId = '';
     } else if (provider === 'mock') {
       url = 'mock-cdd/';
       externalId = 'n/a';

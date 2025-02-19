@@ -29,7 +29,7 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   const { mutate, isLoading, isError, data } = useGetProviderLinkMutation();
   const { link } = data || {};
   const { token: hCaptcha } = useCaptcha()
-  const onSelectProvider = (provider: 'netki' | 'jumio' | 'fractal' | 'mock') => {
+  const onSelectProvider = (provider: 'netki' | 'jumio' | 'mock') => {
     if (!isLoading) {
       setState((prev) => ({ ...prev, provider }));
     }
@@ -62,13 +62,6 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           onSelectProvider={onSelectProvider}
           isSelected={state.provider === 'netki'}
         />
-        { config.FRACTAL_ENABLED &&
-          <ProviderLogoCard
-            provider="fractal"
-            onSelectProvider={onSelectProvider}
-            isSelected={state.provider === 'fractal'}
-          />
-        }
         {
           config.MOCK_ENABLED &&
           <ProviderLogoCard

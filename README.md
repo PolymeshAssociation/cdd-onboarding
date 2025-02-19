@@ -72,11 +72,7 @@ Run `nx graph` to see a diagram of the dependencies of the projects.
 
 ## General Flow
 
-Users can choose one of 3 providers: Fractal, Jumio and Netki and provide an address to onboard as their primary key.
-
-### Fractal
-
-If the user selects Fractal they will be directed to Fractal's platform who will handle the onboarding process in its entirety. In this case the CDD service is only providing a link and has no more involvement.
+Users can choose one of 2 providers: Jumio and Netki and provide an address to onboard as their primary key.
 
 ### Jumio
 

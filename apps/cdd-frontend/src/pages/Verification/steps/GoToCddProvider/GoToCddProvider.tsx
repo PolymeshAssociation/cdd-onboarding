@@ -7,7 +7,6 @@ import { VerificationState } from '../index.d';
 
 import JumioView from './JumioView';
 import { NetkiView } from './NetkiView';
-import FractalView from './FractalView';
 import MockView from './MockView';
 
 export const GoToCddProvider: React.FC<VerificationState> = ({
@@ -23,11 +22,8 @@ export const GoToCddProvider: React.FC<VerificationState> = ({
     return <NetkiView link={link} />;
   }
 
-  if(provider === 'fractal' && link) {
-    return <FractalView link={link} />
-  }
-
   if(provider === 'mock' && link) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return <MockView link={link } address={address!} />
   }
 

@@ -10,30 +10,32 @@ export type GetProviderLinkServiceResponse = {
 
 export const providerLinkSchema = z.object({
   address: z.string().nonempty(),
-  provider: z.enum(['netki', 'jumio', 'fractal','mock']),
+  provider: z.enum(['netki', 'jumio', 'mock']),
   hCaptcha,
 });
 
 export type GenerateProviderLinkPayload = z.infer<typeof providerLinkSchema>;
 
-
 const generateProviderLink = async (payload: GenerateProviderLinkPayload) => {
-  const { data } = await axios.post<GetProviderLinkServiceResponse>('provider-link', payload);
+  const { data } = await axios.post<GetProviderLinkServiceResponse>(
+    'provider-link',
+    payload
+  );
 
   return data;
 };
 
 export const useGetProviderLinkMutation = () => {
-  const mutation =  useMutation(generateProviderLink);
+  const mutation = useMutation(generateProviderLink);
 
   const { captchaRef } = useCaptcha();
 
   const onMutate = (payload: GenerateProviderLinkPayload) => {
     mutation.mutate(payload);
     captchaRef.current?.resetCaptcha();
-  }
+  };
 
-  return { ...mutation, mutate: onMutate }
+  return { ...mutation, mutate: onMutate };
 };
 
 export default useGetProviderLinkMutation;

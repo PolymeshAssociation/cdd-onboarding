@@ -2,7 +2,6 @@ export * from './Logo';
 export * from './SectionContainer';
 export * from './FooterContainer';
 export * from './JumioLogo';
-export * from './FractalLogo';
 export * from './NetkiLogo';
 export * from './LogoCircle';
 export * from './ModeSelector';
