@@ -6,6 +6,7 @@ import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
 import { PolymeshNetworkResponse } from './types';
+import { FinclusiveService } from '../finclusive/finclusive.service';
 
 @Injectable()
 export class InfoService {
@@ -13,23 +14,27 @@ export class InfoService {
     private readonly polymesh: Polymesh,
     private readonly netki: NetkiService,
     private readonly jumio: JumioService,
+    private readonly finclusive: FinclusiveService,
     private readonly redis: AppRedisService,
     private readonly mailchimp: MailchimpService
   ) {}
 
   public async all(): Promise<HealthCheckResponse> {
-    const [network, jumio, netki, redis, mailchimp] = await Promise.all([
-      this.polymeshInfo(),
-      this.jumioInfo(),
-      this.netkiInfo(),
-      this.redisInfo(),
-      this.mailchimpInfo(),
-    ]);
+    const [network, jumio, netki, finclusive, redis, mailchimp] =
+      await Promise.all([
+        this.polymeshInfo(),
+        this.jumioInfo(),
+        this.netkiInfo(),
+        this.finclusiveInfo(),
+        this.redisInfo(),
+        this.mailchimpInfo(),
+      ]);
 
     const data = {
       network,
       jumio,
       netki,
+      finclusive,
       redis,
       mailchimp,
     };
@@ -85,6 +90,16 @@ export class InfoService {
     let healthy = true;
 
     await this.netki.getBusinessInfo().catch(() => {
+      healthy = false;
+    });
+
+    return new HealthCheckResponse(healthy);
+  }
+
+  public async finclusiveInfo(): Promise<HealthCheckResponse> {
+    let healthy = true;
+
+    await this.finclusive.healthCheck().catch(() => {
       healthy = false;
     });
 

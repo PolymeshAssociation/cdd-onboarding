@@ -1,18 +1,21 @@
 {
-    "cSpell.words": [
-        "anatine",
-        "golevelup",
-        "jumio",
-        "nestjs",
-        "netki",
-        "opentelemetry",
-        "OTLP",
-        "polymeshassociation",
-        "Prefixer",
-        "sadd",
-        "smembers",
-        "spop"
-    ],
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "editor.formatOnSave": true
+  "cSpell.words": [
+    "anatine",
+    "FINCLUSIVE",
+    "golevelup",
+    "jumio",
+    "Mailchimp",
+    "nestjs",
+    "netki",
+    "opentelemetry",
+    "OTLP",
+    "Polymesh",
+    "polymeshassociation",
+    "Prefixer",
+    "sadd",
+    "smembers",
+    "spop"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true
 }

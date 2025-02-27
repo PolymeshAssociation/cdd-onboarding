@@ -8,11 +8,12 @@ import { VerificationState } from '../index.d';
 import JumioView from './JumioView';
 import { NetkiView } from './NetkiView';
 import MockView from './MockView';
+import { FinclusiveView } from './FinclusiveView';
 
 export const GoToCddProvider: React.FC<VerificationState> = ({
   link,
   provider,
-  address
+  address,
 }) => {
   if (provider === 'jumio' && link) {
     return <JumioView link={link} />;
@@ -22,9 +23,13 @@ export const GoToCddProvider: React.FC<VerificationState> = ({
     return <NetkiView link={link} />;
   }
 
-  if(provider === 'mock' && link) {
+  if (provider === 'finclusive' && link) {
+    return <FinclusiveView link={link} />;
+  }
+
+  if (provider === 'mock' && link) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return <MockView link={link } address={address!} />
+    return <MockView link={link} address={address!} />;
   }
 
   return (

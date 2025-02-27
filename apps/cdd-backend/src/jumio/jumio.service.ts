@@ -12,7 +12,7 @@ import { Queue } from 'bull';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
-import { CddJob } from '../cdd-worker/types';
+import { CddJob, ProviderEnum } from '../cdd-worker/types';
 import { JumioCallbackDto, JumioGenerateLinkResponse } from './types';
 import { bullJobOptions } from '../config/consts';
 
@@ -80,7 +80,7 @@ export class JumioService {
 
   public async queueApplication(request: JumioCallbackDto): Promise<void> {
     const job: CddJob = {
-      type: 'jumio',
+      type: ProviderEnum.JUMIO,
       value: request,
     };
 

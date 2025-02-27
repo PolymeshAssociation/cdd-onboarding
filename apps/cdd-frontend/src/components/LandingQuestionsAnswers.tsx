@@ -11,7 +11,7 @@ const questionsAnswers: QuestionItem[] = [
   {
     question: 'What is the onboarding process?',
     answer:
-      'Polymesh onboarding consists of a series of identity checks that confirm users are who they say they are through our CDD providers, Netki or Jumio. Users provide information and documentation confirming their identities through Netki/Jumio and are given access once validated. This onboarding process is the backbone of Polymesh uID (unique identity), ensuring users have a single identity on the blockchain.',
+      'Polymesh onboarding consists of a series of identity checks that confirm users are who they say they are through our CDD providers, Netki, Jumio or Finclusive. Users provide information and documentation confirming their identities through Netki/Jumio/Finclusive and are given access once validated. This onboarding process is the backbone of Polymesh uID (unique identity), ensuring users have a single identity on the blockchain.',
   },
   {
     question: 'What is CDD and identity validation?',
@@ -28,15 +28,19 @@ const questionsAnswers: QuestionItem[] = [
     question: 'Why am I getting rejected during CDD?',
     answer: (
       <>
-        The Polymesh CDD providers, Netki and Jumio, have a multifaceted
-        approach to identity validation. Learn more about the issues you might
-        be facing with CDD onboarding through{' '}
+        The Polymesh CDD providers, Netki, Jumio and Finclusive, have a
+        multifaceted approach to identity validation. Learn more about the
+        issues you might be facing with CDD onboarding through{' '}
         <Link href="https://www.netki.com/resources" isExternal>
           Netki
         </Link>{' '}
-        or{' '}
+        ,{' '}
         <Link href="https://support.jumio.com/hc/en-us" isExternal>
           Jumio
+        </Link>{' '}
+        or{' '}
+        <Link href="https://help.finclusive.com/en_US/caas" isExternal>
+          Finclusive
         </Link>{' '}
         support.
       </>
@@ -47,20 +51,24 @@ const questionsAnswers: QuestionItem[] = [
     answer: (
       <>
         Your CDD data is stored with whichever CDD provider that onboarded you
-        onto Polymesh. Currently the two CDD providers for the Polymesh
-        blockchain are Netki and Jumio. All CDD providers are compliant with
-        strict GDPR regulation and personal data is not stored for longer than
-        necessary for the purpose it was collected and its deletion may be
-        requested at any time. Learn more about{' '}
+        onto Polymesh. Currently the three CDD providers for the Polymesh
+        blockchain are Netki, Jumio and Finclusive. All CDD providers are
+        compliant with strict GDPR regulation and personal data is not stored
+        for longer than necessary for the purpose it was collected and its
+        deletion may be requested at any time. Learn more about{' '}
         <Link href="https://www.netki.com/privacy-policy" isExternal>
           Netki's
         </Link>{' '}
-        and{' '}
+        ,{' '}
         <Link
           href="https://www.jumio.com/compliance-regulations/gdpr-compliance/"
           isExternal
         >
           Jumio's
+        </Link>{' '}
+        and{' '}
+        <Link href="https://finclusive.com/company/privacy-policy" isExternal>
+          Finclusive's
         </Link>{' '}
         data privacy policy
       </>
@@ -106,14 +114,14 @@ export const LandingQuestionsAnswers: React.FC = () => {
       title="Frequently Asked Questions"
       position="relative"
       bgImage={{ xl: `/assets/img/${bgImage}` }}
-      bgSize={{ xl: '55% 500px', '2xl': "70% 450px" }}
+      bgSize={{ xl: '55% 500px', '2xl': '70% 450px' }}
       bgRepeat="no-repeat"
       bgPosition={{
         xl: 'calc(60vw + (100vw - 1440px)/2) 100px',
         '2xl': 'calc(50vw + (80vw - 1440px)/2) 100px',
       }}
       display="flex"
-      alignItems={{ base: "center", xl: "flex-start" }}
+      alignItems={{ base: 'center', xl: 'flex-start' }}
     >
       <QuestionsAnswers items={questionsAnswers} />
     </Section>

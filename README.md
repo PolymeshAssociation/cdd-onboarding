@@ -50,7 +50,7 @@ The frontend is React with Chakra UI
 
 To serve the frontend use:
 
-`nx run serve cdd-frontend`
+`nx run cdd-frontend:serve`
 
 ## UI Storybook
 

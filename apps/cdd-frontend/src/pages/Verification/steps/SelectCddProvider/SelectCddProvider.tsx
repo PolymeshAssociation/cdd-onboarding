@@ -15,6 +15,7 @@ import ProviderLogoCard from './ProviderLogoCard';
 import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaComponent';
 
 import { useCaptcha } from '../../../../hooks';
+import { ProviderEnum } from '../../../../components/ResultPage/types';
 
 type SelectCddProviderProps = {
   setState: React.Dispatch<React.SetStateAction<VerificationState>>;
@@ -28,8 +29,10 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
   const { onNext } = useContext(StepFormContext);
   const { mutate, isLoading, isError, data } = useGetProviderLinkMutation();
   const { link } = data || {};
-  const { token: hCaptcha } = useCaptcha()
-  const onSelectProvider = (provider: 'netki' | 'jumio' | 'mock') => {
+  const { token: hCaptcha } = useCaptcha();
+  const onSelectProvider = (
+    provider: 'netki' | 'jumio' | 'mock' | 'finclusive'
+  ) => {
     if (!isLoading) {
       setState((prev) => ({ ...prev, provider }));
     }
@@ -62,15 +65,18 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
           onSelectProvider={onSelectProvider}
           isSelected={state.provider === 'netki'}
         />
-        {
-          config.MOCK_ENABLED &&
+        <ProviderLogoCard
+          provider="finclusive"
+          onSelectProvider={onSelectProvider}
+          isSelected={state.provider === 'finclusive'}
+        />
+        {config.MOCK_ENABLED && (
           <ProviderLogoCard
             provider="mock"
             onSelectProvider={onSelectProvider}
             isSelected={state.provider === 'mock'}
           />
-        }
-        
+        )}
       </Flex>
       <Box mt={4}>
         <HCaptchaComponent mt={8} />

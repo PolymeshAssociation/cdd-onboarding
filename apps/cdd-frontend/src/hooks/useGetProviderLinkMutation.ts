@@ -10,7 +10,7 @@ export type GetProviderLinkServiceResponse = {
 
 export const providerLinkSchema = z.object({
   address: z.string().nonempty(),
-  provider: z.enum(['netki', 'jumio', 'mock']),
+  provider: z.enum(['netki', 'jumio', 'finclusive', 'mock']),
   hCaptcha,
 });
 

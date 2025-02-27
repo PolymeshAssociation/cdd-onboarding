@@ -8,8 +8,22 @@ export enum VerificationStatus {
   PROCESSING,
 }
 
+export enum ProviderEnum {
+  JUMIO = 'jumio',
+  NETKI = 'netki',
+  FINCLUSIVE = 'finclusive',
+  MOCK = 'mock',
+}
+
+export const PROVIDERS = [
+  ProviderEnum.JUMIO,
+  ProviderEnum.NETKI,
+  ProviderEnum.FINCLUSIVE,
+  ProviderEnum.MOCK,
+] as const;
+
 export type RouteParams = {
-  provider?: 'jumio' | 'netki' | 'mock';
+  provider?: ProviderEnum;
   result?: 'success' | 'failed';
 };
 

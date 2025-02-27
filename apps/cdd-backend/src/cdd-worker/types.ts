@@ -3,26 +3,51 @@ import { JumioCallbackDto } from '../jumio/types';
 import { MockCddDto } from '../mock-cdd/types';
 import { NetkiBusinessCallbackDto, NetkiCallbackDto } from '../netki/types';
 
-export type CddJob = JumioCddJob | NetkiCddJob | NetkiBusinessJob | MockCddJob;
+export type CddJob =
+  | JumioCddJob
+  | NetkiCddJob
+  | NetkiBusinessJob
+  | MockCddJob
+  | FinclusiveCddJob
+  | FinclusiveBusinessCddJob;
 
-export interface JumioCddJob {
+export enum ProviderEnum {
+  JUMIO = 'jumio',
+  NETKI = 'netki',
+  FINCLUSIVE = 'finclusive',
+  FINCLUSIVE_BUSINESS = 'finclusive-kyb',
+  MOCK = 'mock',
+  NETKI_BUSINESS = 'netki-kyb',
+}
+
+type BaseCddJob<T extends ProviderEnum> = {
+  type: T;
+};
+
+export interface JumioCddJob extends BaseCddJob<ProviderEnum.JUMIO> {
   value: JumioCallbackDto;
-  type: 'jumio';
 }
 
-export interface NetkiCddJob {
+export interface NetkiCddJob extends BaseCddJob<ProviderEnum.NETKI> {
   value: NetkiCallbackDto;
-  type: 'netki';
 }
 
-export interface NetkiBusinessJob {
+export interface NetkiBusinessJob
+  extends BaseCddJob<ProviderEnum.NETKI_BUSINESS> {
   value: NetkiBusinessCallbackDto;
-  type: 'netki-kyb';
 }
 
-export interface MockCddJob {
+export interface MockCddJob extends BaseCddJob<ProviderEnum.MOCK> {
   value: MockCddDto;
-  type: 'mock';
+}
+
+export interface FinclusiveCddJob extends BaseCddJob<ProviderEnum.FINCLUSIVE> {
+  value: MockCddDto;
+}
+
+export interface FinclusiveBusinessCddJob
+  extends BaseCddJob<ProviderEnum.FINCLUSIVE_BUSINESS> {
+  value: MockCddDto;
 }
 
 export interface JobIdentifier {

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import useTimer from '../../../hooks/useTimer';
 import { useResultPageContext } from '../ResultPageContext';
-import { VerificationStatus } from '../types.d';
+import { ProviderEnum, VerificationStatus } from '../types.d';
 import StepTemplate, { StepTemplateProps } from './StepTemplate';
 
 const ProviderResult: React.FC<Pick<StepTemplateProps, 'index'>> = ({
@@ -19,7 +19,7 @@ const ProviderResult: React.FC<Pick<StepTemplateProps, 'index'>> = ({
   }, [setStepResult, index, activeStep]);
 
   useTimer(() => {
-    if (providerResult === 'success' || provider === 'netki') {
+    if (providerResult === 'success' || provider === ProviderEnum.NETKI) {
       setStepResult(index, VerificationStatus.SUCCESS);
     }
 
@@ -28,12 +28,21 @@ const ProviderResult: React.FC<Pick<StepTemplateProps, 'index'>> = ({
     }
   }, 1000);
 
-  if (provider === 'jumio' && localStatus === VerificationStatus.SUCCESS) {
+  if (
+    provider === ProviderEnum.JUMIO &&
+    localStatus === VerificationStatus.SUCCESS
+  ) {
     return <StepTemplate title="Identity verified with Jumio" index={index} />;
   }
 
-  if (provider === 'netki') {
+  if (provider === ProviderEnum.NETKI) {
     return <StepTemplate title="Response received from Netki" index={index} />;
+  }
+
+  if (provider === ProviderEnum.FINCLUSIVE) {
+    return (
+      <StepTemplate title="Response received from Finclusive" index={index} />
+    );
   }
 
   if (localStatus === VerificationStatus.FAILED) {

@@ -56,6 +56,13 @@ export class HealthController {
     return this.isHealthy(result);
   }
 
+  @Get('/finclusive')
+  public async getFinclusiveHealth(): Promise<string> {
+    const result = await this.infoService.finclusiveInfo();
+
+    return this.isHealthy(result);
+  }
+
   @Get('/mailchimp')
   public async getMailchimpHealth(): Promise<string> {
     const result = await this.infoService.mailchimpInfo();

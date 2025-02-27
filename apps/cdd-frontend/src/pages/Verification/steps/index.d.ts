@@ -5,6 +5,6 @@ export type VerificationState = {
   newsletterAccepted?: boolean;
   devUpdatesAccepted?: boolean;
   address?: string;
-  provider?: 'netki' | 'jumio' | 'mock';
+  provider?: ProviderEnum;
   link?: string;
 };

@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class NetkiCodeCountResponse {
+export class CodeCountResponse {
   @ApiProperty({
-    description: 'number of available netki codes',
+    description: 'number of available codes',
   })
   readonly count: number;
 

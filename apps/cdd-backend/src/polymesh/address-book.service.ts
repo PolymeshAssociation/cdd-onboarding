@@ -24,6 +24,10 @@ export class AddressBookService {
           this.insertAddress('netki', key.address);
         }
 
+        if (key.name.includes('finclusive')) {
+          this.insertAddress('finclusive', key.address);
+        }
+
         if (key.name.includes('mock')) {
           this.insertAddress('mock', key.address);
         }
@@ -32,6 +36,7 @@ export class AddressBookService {
       const [firstAccount] = await this.signingManager.getAccounts();
       this.insertAddress('jumio', firstAccount);
       this.insertAddress('netki', firstAccount);
+      this.insertAddress('finclusive', firstAccount);
       this.insertAddress('mock', firstAccount);
     }
   }

@@ -20,6 +20,7 @@ import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
+import { FinclusiveService } from '../finclusive/finclusive.service';
 
 @Injectable()
 export class CddService {
@@ -27,6 +28,7 @@ export class CddService {
     private readonly polymesh: Polymesh,
     private readonly jumioService: JumioService,
     private readonly netkiService: NetkiService,
+    private readonly finclusiveService: FinclusiveService,
     private readonly redisService: AppRedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly mailchimpService: MailchimpService
@@ -81,8 +83,8 @@ export class CddService {
     if (provider === 'jumio') {
       const jumioResponse = await this.jumioService.generateLink(address);
 
-      url = jumioResponse.redirectUrl as string;
-      externalId = jumioResponse.transactionReference as string;
+      url = jumioResponse.redirectUrl;
+      externalId = jumioResponse.transactionReference;
     } else if (provider === 'netki') {
       const accessCode = await this.netkiService.allocateLinkForAddress(
         address
@@ -90,6 +92,13 @@ export class CddService {
 
       url = accessCode.url;
       externalId = accessCode.id;
+    } else if (provider === 'finclusive') {
+      const accessCode = await this.finclusiveService.allocateLinkForAddress(
+        address
+      );
+
+      url = accessCode.url;
+      externalId = accessCode.value;
     } else if (provider === 'mock') {
       url = 'mock-cdd/';
       externalId = 'n/a';

@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { RouteParams, VerificationStatus } from './types.d';
+import {
+  PROVIDERS,
+  ProviderEnum,
+  RouteParams,
+  VerificationStatus,
+} from './types.d';
 import { ResultPageContext } from './ResultPageContext';
 import { useSteps } from '@chakra-ui/react';
 
@@ -18,18 +23,22 @@ const ResultPageContextProvider = ({
   const [stepStatus, setStepStatus] = useState<VerificationStatus[]>([]);
   const navigate = useNavigate();
 
-  if (!provider || !['jumio', 'netki', 'mock'].includes(provider)) {
+  if (!provider || !PROVIDERS.includes(provider)) {
     navigate('/404');
   }
 
-  if (provider !== 'netki' && (!result || !['success', 'failed'].includes(result))) {
+  if (
+    provider !== ProviderEnum.NETKI &&
+    (!result || !['success', 'failed'].includes(result))
+  ) {
     navigate('/404');
   }
 
   useEffect(() => {
     const getStatus = () => {
       if (
-        stepStatus.length && stepStatus.length === stepCount &&
+        stepStatus.length &&
+        stepStatus.length === stepCount &&
         stepStatus.every((s) => s === VerificationStatus.SUCCESS)
       ) {
         setGlobalStatus(VerificationStatus.SUCCESS);

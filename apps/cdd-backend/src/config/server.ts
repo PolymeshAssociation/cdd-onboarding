@@ -81,6 +81,52 @@ const configZ = z
       })
       .describe('Netki related config'),
 
+    finclusive: z
+      .object({
+        url: z
+          .string()
+          .url()
+          .default('https://partnerapimstagesandbox.azure-api.net')
+          .describe('base URL for Finclusive APIs'),
+        oauthUrl: z
+          .string()
+          .url()
+          .default(
+            'https://fincb2cStage.b2clogin.com/fincb2cStage.onmicrosoft.com'
+          )
+          .describe('Oauth base URL for Finclusive APIs'),
+        username: z
+          .string()
+          .describe('Finclusive username to authorize the app'),
+        password: z
+          .string()
+          .describe('Finclusive password to authorize the app '),
+        clientId: z
+          .string()
+          .default('c84b828e-cd67-4115-a980-0584c98f1ac9')
+          .describe('Finclusive client ID to be used to get access token'),
+        partnerId: z
+          .string()
+          .default('B2C_1_sandboxROPC')
+          .describe('Finclusive partner ID to be used to get access token'),
+        subscriptionKey: z
+          .string()
+          .default('325815acb13f420ab189e076812c4d5c')
+          .describe('OCIM subscription key to be used with Finclusive APIs'),
+        webformUrl: z
+          .string()
+          .url()
+          .default('https://webforms.sandbox.finclusive.com')
+          .describe(
+            'Finclusive Webform URL to be used for individual KYC / entity KYB'
+          ),
+        customerId: z
+          .string()
+          .default('140647882')
+          .describe('Finclusive customer ID'),
+      })
+      .describe('Finclusive related config'),
+
     hCaptcha: z
       .object({
         secretKey: z.string().describe('hCaptcha secret key'),
@@ -133,6 +179,17 @@ export const serverEnvConfig = (): ServerConfig => {
       allowedApiKeys: process.env.NETKI_ALLOWED_API_KEYS?.split(',').map(
         (credential) => credential.trim()
       ),
+    },
+    finclusive: {
+      url: process.env.FINCLUSIVE_URL,
+      oauthUrl: process.env.FINCLUSIVE_OAUTH_URL,
+      username: process.env.FINCLUSIVE_USERNAME,
+      password: process.env.FINCLUSIVE_PASSWORD,
+      clientId: process.env.FINCLUSIVE_CLIENT_ID,
+      partnerId: process.env.FINCLUSIVE_PARTNER_ID,
+      customerId: process.env.FINCLUSIVE_CUSTOMER_ID,
+      subscriptionKey: process.env.FINCLUSIVE_SUBSCRIPTION_KEY,
+      webformUrl: process.env.FINCLUSIVE_WEBFORM_URL,
     },
     hCaptcha: {
       secretKey: process.env.HCAPTCHA_SECRET_KEY,

@@ -12,7 +12,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { NetkiAccessLinkModel } from '../app-redis/models/netki-access-link.model';
-import { CddJob } from '../cdd-worker/types';
+import { CddJob, ProviderEnum } from '../cdd-worker/types';
 import { getExpiryFromJwt } from '../common/utils';
 import {
   NetkiAccessCode,
@@ -215,7 +215,7 @@ export class NetkiService {
 
   public async queueCddJob(jobInfo: NetkiCallbackDto): Promise<void> {
     const job: CddJob = {
-      type: 'netki',
+      type: ProviderEnum.NETKI,
       value: jobInfo,
     };
 
@@ -226,7 +226,7 @@ export class NetkiService {
     jobInfo: NetkiBusinessCallbackDto
   ): Promise<void> {
     const job: CddJob = {
-      type: 'netki-kyb',
+      type: ProviderEnum.NETKI_BUSINESS,
       value: jobInfo,
     };
 

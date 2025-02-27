@@ -7,3 +7,4 @@ export * from './LogoCircle';
 export * from './ModeSelector';
 export * from './ColorModeSwitch';
 export * from './MockCddLogo';
+export * from './FinclusiveLogo';

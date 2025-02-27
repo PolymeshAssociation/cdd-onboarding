@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { CddJob } from '../cdd-worker/types';
+import { CddJob, ProviderEnum } from '../cdd-worker/types';
 import { MockCddDto } from './types';
 import { bullJobOptions } from '../config/consts';
 
@@ -11,7 +11,7 @@ export class MockCddService {
 
   public async queueMockCddJob(jobInfo: MockCddDto): Promise<void> {
     const job: CddJob = {
-      type: 'mock',
+      type: ProviderEnum.MOCK,
       value: jobInfo,
     };
 

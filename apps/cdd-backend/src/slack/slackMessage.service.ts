@@ -6,17 +6,20 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SlackMessageService {
-  private readonly channel: string;
+  private readonly channel?: string;
 
   constructor(
     private readonly slackApp: SlackApp,
     private readonly config: ConfigService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {
-    this.channel = this.config.getOrThrow('slackApp.channel');
+    this.channel = this.config.get('slackApp.channel');
   }
 
   async sendMessage(message: { header: string; body: string }): Promise<void> {
+    if (!this.channel) {
+      return;
+    }
     try {
       await this.slackApp.client.chat.postMessage({
         channel: this.channel,

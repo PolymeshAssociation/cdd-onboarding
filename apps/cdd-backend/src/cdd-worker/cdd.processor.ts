@@ -14,6 +14,7 @@ import {
   JumioCddJob,
   NetkiCddJob,
   NetkiBusinessJob,
+  FinclusiveCddJob,
 } from './types';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
@@ -41,6 +42,11 @@ export class CddProcessor {
       await this.handleMockJob(job.data);
     } else if (job.data.type === 'netki-kyb') {
       await this.handleNetkiBusiness(job.data);
+    } else if (job.data.type === 'finclusive') {
+      console.log('finclusive', job.data);
+      // TODO add processors for finclusive and finclusive-kyb
+    } else if (job.data.type === 'finclusive-kyb') {
+      console.log('finclusive-kyb', job.data);
     } else {
       throw new Error('unknown CDD job type encountered');
     }

@@ -10,7 +10,7 @@ services:
       - redis-data:/data
 
   mesh:
-    image: ${CHAIN_IMAGE:-polymeshassociation/polymesh-arm64:7.1.0-testnet-debian}
+    image: ${CHAIN_IMAGE:-polymeshassociation/polymesh:7.1.0-testnet-debian}
     init: true # Faster shutdown when enabled
     restart: unless-stopped
     ports: # expose ports to localhost
@@ -70,7 +70,7 @@ services:
     ports:
       - 3333:3333
     environment:
-      NODE_ENV: 'production'
+      NODE_ENV: 'dev'
       APP_PORT: 3333
       APP_ROUTE_PREFIX: 'api'
       MESH_NODE_URL: ws://mesh:9944
@@ -90,7 +90,7 @@ services:
       dockerfile: ./docker/worker.Dockerfile
     image: cdd-worker
     environment:
-      NODE_ENV: 'production'
+      NODE_ENV: 'dev'
       MESH_NODE_URL: ws://mesh:9944
       REDIS_HOST: redis
       MESH_MNEMONIC: //Alice

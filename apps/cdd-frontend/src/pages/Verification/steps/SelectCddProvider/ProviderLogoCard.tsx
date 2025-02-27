@@ -4,13 +4,16 @@ import { Flex, useMediaQuery, useColorModeValue } from '@chakra-ui/react';
 import {
   JumioLogo,
   NetkiLogo,
-  MockCddLogo
+  MockCddLogo,
+  FinclusiveLogo,
 } from '@polymeshassociation/polymesh-theme/ui/atoms';
 
 type ProviderLogoCardProps = {
-  provider:  'netki' | 'jumio' | 'mock'
+  provider: 'netki' | 'jumio' | 'mock' | 'finclusive';
   isSelected: boolean;
-  onSelectProvider: (provider: 'netki' | 'jumio' | 'mock') => void;
+  onSelectProvider: (
+    provider: 'netki' | 'jumio' | 'mock' | 'finclusive'
+  ) => void;
 };
 
 export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
@@ -22,27 +25,28 @@ export const ProviderLogoCard: React.FC<ProviderLogoCardProps> = ({
     onSelectProvider(provider);
   };
   const [isLargerThan320] = useMediaQuery('(min-width: 320px)');
-  const borderColor = useColorModeValue('gray.100', 'gray.700')
+  const borderColor = useColorModeValue('gray.100', 'gray.700');
 
   return (
-      <Flex
-        alignItems="center"
-        justifyContent="center"
-        _hover={{ cursor: 'pointer', borderColor: 'navy' }}
-        border="2px solid"
-        borderColor={isSelected ? 'fucsia.700' : borderColor}
-        boxSizing="border-box"
-        onClick={onClick}
-        h={{ base: '120px', md: '150px', lg: 'unset' }}
-        w={{ base: '100%', md: '200px', lg: '250px' }}
-        style={{ aspectRatio: isLargerThan320 ? '1' : 'unset' }}
-        p="1.5rem"
-        borderRadius="0.75rem"
-      >
-        {provider === 'jumio' && <JumioLogo boxSize="80%" />}
-        {provider === 'netki' && <NetkiLogo boxSize="80%" />}
-        {provider === 'mock' && <MockCddLogo boxSize="100%" /> }
-      </Flex>
+    <Flex
+      alignItems="center"
+      justifyContent="center"
+      _hover={{ cursor: 'pointer', borderColor: 'navy' }}
+      border="2px solid"
+      borderColor={isSelected ? 'fucsia.700' : borderColor}
+      boxSizing="border-box"
+      onClick={onClick}
+      h={{ base: '120px', md: '150px', lg: 'unset' }}
+      w={{ base: '100%', md: '200px', lg: '250px' }}
+      style={{ aspectRatio: isLargerThan320 ? '1' : 'unset' }}
+      p="1.5rem"
+      borderRadius="0.75rem"
+    >
+      {provider === 'jumio' && <JumioLogo boxSize="80%" />}
+      {provider === 'netki' && <NetkiLogo boxSize="80%" />}
+      {provider === 'finclusive' && <FinclusiveLogo boxSize="80%" />}
+      {provider === 'mock' && <MockCddLogo boxSize="100%" />}
+    </Flex>
   );
 };
 

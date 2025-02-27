@@ -1,11 +1,11 @@
 import {
+  CodeCountResponse,
   JobQueueStatsResponse,
-  NetkiCodeCountResponse,
 } from '@cdd-onboarding/cdd-types';
 import { Controller, Get, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { MetricsService } from './metrics.service';
 import { IpFilterGuard } from '../common/ip-filter.guard';
+import { MetricsService } from './metrics.service';
 
 @Controller('metrics')
 @ApiTags('metrics')
@@ -16,11 +16,21 @@ export class MetricsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'available netki codes',
-    type: NetkiCodeCountResponse,
+    type: CodeCountResponse,
   })
   @Get('/netki-codes')
-  public async getNetkiCodeCount(): Promise<NetkiCodeCountResponse> {
+  public async getNetkiCodeCount(): Promise<CodeCountResponse> {
     return this.metricsService.getNetkiAvailableCodeCount();
+  }
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'available finclusive codes',
+    type: CodeCountResponse,
+  })
+  @Get('/finclusive-codes')
+  public async getFinclusiveCodeCount(): Promise<CodeCountResponse> {
+    return this.metricsService.getFinclusiveAvailableCodeCount();
   }
 
   @ApiResponse({

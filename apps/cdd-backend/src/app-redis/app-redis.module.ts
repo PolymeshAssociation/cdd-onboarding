@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { redisEnvConfig } from '../config/redis';
 import { AppRedisService } from './app-redis.service';
+import { AppRedisFinclusiveService } from './app-redis-finclusive.service';
 
 @Module({
   imports: [ConfigModule.forFeature(() => redisEnvConfig())],
@@ -15,7 +16,8 @@ import { AppRedisService } from './app-redis.service';
       },
     },
     AppRedisService,
+    AppRedisFinclusiveService,
   ],
-  exports: [AppRedisService],
+  exports: [AppRedisService, AppRedisFinclusiveService],
 })
 export class AppRedisModule {}
