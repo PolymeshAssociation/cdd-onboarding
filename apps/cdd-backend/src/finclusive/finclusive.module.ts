@@ -3,15 +3,12 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppBullModule } from '../app-bull/app-bull.module';
-import { AppRedisModule } from '../app-redis/app-redis.module';
-import { API_KEY_GUARD_CREDENTIALS_PROVIDER } from '../common/api-key.guard';
-import { BASIC_AUTH_CREDENTIALS_PROVIDER } from '../common/basic-auth.guard';
+import { ALLOWED_IPS_PROVIDER } from '../common/ip-filter.guard';
 import { FinclusiveController } from './finclusive.controller';
 import { FinclusiveService } from './finclusive.service';
 
 @Module({
   imports: [
-    AppRedisModule,
     HttpModule,
     ConfigModule,
     AppBullModule,
@@ -20,15 +17,9 @@ import { FinclusiveService } from './finclusive.service';
   providers: [
     FinclusiveService,
     {
-      provide: BASIC_AUTH_CREDENTIALS_PROVIDER,
+      provide: ALLOWED_IPS_PROVIDER,
       useFactory: (config: ConfigService) =>
-        config.getOrThrow<string[]>('netki.allowedBasicAuth'),
-      inject: [ConfigService],
-    },
-    {
-      provide: API_KEY_GUARD_CREDENTIALS_PROVIDER,
-      useFactory: (config: ConfigService) =>
-        config.getOrThrow<string[]>('netki.allowedApiKeys'),
+        config.getOrThrow<string[]>('finclusive.allowedIps'),
       inject: [ConfigService],
     },
   ],

@@ -93,9 +93,7 @@ export class CddService {
       url = accessCode.url;
       externalId = accessCode.id;
     } else if (provider === 'finclusive') {
-      const accessCode = await this.finclusiveService.allocateLinkForAddress(
-        address
-      );
+      const accessCode = await this.finclusiveService.generateLink();
 
       url = accessCode.url;
       externalId = accessCode.value;

@@ -1,7 +1,3 @@
-import {
-  BusinessLinkDto,
-  HealthCheckResponse,
-} from '@cdd-onboarding/cdd-types';
 import { HttpService } from '@nestjs/axios';
 import { InjectQueue } from '@nestjs/bull';
 import {
@@ -12,20 +8,16 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bull';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import crypto from 'node:crypto';
 import { catchError, firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
-import { AppRedisFinclusiveService } from '../app-redis/app-redis-finclusive.service';
-import { FinclusiveBusinessApplicationModel } from '../app-redis/models/finclusive-business-application.model';
-import {
-  FinclusiveAccessCodeModel,
-  FinclusiveAccessCodeTypeEnum,
-} from './../app-redis/models/finclusive-access-code.model';
+import { CddJob, ProviderEnum } from '../cdd-worker/types';
+import { bullJobOptions } from '../config/consts';
 import {
   FinclusiveAccessCode,
-  FinclusiveEntityInfo,
-  FinclusiveEntityInfoPageResponse,
-  FinclusiveFetchCodesResponse,
+  FinclusiveAccessCodeTypeEnum,
+  FinclusiveCallbackDto,
+  FinclusiveClientDetails,
+  FinclusiveCustomAttribute,
 } from './types';
 
 @Injectable()
@@ -43,7 +35,6 @@ export class FinclusiveService {
   private accessToken = '';
 
   constructor(
-    private readonly redis: AppRedisFinclusiveService,
     private readonly http: HttpService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectQueue('') private readonly queue: Queue,
@@ -62,49 +53,26 @@ export class FinclusiveService {
     this.subscriptionKey = config.getOrThrow('finclusive.subscriptionKey');
   }
 
-  public async allocateLinkForAddress(
-    address: string
-  ): Promise<FinclusiveAccessCodeModel & { url: string }> {
-    const accessCode = await this.redis.popAccessCode();
-
-    if (!accessCode) {
-      throw new InternalServerErrorException('Finclusive codes exhausted');
+  private getWebformUrl(accessCode: FinclusiveAccessCode): string {
+    let formPath = '';
+    if (accessCode.type === FinclusiveAccessCodeTypeEnum.INDIVIDUAL) {
+      formPath = '/individual.html';
+    } else if (accessCode.type === FinclusiveAccessCodeTypeEnum.ENTITY) {
+      formPath = '/entity.html';
     }
 
-    // based on type of the access code, we can add entity.html or individual.html to the url. Where type is both, no need to add anything
-    const url = `${this.webformUrl}?accessCode=${accessCode.value}`;
+    return `${this.webformUrl}${formPath}?accessCode=${accessCode.value}`;
+  }
 
-    await this.redis.setCodeToAddress(accessCode.value, address);
+  public async generateLink(
+    type?: FinclusiveAccessCodeTypeEnum
+  ): Promise<FinclusiveAccessCode & { url: string }> {
+    const accessCode = await this.createAccessCode(type);
 
     return {
       ...accessCode,
-      url,
+      url: this.getWebformUrl(accessCode),
     };
-  }
-
-  public async allocateLinkForBusiness(
-    data: BusinessLinkDto
-  ): Promise<FinclusiveBusinessApplicationModel> {
-    const id = crypto.randomUUID();
-    const accessCode = await this.redis.popAccessCode();
-
-    if (!accessCode) {
-      throw new InternalServerErrorException('Finclusive codes exhausted');
-    }
-
-    const link = `${this.webformUrl}?access_code=${accessCode.value}`;
-
-    const finclusiveApplication: FinclusiveBusinessApplicationModel = {
-      id,
-      link,
-      address: data.address,
-      accessCode: accessCode.value,
-      timestamp: new Date().toISOString(),
-    };
-
-    await this.redis.setCodeToBusiness(accessCode.value, finclusiveApplication);
-
-    return finclusiveApplication;
   }
 
   public async healthCheck(): Promise<string> {
@@ -124,77 +92,62 @@ export class FinclusiveService {
     return healthCheckResponse.data;
   }
 
-  // TODO update according to finclusive api
-  public async getBusinessInfo(): Promise<FinclusiveEntityInfo> {
+  private async getClientDetails(
+    clientId: string
+  ): Promise<FinclusiveClientDetails> {
     await this.fetchAccessToken();
 
-    const url = this.pathToUrl(`customer/${this.customerId}/client/all`);
+    const url = this.pathToUrl(
+      `customer/${this.customerId}/client/${clientId}`
+    );
+
     const headers = this.headers;
-
-    const businessInfoPage = await firstValueFrom(
-      this.http.get<FinclusiveEntityInfoPageResponse>(url, { headers })
-    );
-
-    if (businessInfoPage.data.results.length === 0) {
-      throw new Error('no business info was present');
-    }
-
-    return businessInfoPage.data.results[0];
-  }
-
-  public async fetchAccessCodes(): Promise<FinclusiveFetchCodesResponse> {
-    const url: string = this.pathToUrl(
-      '/customer/WebformAccessCodeManagement/all'
-    );
-
-    const allocatedCodes = await this.redis.getAllocatedCodes();
-
-    let added = 0;
-    await this.fetchAccessToken();
-
-    const { headers } = this;
 
     const codeResponse = await firstValueFrom(
       this.http
-        .get<FinclusiveAccessCode[]>(url, { headers })
+        .get<FinclusiveClientDetails>(url, { headers })
         .pipe(catchError((error) => this.logError(error)))
     );
 
     if (!codeResponse?.data) {
-      this.logError(new Error('no results were present in fetch response'));
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Failed to create access code');
     }
 
-    const newLinks = codeResponse?.data
-      .filter(
-        // filter any code that has been allocated
-        // TODO: add more filtering checks
-        ({ value }) => !allocatedCodes.has(value)
-      )
-      .map(
-        ({
-          value,
-          expiresAt,
-          isMultipleUse,
-          timesUsed,
-          type,
-        }: FinclusiveAccessCode) => ({
-          value,
-          expiresAt: new Date(expiresAt),
-          isMultipleUse,
-          timesUsed,
-          type: type as FinclusiveAccessCodeTypeEnum,
-        })
-      );
+    return codeResponse.data;
+  }
 
-    if (newLinks.length) {
-      const codesAdded = await this.redis.pushCodes(newLinks);
-      added += codesAdded;
+  private async createAccessCode(
+    type: FinclusiveAccessCodeTypeEnum = FinclusiveAccessCodeTypeEnum.INDIVIDUAL
+  ): Promise<FinclusiveAccessCode> {
+    await this.fetchAccessToken();
+
+    const url = this.pathToUrl(
+      `customer/WebformAccessCodeManagement/accesscode`
+    );
+
+    const headers = this.headers;
+
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    const body = {
+      description: '',
+      isMultipleUse: true,
+      type,
+      expiresAt: expiresAt.toISOString(),
+    };
+
+    const codeResponse = await firstValueFrom(
+      this.http
+        .post<FinclusiveAccessCode>(url, body, { headers })
+        .pipe(catchError((error) => this.logError(error)))
+    );
+
+    if (!codeResponse?.data) {
+      throw new InternalServerErrorException('Failed to create access code');
     }
 
-    const total = await this.redis.getAccessCodeCount();
-
-    return { added, total };
+    return codeResponse.data;
   }
 
   private get headers(): Record<string, string> {
@@ -245,25 +198,66 @@ export class FinclusiveService {
     }
   }
 
-  // public async queueCddJob(jobInfo: FinclusiveCallbackDto): Promise<void> {
-  //   const job: CddJob = {
-  //     type: ProviderEnum.FINCLUSIVE,
-  //     value: jobInfo,
-  //   };
+  public async queueCddJob(
+    jobInfo: FinclusiveCallbackDto,
+    notificationType: string
+  ): Promise<void> {
+    const clientDetails = await this.getClientDetails(jobInfo.FinClusiveID);
 
-  //   await this.queue.add(job, bullJobOptions);
-  // }
+    const getAddress = (customAttributes: FinclusiveCustomAttribute[]) => {
+      const address = customAttributes.find(
+        (attribute) => attribute.name === 'Wallet ID'
+      );
 
-  // public async queueBusinessJob(
-  //   jobInfo: FinclusiveBusinessCallbackDto
-  // ): Promise<void> {
-  //   const job: CddJob = {
-  //     type: ProviderEnum.FINCLUSIVE_BUSINESS,
-  //     value: jobInfo,
-  //   };
+      return address?.value;
+    };
+    let type: ProviderEnum;
+    let customAttributes: FinclusiveCustomAttribute[];
+    let name: string;
+    if (clientDetails.individual) {
+      type = ProviderEnum.FINCLUSIVE;
+      customAttributes = clientDetails.individual.customAttributes;
+      name =
+        clientDetails.individual.firstName +
+        ' ' +
+        clientDetails.individual.lastName;
+    } else if (clientDetails.entity) {
+      type = ProviderEnum.FINCLUSIVE_BUSINESS;
+      customAttributes = clientDetails.entity.customAttributes;
+      name = clientDetails.entity.legalName;
+    } else {
+      this.logger.error(
+        'Finclusive client details did not have individual or entity',
+        {
+          jobInfo,
+        }
+      );
 
-  //   await this.queue.add(job, bullJobOptions);
-  // }
+      return;
+    }
+
+    const address = getAddress(customAttributes);
+
+    if (!address) {
+      this.logger.error('Finclusive client details did not have address', {
+        jobInfo,
+      });
+
+      return;
+    }
+
+    const job: CddJob = {
+      type,
+      value: {
+        ...jobInfo,
+        notificationType,
+        address,
+        name,
+      },
+    };
+
+    await this.queue.add(job, bullJobOptions);
+  }
 
   private async logError(error: Error) {
     this.logger.error(error.message, error.stack);

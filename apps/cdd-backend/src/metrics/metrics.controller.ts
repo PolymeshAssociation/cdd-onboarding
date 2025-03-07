@@ -25,16 +25,6 @@ export class MetricsController {
 
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'available finclusive codes',
-    type: CodeCountResponse,
-  })
-  @Get('/finclusive-codes')
-  public async getFinclusiveCodeCount(): Promise<CodeCountResponse> {
-    return this.metricsService.getFinclusiveAvailableCodeCount();
-  }
-
-  @ApiResponse({
-    status: HttpStatus.OK,
     description: 'job queue statistics',
     type: JobQueueStatsResponse,
   })

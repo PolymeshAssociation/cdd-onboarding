@@ -41,7 +41,9 @@ export class AddressBookService {
     }
   }
 
-  public findAddress(signer: 'jumio' | 'netki' | 'mock'): string {
+  public findAddress(
+    signer: 'jumio' | 'netki' | 'mock' | 'finclusive'
+  ): string {
     const signerAddress = this.addressBook[signer];
     if (!signerAddress) {
       throw new Error(`config error: key for '${signer}' was not found`);

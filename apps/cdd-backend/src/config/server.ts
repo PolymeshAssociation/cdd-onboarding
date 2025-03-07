@@ -124,6 +124,7 @@ const configZ = z
           .string()
           .default('140647882')
           .describe('Finclusive customer ID'),
+        allowedIps: allowedIpsZ,
       })
       .describe('Finclusive related config'),
 
@@ -190,6 +191,9 @@ export const serverEnvConfig = (): ServerConfig => {
       customerId: process.env.FINCLUSIVE_CUSTOMER_ID,
       subscriptionKey: process.env.FINCLUSIVE_SUBSCRIPTION_KEY,
       webformUrl: process.env.FINCLUSIVE_WEBFORM_URL,
+      allowedIps: process.env.FINCLUSIVE_ALLOWED_IPS?.split(',').map((ip) =>
+        ip.trim()
+      ),
     },
     hCaptcha: {
       secretKey: process.env.HCAPTCHA_SECRET_KEY,

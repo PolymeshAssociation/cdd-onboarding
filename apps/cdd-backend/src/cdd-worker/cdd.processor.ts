@@ -1,24 +1,25 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Inject } from '@nestjs/common';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { Job } from 'bull';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
+import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
 import { NetkiCallbackDto } from '../netki/types';
 import { AddressBookService } from '../polymesh/address-book.service';
+import { SlackMessageService } from '../slack/slackMessage.service';
 import {
   CddJob,
-  MockCddJob,
+  FinclusiveBusinessCddJob,
+  FinclusiveCddJob,
   JobIdentifier,
   JumioCddJob,
-  NetkiCddJob,
+  MockCddJob,
   NetkiBusinessJob,
-  FinclusiveCddJob,
+  NetkiCddJob,
 } from './types';
-import { Identity } from '@polymeshassociation/polymesh-sdk/types';
-import { NetkiBusinessApplicationModel } from '../app-redis/models/netki-business-application.model';
-import { SlackMessageService } from '../slack/slackMessage.service';
 
 @Processor()
 export class CddProcessor {
@@ -43,10 +44,9 @@ export class CddProcessor {
     } else if (job.data.type === 'netki-kyb') {
       await this.handleNetkiBusiness(job.data);
     } else if (job.data.type === 'finclusive') {
-      console.log('finclusive', job.data);
-      // TODO add processors for finclusive and finclusive-kyb
+      await this.handleFinclusive(job.data);
     } else if (job.data.type === 'finclusive-kyb') {
-      console.log('finclusive-kyb', job.data);
+      await this.handleFinclusiveBusiness(job.data);
     } else {
       throw new Error('unknown CDD job type encountered');
     }
@@ -308,6 +308,97 @@ export class CddProcessor {
     await this.clearAddressApplications(jobId, address);
   }
 
+  private async handleFinclusive({
+    value: finclusive,
+  }: FinclusiveCddJob): Promise<void> {
+    const {
+      FinClusiveID: id,
+      NewStatus: status,
+      PossibleStatuses: possibleStatuses,
+      notificationType,
+      address,
+    } = finclusive;
+
+    const statusName = possibleStatuses
+      .find((s) => s.startsWith(`${status} - `))
+      ?.split(' - ')[1];
+
+    const jobId = { id, provider: 'finclusive' } as const;
+
+    this.logger.info('starting finclusive job', { jobId, notificationType });
+
+    if (notificationType === 'ClientComplianceStatusChange' && status === 2) {
+      this.logger.debug(
+        'handling finclusive client compliance status change to accepted',
+        { jobId }
+      );
+      await this.createCddClaim(jobId, address, 'finclusive');
+
+      await this.clearAddressApplications(jobId, address);
+    } else {
+      this.logger.debug(
+        `No handler for finclusive client compliance status - ${statusName}. Sending slack notification`,
+        { jobId }
+      );
+    }
+
+    this.logger.info('finclusive CDD job completed successfully', {
+      jobId: jobId,
+    });
+  }
+
+  private async handleFinclusiveBusiness({
+    value: finclusive,
+  }: FinclusiveBusinessCddJob): Promise<void> {
+    const {
+      FinClusiveID: id, // The client ID generated/updated by Finclusive
+      // ApplicantID: address,
+      NewStatus: status,
+      PossibleStatuses: possibleStatuses,
+      notificationType,
+      address,
+      name,
+    } = finclusive;
+
+    const jobId = { id, provider: 'finclusive' } as const;
+
+    const statusName = possibleStatuses
+      .find((s) => s.startsWith(`${status} - `))
+      ?.split(' - ')[1];
+
+    this.logger.info('starting finclusive business job', {
+      jobId,
+      notificationType,
+    });
+
+    if (notificationType === 'ClientComplianceStatusChange') {
+      if (status === 2) {
+        this.logger.debug(
+          `handling finclusive business client compliance status - ${statusName}`,
+          { jobId }
+        );
+        await this.createCddClaim(jobId, address, 'finclusive');
+        await this.clearAddressApplications(jobId, address);
+      } else {
+        this.logger.debug(
+          `No handler for finclusive business client compliance status - ${statusName}. Sending slack notification`,
+          { jobId }
+        );
+        await this.slackMessageService.sendMessage({
+          header: 'Finclusive business application updates',
+          body: `:warning: Finclusive Business CDD application from *${name}* was *${statusName?.toUpperCase()}*.\n`,
+        });
+      }
+    } else {
+      this.logger.info(
+        `Finclusive business callback with notificationType ${notificationType} does not have a handler. No action will be taken. Finclusive ID: ${id}, new status: ${statusName}`
+      );
+    }
+    this.logger.info('finclusive business CDD job completed successfully', {
+      jobId: jobId,
+    });
+  }
+
   private async clearAddressApplications(
     jobId: JobIdentifier,
     address: string
@@ -327,7 +418,7 @@ export class CddProcessor {
   private async createCddClaim(
     jobId: JobIdentifier,
     address: string,
-    signer: 'jumio' | 'netki' | 'mock'
+    signer: 'jumio' | 'netki' | 'mock' | 'finclusive'
   ): Promise<void> {
     this.logger.info('attempting CDD creation', { jobId, address });
 

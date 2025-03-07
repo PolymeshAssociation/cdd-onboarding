@@ -5,25 +5,17 @@ import {
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { AppRedisFinclusiveService } from '../app-redis/app-redis-finclusive.service';
 import { AppRedisService } from '../app-redis/app-redis.service';
 
 @Injectable()
 export class MetricsService {
   constructor(
     private readonly redis: AppRedisService,
-    private readonly redisFinclusive: AppRedisFinclusiveService,
     @InjectQueue('') private readonly queue: Queue
   ) {}
 
   public async getNetkiAvailableCodeCount(): Promise<CodeCountResponse> {
     const count = await this.redis.availableNetkiCodeCount();
-
-    return { count };
-  }
-
-  public async getFinclusiveAvailableCodeCount(): Promise<CodeCountResponse> {
-    const count = await this.redisFinclusive.availableCodeCount();
 
     return { count };
   }

@@ -2,6 +2,7 @@ import { CddProvider } from '@cdd-onboarding/cdd-types';
 import { JumioCallbackDto } from '../jumio/types';
 import { MockCddDto } from '../mock-cdd/types';
 import { NetkiBusinessCallbackDto, NetkiCallbackDto } from '../netki/types';
+import { FinclusiveCallbackDto, FinclusiveCddValue } from '../finclusive/types';
 
 export type CddJob =
   | JumioCddJob
@@ -42,12 +43,12 @@ export interface MockCddJob extends BaseCddJob<ProviderEnum.MOCK> {
 }
 
 export interface FinclusiveCddJob extends BaseCddJob<ProviderEnum.FINCLUSIVE> {
-  value: MockCddDto;
+  value: FinclusiveCddValue;
 }
 
 export interface FinclusiveBusinessCddJob
   extends BaseCddJob<ProviderEnum.FINCLUSIVE_BUSINESS> {
-  value: MockCddDto;
+  value: FinclusiveCddValue;
 }
 
 export interface JobIdentifier {

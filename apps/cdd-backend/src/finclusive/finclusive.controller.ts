@@ -1,31 +1,30 @@
-import { Controller, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { IpFilterGuard } from '../common/ip-filter.guard';
 import { FinclusiveService } from './finclusive.service';
-import { FinclusiveFetchCodesResponse } from './types';
+import { FinclusiveCallbackDto } from './types';
 
 @Controller('finclusive')
 @ApiTags('finclusive')
 export class FinclusiveController {
   constructor(private readonly service: FinclusiveService) {}
 
-  @Post('/fetch-access-codes')
+  @Post('/callback')
+  @UseGuards(IpFilterGuard)
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'access code fetched and total count',
   })
-  public async fetchAccessCodes(): Promise<FinclusiveFetchCodesResponse> {
-    return this.service.fetchAccessCodes();
+  public async callback(
+    @Body() data: FinclusiveCallbackDto,
+    @Headers('X-Finclusive-Notificationtype') type: string
+  ) {
+    await this.service.queueCddJob(data, type);
   }
-
-  // @Post('/callback')
-  // @ApiBody({
-  //   type: FinclusiveCallbackDto,
-  // })
-  // @UseGuards(BasicAuthGuard)
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  // })
-  // public async callback(@Body() data: FinclusiveCallbackDto) {
-  //   // await this.service.queueCddJob(data);
-  // }
 }

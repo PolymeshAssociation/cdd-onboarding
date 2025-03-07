@@ -20,7 +20,6 @@ const FirstStep: React.FC = () => {
   const { onNext } = useContext(StepFormContext);
 
   const onSubmit = (data: unknown) => {
-    console.log(data);
     onNext();
   };
 
@@ -40,7 +39,11 @@ export const StepForm: React.FC = () => {
   return (
     <PolymeshTheme>
       <StepFormComponent title="Onboarding">
-        <StepFormStep title="First Step" nextStepLabel="Get Started" showFormNavigation>
+        <StepFormStep
+          title="First Step"
+          nextStepLabel="Get Started"
+          showFormNavigation
+        >
           <FirstStep />
         </StepFormStep>
         <StepFormStep title="Second Step">test</StepFormStep>

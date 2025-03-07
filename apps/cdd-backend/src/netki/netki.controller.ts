@@ -2,8 +2,7 @@ import {
   BusinessLinkDto,
   BusinessLinkResponse,
 } from '@cdd-onboarding/cdd-types';
-import { HttpStatus, UseGuards } from '@nestjs/common';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiKeyGuard } from '../common/api-key.guard';
 import { BasicAuthGuard } from '../common/basic-auth.guard';

@@ -72,7 +72,7 @@ Run `nx graph` to see a diagram of the dependencies of the projects.
 
 ## General Flow
 
-Users can choose one of 2 providers: Jumio and Netki and provide an address to onboard as their primary key.
+Users can choose one of 3 providers: Jumio, Netki and Finclusive and provide an address to onboard as their primary key.
 
 ### Jumio
 
@@ -82,7 +82,7 @@ The user will be redirected to our frontend page, and the link will contain thei
 
 ### Netki
 
-If the user selects Netki an access code will be associated to their provided address. This access code is templated into a URL to direct the user to verify their identity via mobile device. When the documents are verified Netki will dispatch a callback to our server, which will use the included access code
+If the user selects Netki, an access code will be associated to their provided address. This access code is templated into a URL to direct the user to verify their identity via mobile device. When the documents are verified Netki will dispatch a callback to our server, which will use the included access code
 
 Netki does not allow a client ID to be specified so an access code to address lookup must be maintained. If the user restarts the flow they will be issued a new access code and our server will receive a callback to update the lookup.
 
@@ -95,3 +95,19 @@ Netki also offers support for KYB. For this flow an access code is allocated man
 When the individual verifies their identity a callback will be issued containing the access code an business id. Our worker will create an association from this business ID to the address if it was provided in the access code generation.
 
 When the business is verified Netki will issue another webhook where the business ID to address lookup will be used to create the CDD claim.
+
+### Finclusive
+
+If the user selects Finclusive, a link to Finclusive web-form is generated with a unique access code which expires in an hour.
+
+The form requires the user to fill in their personal information along with government identification documents and a selfie. Once the application is submitted, a unique FinClusiveID is generated for that wallet ID.
+
+When the documents are verified, Finclusive will dispatch a callback to our server with their compliance status against their FinclusiveID. When the status is accepted, our worker will create a CDD claim for the address associated with the FinclusiveID.
+
+Note, if the user fails to submit the application within the hour, the access code will expire and the user will need to start the flow again.
+
+#### Business
+
+Finclusive also offers support for KYB. The process is similar to the KYC flow, with the change that entity web-form is used to collect the business information instead of the individual web-form. The business submitter will need to verify their identity personally in addition to uploading business documents.
+
+When the business is verified, Finclusive will dispatch a callback to our server with their compliance status against the entity's FinclusiveID. When the status is accepted, our worker will create a CDD claim for the address associated with the FinclusiveID.
