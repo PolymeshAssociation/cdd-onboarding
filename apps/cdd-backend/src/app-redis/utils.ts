@@ -11,20 +11,3 @@ export const netkiBusinessAppPrefixer = (id: string) =>
 
 export const netkiBusinessToAddressPrefixer = (address: string) =>
   `${netkiBusinessToAddressPrefix}${address}`;
-
-export const finclusiveAvailableCodesPrefix = 'finclusive-codes' as const;
-
-export const finclusiveAllocatedCodePrefix =
-  'finclusive-individual-codes:' as const;
-export const finclusiveBusinessAppPrefix = 'finclusive-entity-codes:' as const;
-export const finclusiveBusinessToAddressPrefix =
-  'finclusive-business-address:' as const;
-
-export const finclusiveAddressPrefixer = (id: string) =>
-  `${finclusiveAllocatedCodePrefix}${id}`;
-
-export const finclusiveBusinessAppPrefixer = (id: string) =>
-  `${finclusiveBusinessAppPrefix}${id}`;
-
-export const finclusiveBusinessToAddressPrefixer = (address: string) =>
-  `${netkiBusinessToAddressPrefix}${address}`;

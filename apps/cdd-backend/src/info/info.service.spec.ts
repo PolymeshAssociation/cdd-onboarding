@@ -3,6 +3,7 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { AppRedisService } from '../app-redis/app-redis.service';
+import { FinclusiveService } from '../finclusive/finclusive.service';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
@@ -32,6 +33,7 @@ describe('InfoService', () => {
   let mockPolymesh: MockPolymesh;
   let mockJumio: DeepMocked<JumioService>;
   let mockNetki: DeepMocked<NetkiService>;
+  let mockFinclusive: DeepMocked<FinclusiveService>;
   let mockRedis: DeepMocked<AppRedisService>;
   let mockMailchimpService: DeepMocked<MailchimpService>;
 
@@ -42,6 +44,10 @@ describe('InfoService', () => {
         { provide: Polymesh, useValue: new MockPolymesh() },
         { provide: NetkiService, useValue: createMock<NetkiService>() },
         { provide: JumioService, useValue: createMock<JumioService>() },
+        {
+          provide: FinclusiveService,
+          useValue: createMock<FinclusiveService>(),
+        },
         { provide: AppRedisService, useValue: createMock<AppRedisService>() },
         { provide: MailchimpService, useValue: createMock<MailchimpService>() },
       ],
@@ -52,6 +58,7 @@ describe('InfoService', () => {
     mockJumio = module.get<typeof mockJumio>(JumioService);
     mockNetki = module.get<typeof mockNetki>(NetkiService);
     mockRedis = module.get<typeof mockRedis>(AppRedisService);
+    mockFinclusive = module.get<typeof mockFinclusive>(FinclusiveService);
     mockMailchimpService =
       module.get<typeof mockMailchimpService>(MailchimpService);
   });
@@ -68,6 +75,9 @@ describe('InfoService', () => {
         jest.spyOn(service, 'redisInfo').mockResolvedValue(healthyResponse),
         jest.spyOn(service, 'netkiInfo').mockResolvedValue(healthyResponse),
         jest.spyOn(service, 'mailchimpInfo').mockResolvedValue(healthyResponse),
+        jest
+          .spyOn(service, 'finclusiveInfo')
+          .mockResolvedValue(healthyResponse),
       ];
 
       const result = await service.all();
@@ -143,6 +153,24 @@ describe('InfoService', () => {
       mockJumio.generateLink.mockRejectedValue(new Error('some error'));
 
       const response = await service.jumioInfo();
+
+      expect(response).toEqual(new HealthCheckResponse(false));
+    });
+  });
+
+  describe('method: finclusiveInfo', () => {
+    it('should return healthy if finclusive service is ok', async () => {
+      mockFinclusive.healthCheck.mockResolvedValue('mockResponse');
+
+      const response = await service.finclusiveInfo();
+
+      expect(response).toEqual(new HealthCheckResponse(true));
+    });
+
+    it('should return unhealthy if finclusive service is not ok', async () => {
+      mockFinclusive.healthCheck.mockRejectedValue(new Error('some error'));
+
+      const response = await service.finclusiveInfo();
 
       expect(response).toEqual(new HealthCheckResponse(false));
     });

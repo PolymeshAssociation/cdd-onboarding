@@ -15,6 +15,8 @@ import { EmailDetailsDto } from '@cdd-onboarding/cdd-types';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { ConfigService } from '@nestjs/config';
+import { FinclusiveService } from '../finclusive/finclusive.service';
+import okAccessCodeResponse from '../test-utils/finclusive-http/ok-access-code-response.json';
 
 describe('CddService', () => {
   const address = 'some-address';
@@ -22,6 +24,7 @@ describe('CddService', () => {
   let mockRedis: DeepMocked<AppRedisService>;
   let mockJumioService: DeepMocked<JumioService>;
   let mockMailchimpService: DeepMocked<MailchimpService>;
+  let mockFinclusiveService: DeepMocked<FinclusiveService>;
   let service: CddService;
 
   beforeEach(async () => {
@@ -33,6 +36,10 @@ describe('CddService', () => {
         { provide: AppRedisService, useValue: createMock<AppRedisService>() },
         { provide: JumioService, useValue: createMock<JumioService>() },
         { provide: NetkiService, useValue: createMock<NetkiService>() },
+        {
+          provide: FinclusiveService,
+          useValue: createMock<FinclusiveService>(),
+        },
         { provide: WINSTON_MODULE_PROVIDER, useValue: createMock<Logger>() },
         { provide: MailchimpService, useValue: createMock<MailchimpService>() },
         { provide: ConfigService, useValue: createMock<ConfigService>() },
@@ -43,6 +50,8 @@ describe('CddService', () => {
     mockRedis = module.get<typeof mockRedis>(AppRedisService);
     mockJumioService = module.get<typeof mockJumioService>(JumioService);
     mockPolymesh = module.get<typeof mockPolymesh>(Polymesh);
+    mockFinclusiveService =
+      module.get<typeof mockFinclusiveService>(FinclusiveService);
     mockMailchimpService =
       module.get<typeof mockMailchimpService>(MailchimpService);
   });
@@ -89,7 +98,7 @@ describe('CddService', () => {
     });
   });
 
-  describe('generateCddLink', () => {
+  describe('getProviderLink', () => {
     describe('when jumio is selected', () => {
       it('should generate a link and save a record of it', async () => {
         mockPolymesh.accountManagement.isValidAddress.mockReturnValue(true);
@@ -108,6 +117,37 @@ describe('CddService', () => {
         const link = await service.getProviderLink({
           address,
           provider: 'jumio',
+          hCaptcha: 'someSecret',
+        });
+
+        expect(link).toEqual(expectedLink);
+
+        expect(mockRedis.setApplication).toHaveBeenCalledWith(
+          address,
+          expect.objectContaining({
+            url: expect.stringContaining(expectedLink),
+          })
+        );
+      });
+    });
+
+    describe('when finclusive is selected', () => {
+      it('should generate a link and save a record of it', async () => {
+        mockPolymesh.accountManagement.isValidAddress.mockReturnValue(true);
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue({
+          getIdentity: jest.fn().mockResolvedValue(null),
+        });
+
+        const expectedLink = `https://webforms.sandbox.finclusive.com/individual.html?accessCode=${okAccessCodeResponse.value}`;
+
+        mockFinclusiveService.generateLink.mockResolvedValue({
+          url: expectedLink,
+          ...okAccessCodeResponse,
+        });
+
+        const link = await service.getProviderLink({
+          address,
+          provider: 'finclusive',
           hCaptcha: 'someSecret',
         });
 

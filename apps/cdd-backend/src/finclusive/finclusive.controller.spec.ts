@@ -1,31 +1,29 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+import { FinclusiveController } from './finclusive.controller';
+
+import { FinclusiveCallbackDto } from './types';
+
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { API_KEY_GUARD_CREDENTIALS_PROVIDER } from '../common/api-key.guard';
-import { BASIC_AUTH_CREDENTIALS_PROVIDER } from '../common/basic-auth.guard';
-import { NetkiController } from './finclusive.controller';
-import { NetkiService } from './finclusive.service';
-import { NetkiBusinessCallbackDto, NetkiCallbackDto } from './types';
+import { ALLOWED_IPS_PROVIDER } from '../common/ip-filter.guard';
+import mockRequest from '../test-utils/finclusive-http/webhook-cdd-status.json';
+import { FinclusiveService } from './finclusive.service';
 
-describe('NetkiController', () => {
-  let controller: NetkiController;
-  let mockService: DeepMocked<NetkiService>;
+describe('FinclusiveController', () => {
+  let controller: FinclusiveController;
+  let mockService: DeepMocked<FinclusiveService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [NetkiController],
+      controllers: [FinclusiveController],
       providers: [
         {
-          provide: NetkiService,
-          useValue: createMock<NetkiService>(),
+          provide: FinclusiveService,
+          useValue: createMock<FinclusiveService>(),
         },
         {
-          provide: BASIC_AUTH_CREDENTIALS_PROVIDER,
-          useValue: [],
-        },
-        {
-          provide: API_KEY_GUARD_CREDENTIALS_PROVIDER,
+          provide: ALLOWED_IPS_PROVIDER,
           useValue: [],
         },
         {
@@ -35,48 +33,27 @@ describe('NetkiController', () => {
       ],
     }).compile();
 
-    controller = module.get<NetkiController>(NetkiController);
-    mockService = module.get<typeof mockService>(NetkiService);
+    controller = module.get<FinclusiveController>(FinclusiveController);
+    mockService = module.get<typeof mockService>(FinclusiveService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('fetchAccessCodes', () => {
+  describe('processCddApplication', () => {
     it('should call the service', async () => {
-      mockService.fetchAccessCodes.mockResolvedValue({
-        added: 2,
-        total: 3,
-      });
+      mockService.queueApplication.mockResolvedValue(undefined);
 
-      const result = await controller.fetchAccessCodes();
-
-      expect(result).toEqual({ added: 2, total: 3 });
-    });
-  });
-
-  describe('callback', () => {
-    it('should call the service', async () => {
-      const fakeData = 'test-data';
-      mockService.queueCddJob.mockResolvedValue(undefined);
-
-      await controller.callback(fakeData as unknown as NetkiCallbackDto);
-
-      expect(mockService.queueCddJob).toHaveBeenCalledWith(fakeData);
-    });
-  });
-
-  describe('business callback', () => {
-    it('should call the service', async () => {
-      const fakeData = 'test-data';
-      mockService.queueBusinessJob.mockResolvedValue(undefined);
-
-      await controller.businessCallback(
-        fakeData as unknown as NetkiBusinessCallbackDto
+      await controller.processCddApplication(
+        mockRequest as FinclusiveCallbackDto,
+        'ClientComplianceStatusChange'
       );
 
-      expect(mockService.queueBusinessJob).toHaveBeenCalledWith(fakeData);
+      expect(mockService.queueApplication).toHaveBeenCalledWith(
+        mockRequest,
+        'ClientComplianceStatusChange'
+      );
     });
   });
 });

@@ -2,25 +2,30 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Job } from 'bull';
+import { JumioCallbackDto } from '../jumio/types';
 import { MockPolymesh } from '../test-utils/mocks';
 import { CddProcessor } from './cdd.processor';
 import {
+  FinclusiveCddJob,
   JumioCddJob,
   MockCddJob,
   NetkiBusinessJob,
   NetkiCddJob,
+  ProviderEnum,
 } from './types';
-import { JumioCallbackDto } from '../jumio/types';
 
+import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
+import { AppRedisService } from '../app-redis/app-redis.service';
+import { FinclusiveCddValue } from '../finclusive/types';
+import { NetkiAccessCode } from '../netki/types';
+import { AddressBookService } from '../polymesh/address-book.service';
+import { SlackMessageService } from '../slack/slackMessage.service';
+import webhookCddStatus from '../test-utils/finclusive-http/webhook-cdd-status.json';
+import webhookToIgnore from '../test-utils/finclusive-http/webhook-to-ignore.json';
 import jumioVerifiedData from '../test-utils/jumio-http/webhook-approved-verified.json';
 import jumioCannotReadData from '../test-utils/jumio-http/webhook-cannot-read.json';
-import { NetkiAccessCode } from '../netki/types';
-import { Logger } from 'winston';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { AppRedisService } from '../app-redis/app-redis.service';
-import { AddressBookService } from '../polymesh/address-book.service';
-import { Account, Identity } from '@polymeshassociation/polymesh-sdk/types';
-import { SlackMessageService } from '../slack/slackMessage.service';
 
 describe('cddProcessor', () => {
   let mockRedis: DeepMocked<AppRedisService>;
@@ -60,7 +65,7 @@ describe('cddProcessor', () => {
       run: mockRun,
     });
     mockAddressBook.findAddress.mockImplementation(
-      (signer: 'jumio' | 'netki' | 'mock') => {
+      (signer: 'jumio' | 'netki' | 'mock' | 'finclusive') => {
         if (signer === 'jumio') {
           return 'jumioSignerAddress';
         }
@@ -69,6 +74,9 @@ describe('cddProcessor', () => {
         }
         if (signer === 'mock') {
           return 'mockSignerAddress';
+        }
+        if (signer === 'finclusive') {
+          return 'finclusiveSignerAddress';
         }
 
         throw new Error('mock signer not found');
@@ -87,7 +95,7 @@ describe('cddProcessor', () => {
         mockJumioJob = {
           ...createMock<Job>(),
           data: {
-            type: 'jumio',
+            type: ProviderEnum.JUMIO,
             value: jumioVerifiedData as JumioCallbackDto,
           },
         };
@@ -148,6 +156,94 @@ describe('cddProcessor', () => {
       });
     });
 
+    describe('with finclusive job', () => {
+      let mockFinclusiveJob: Job<FinclusiveCddJob>;
+      beforeEach(() => {
+        mockFinclusiveJob = {
+          ...createMock<Job>(),
+          data: {
+            type: ProviderEnum.FINCLUSIVE,
+            value: {
+              ...webhookCddStatus,
+              address,
+              notificationType: 'ClientComplianceStatusChange',
+              name: 'John Doe',
+            },
+          },
+        };
+      });
+
+      it('should create CDD claim and clear previous link attempts', async () => {
+        await processor.generateCdd(mockFinclusiveJob);
+
+        expect(mockPolymesh.identities.registerIdentity).toHaveBeenCalledWith(
+          {
+            targetAccount: address,
+            createCdd: true,
+          },
+          { signingAccount: 'finclusiveSignerAddress' }
+        );
+        expect(mockRun).toHaveBeenCalled();
+        expect(mockRedis.clearApplications).toHaveBeenCalledWith(address);
+      });
+
+      it('should log and throw errors', async () => {
+        const testError = new Error('test error');
+        mockRun.mockRejectedValue(testError);
+        const mockAccount = createMock<Account>();
+        mockAccount.getIdentity.mockResolvedValue(null);
+
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue(
+          mockAccount
+        );
+
+        await expect(processor.generateCdd(mockFinclusiveJob)).rejects.toThrow(
+          testError
+        );
+      });
+
+      it('on run error it should check if a CDD claim exists and mark job as complete', async () => {
+        const testError = new Error('test error');
+        mockRun.mockRejectedValue(testError);
+
+        const mockAccount = createMock<Account>();
+        const mockIdentity = createMock<Identity>();
+        mockAccount.getIdentity.mockResolvedValue(mockIdentity);
+
+        mockPolymesh.accountManagement.getAccount.mockResolvedValue(
+          mockAccount
+        );
+
+        await expect(
+          processor.generateCdd(mockFinclusiveJob)
+        ).resolves.not.toThrow();
+      });
+
+      it('should perform no operation if status is not accepted', async () => {
+        mockFinclusiveJob.data.value = {
+          ...webhookToIgnore,
+          address,
+          notificationType: 'ClientComplianceStatusChange',
+          name: 'John Doe',
+        } as FinclusiveCddValue;
+
+        await processor.generateCdd(mockFinclusiveJob);
+
+        expect(mockRun).not.toHaveBeenCalled();
+
+        mockFinclusiveJob.data.value = {
+          ...webhookCddStatus,
+          address,
+          notificationType: 'CddInternalStatusChange',
+          name: 'John Doe',
+        } as FinclusiveCddValue;
+
+        await processor.generateCdd(mockFinclusiveJob);
+
+        expect(mockRun).not.toHaveBeenCalled();
+      });
+    });
+
     describe('with netki job', () => {
       describe('completed job', () => {
         let mockNetkiCompletedJob: Job<NetkiCddJob>;
@@ -156,7 +252,7 @@ describe('cddProcessor', () => {
           mockNetkiCompletedJob = {
             ...createMock<Job>(),
             data: {
-              type: 'netki',
+              type: ProviderEnum.NETKI,
               value: {
                 identity: {
                   state: 'completed',
@@ -262,7 +358,7 @@ describe('cddProcessor', () => {
           mockNetkiCompletedJob = {
             ...createMock<Job>(),
             data: {
-              type: 'netki-kyb',
+              type: ProviderEnum.NETKI_BUSINESS,
               value: {
                 business: {
                   parent_business: 'someBusinessId',
@@ -338,7 +434,7 @@ describe('cddProcessor', () => {
           mockNetkiRestartJob = {
             ...createMock<Job>(),
             data: {
-              type: 'netki',
+              type: ProviderEnum.NETKI,
               value: {
                 identity: {
                   state: 'restarted',
@@ -380,7 +476,7 @@ describe('cddProcessor', () => {
         mockCddJob = {
           ...createMock<Job>(),
           data: {
-            type: 'mock',
+            type: ProviderEnum.MOCK,
             value: {
               address,
               id: 'abc',

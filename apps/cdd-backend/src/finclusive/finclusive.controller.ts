@@ -21,10 +21,10 @@ export class FinclusiveController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  public async callback(
+  public async processCddApplication(
     @Body() data: FinclusiveCallbackDto,
     @Headers('X-Finclusive-Notificationtype') type: string
   ) {
-    await this.service.queueCddJob(data, type);
+    await this.service.queueApplication(data, type);
   }
 }

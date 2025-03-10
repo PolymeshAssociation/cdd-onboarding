@@ -1,8 +1,8 @@
 import { CddProvider } from '@cdd-onboarding/cdd-types';
+import { FinclusiveCddValue } from '../finclusive/types';
 import { JumioCallbackDto } from '../jumio/types';
 import { MockCddDto } from '../mock-cdd/types';
 import { NetkiBusinessCallbackDto, NetkiCallbackDto } from '../netki/types';
-import { FinclusiveCallbackDto, FinclusiveCddValue } from '../finclusive/types';
 
 export type CddJob =
   | JumioCddJob

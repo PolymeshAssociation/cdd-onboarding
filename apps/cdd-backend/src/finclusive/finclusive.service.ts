@@ -15,6 +15,7 @@ import { bullJobOptions } from '../config/consts';
 import {
   FinclusiveAccessCode,
   FinclusiveAccessCodeTypeEnum,
+  FinclusiveAccessToken,
   FinclusiveCallbackDto,
   FinclusiveClientDetails,
   FinclusiveCustomAttribute,
@@ -122,7 +123,7 @@ export class FinclusiveService {
     await this.fetchAccessToken();
 
     const url = this.pathToUrl(
-      `customer/WebformAccessCodeManagement/accesscode`
+      'customer/WebformAccessCodeManagement/accesscode'
     );
 
     const headers = this.headers;
@@ -143,7 +144,7 @@ export class FinclusiveService {
         .pipe(catchError((error) => this.logError(error)))
     );
 
-    if (!codeResponse?.data) {
+    if (codeResponse?.status !== 200) {
       throw new InternalServerErrorException('Failed to create access code');
     }
 
@@ -179,7 +180,7 @@ export class FinclusiveService {
 
     const authResponse = await firstValueFrom(
       this.http
-        .post(url.toString())
+        .post<FinclusiveAccessToken>(url.toString())
         .pipe(catchError((error) => this.logError(error)))
     );
 
@@ -194,11 +195,11 @@ export class FinclusiveService {
       );
       this.logError(error);
 
-      throw error;
+      throw new InternalServerErrorException('Failed to fetch access token');
     }
   }
 
-  public async queueCddJob(
+  public async queueApplication(
     jobInfo: FinclusiveCallbackDto,
     notificationType: string
   ): Promise<void> {
@@ -211,6 +212,7 @@ export class FinclusiveService {
 
       return address?.value;
     };
+
     let type: ProviderEnum;
     let customAttributes: FinclusiveCustomAttribute[];
     let name: string;

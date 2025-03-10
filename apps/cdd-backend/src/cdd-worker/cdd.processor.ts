@@ -351,8 +351,7 @@ export class CddProcessor {
     value: finclusive,
   }: FinclusiveBusinessCddJob): Promise<void> {
     const {
-      FinClusiveID: id, // The client ID generated/updated by Finclusive
-      // ApplicantID: address,
+      FinClusiveID: id,
       NewStatus: status,
       PossibleStatuses: possibleStatuses,
       notificationType,

@@ -17,32 +17,12 @@ export interface FinclusiveAccessCode {
   timesUsed: number;
 }
 
-export interface FinclusiveFetchCodesResponse {
-  added: number;
-  total: number;
+export interface FinclusiveAccessToken {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
 }
-
-type FinclusivePaginatedResponse<T> = {
-  results: T[];
-  currentPage: number;
-  pageCount: number;
-  pageSize: number;
-  rowCount: number;
-  firstRowOnPage: number;
-  lastRowOnPage: number;
-};
-
-export interface FinclusiveEntityInfo {
-  finClusiveId: string;
-  active: boolean;
-  name: string;
-  clientType: number;
-  complianceStatus: number;
-  bankingEligibilityStatus: number;
-}
-
-export type FinclusiveEntityInfoPageResponse =
-  FinclusivePaginatedResponse<FinclusiveEntityInfo>;
 
 const FinclusiveCallbackZ = extendApi(
   z.object({

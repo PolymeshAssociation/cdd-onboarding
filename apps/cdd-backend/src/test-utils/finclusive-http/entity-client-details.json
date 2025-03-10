@@ -1,0 +1,66 @@
+{
+  "individual": null,
+  "entity": {
+    "finClusiveId": "140651388",
+    "entityId": "7eeeaa01-65c4-419e-b211-ebfc0c069c48",
+    "companyAddress": {
+      "address1": "Address Line 1",
+      "address2": "Address Line 2",
+      "city": "City",
+      "state": "State",
+      "postalCode": "123123",
+      "isoCountryCode": "AS",
+      "addressId": "5930bbd8-1073-44a2-bf7f-bf40c1d84b3e"
+    },
+    "incorporationDocument": null,
+    "jurisdictionDocument": null,
+    "documents": [],
+    "taxIdNumber": "",
+    "legalName": "Legal Inc",
+    "phoneNumber": null,
+    "entityBeneficialOwners": [],
+    "individualBeneficialOwners": [],
+    "controlPersons": [
+      {
+        "title": null,
+        "identification": null,
+        "documents": [],
+        "controlPersonId": "7fd201ce-05d3-4421-a57e-0ddcde9b5c8c",
+        "dateOfBirth": null,
+        "emailAddress": null,
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "phoneNumber": null,
+        "phoneNumberType": null,
+        "taxIdNumber": "",
+        "address": {
+          "address1": "Address Line 1",
+          "address2": "Address Line 2",
+          "city": "City",
+          "state": "State",
+          "postalCode": "123123",
+          "isoCountryCode": "AS",
+          "addressId": "5930bbd8-1073-44a2-bf7f-bf40c1d84b3e"
+        },
+        "individualId": "b5af541a-13f2-4ff6-abaa-625e5f9778a4",
+        "bvn": null,
+        "customAttributes": []
+      }
+    ],
+    "memoFields": [],
+    "bvn": null,
+    "customAttributes": [
+      {
+        "name": "Wallet ID",
+        "value": "5CBCmSoCYUa54FXx4sPFFMMHW27WYCf7AHHdWrzJbKX3sg7E",
+        "orderIndex": null
+      }
+    ],
+    "lei": null,
+    "isDonor": false,
+    "legalEntityRegistrationTypeID": null,
+    "legalEntityRegistrationTypeDisplayName": null,
+    "legalEntityRegistrationTypeCode": null,
+    "source": 1
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "individual": {
+    "finClusiveId": "140651058",
+    "individualId": "9f044f3a-bb3c-4561-89d1-05e878fb798a",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "emailAddress": null,
+    "phoneNumber": null,
+    "phoneNumberType": null,
+    "taxIdNumber": "",
+    "address": {
+      "address1": "Address Line 1",
+      "address2": "Address Line 2",
+      "city": "City",
+      "state": "State",
+      "postalCode": "123123",
+      "isoCountryCode": "AS",
+      "addressId": "5930bbd8-1073-44a2-bf7f-bf40c1d84b3e"
+    },
+    "dateOfBirth": null,
+    "document": null,
+    "documents": [],
+    "memoFields": [],
+    "bvn": null,
+    "isCreatedThroughStellarViaSEP12": false,
+    "customAttributes": [
+      {
+        "name": "Wallet ID",
+        "value": "5EjsqfmY4JqMSrt7YQCe3if5DK4FrG98uUwZsaXmNW7aKdNM",
+        "orderIndex": null
+      }
+    ],
+    "individualBeneficiaries": [],
+    "entityBeneficiaries": [],
+    "netKiIdentity": null,
+    "isDonor": false,
+    "source": 1
+  },
+  "entity": null
+}

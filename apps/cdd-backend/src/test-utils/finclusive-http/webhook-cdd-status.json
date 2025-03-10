@@ -1,0 +1,11 @@
+{
+  "ApplicantID": "19b3c9c9-d276-45db-ad86-01446af39ce6",
+  "FinClusiveID": "140651389",
+  "NewStatus": 2,
+  "PossibleStatuses": [
+    "1 - Pending",
+    "2 - Accepted",
+    "3 - Rejected",
+    "4 - InReview"
+  ]
+}
