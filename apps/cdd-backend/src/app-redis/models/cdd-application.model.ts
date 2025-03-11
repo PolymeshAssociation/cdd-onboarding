@@ -1,10 +1,10 @@
-import { CddProvider } from '@cdd-onboarding/cdd-types';
+import { BusinessCddProvider, CddProvider } from '@cdd-onboarding/cdd-types';
 
 export interface CddApplicationModel {
   id: string;
   address: string;
   url: string;
-  provider: CddProvider;
+  provider: CddProvider | BusinessCddProvider;
   timestamp: string;
   externalId: string;
 }

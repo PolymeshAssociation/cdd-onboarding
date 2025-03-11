@@ -21,6 +21,25 @@ export const ProviderLinkZ = extendApi(
 
 export class ProviderLinkDto extends createZodDto(ProviderLinkZ) {}
 
+const BusinessCddProviderZEnum = z.enum(['finclusive-kyb', 'mock']);
+
+export type BusinessCddProvider = z.TypeOf<typeof BusinessCddProviderZEnum>;
+
+export const BusinessProviderLinkZ = extendApi(
+  z.object({
+    address: addressZ,
+    provider: BusinessCddProviderZEnum,
+    hCaptcha,
+  }),
+  {
+    title: 'Generate Onboarding Link',
+  }
+);
+
+export class BusinessProviderLinkDto extends createZodDto(
+  BusinessProviderLinkZ
+) {}
+
 export class ProviderLinkResponse {
   @ApiProperty({
     type: 'string',

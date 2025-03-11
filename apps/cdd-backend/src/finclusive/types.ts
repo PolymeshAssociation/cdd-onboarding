@@ -65,12 +65,19 @@ export interface FinclusiveIndividualClientDetails
   customAttributes: FinclusiveCustomAttribute[];
 }
 
+export interface FinclusiveControlPerson {
+  firstName: string;
+  lastName: string;
+  address: FinclusiveAddress;
+}
+
 export interface FinclusiveEntityClientDetails extends Record<string, unknown> {
   finClusiveId: string;
   entityId: string;
   legalName: string;
   companyAddress: FinclusiveAddress;
   customAttributes: FinclusiveCustomAttribute[];
+  controlPersons: FinclusiveControlPerson[];
 }
 
 export interface FinclusiveClientDetails {

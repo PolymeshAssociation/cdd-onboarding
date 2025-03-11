@@ -48,7 +48,9 @@ export interface FinclusiveCddJob extends BaseCddJob<ProviderEnum.FINCLUSIVE> {
 
 export interface FinclusiveBusinessCddJob
   extends BaseCddJob<ProviderEnum.FINCLUSIVE_BUSINESS> {
-  value: FinclusiveCddValue;
+  value: FinclusiveCddValue & {
+    significantParties: string[];
+  };
 }
 
 export interface JobIdentifier {

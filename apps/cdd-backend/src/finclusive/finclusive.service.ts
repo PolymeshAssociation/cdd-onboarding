@@ -10,7 +10,7 @@ import { Queue } from 'bull';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { catchError, firstValueFrom } from 'rxjs';
 import { Logger } from 'winston';
-import { CddJob, ProviderEnum } from '../cdd-worker/types';
+import { ProviderEnum } from '../cdd-worker/types';
 import { bullJobOptions } from '../config/consts';
 import {
   FinclusiveAccessCode,
@@ -110,8 +110,11 @@ export class FinclusiveService {
         .pipe(catchError((error) => this.logError(error)))
     );
 
-    if (!codeResponse?.data) {
-      throw new InternalServerErrorException('Failed to create access code');
+    console.log(codeResponse);
+    if (codeResponse?.status !== 200 || !codeResponse?.data) {
+      throw new InternalServerErrorException(
+        'Failed to client details for Finclusive Client ID ' + clientId
+      );
     }
 
     return codeResponse.data;
@@ -143,6 +146,8 @@ export class FinclusiveService {
         .post<FinclusiveAccessCode>(url, body, { headers })
         .pipe(catchError((error) => this.logError(error)))
     );
+
+    console.log('codeResponse', codeResponse);
 
     if (codeResponse?.status !== 200) {
       throw new InternalServerErrorException('Failed to create access code');
@@ -216,6 +221,8 @@ export class FinclusiveService {
     let type: ProviderEnum;
     let customAttributes: FinclusiveCustomAttribute[];
     let name: string;
+    let significantParties = undefined;
+
     if (clientDetails.individual) {
       type = ProviderEnum.FINCLUSIVE;
       customAttributes = clientDetails.individual.customAttributes;
@@ -227,6 +234,9 @@ export class FinclusiveService {
       type = ProviderEnum.FINCLUSIVE_BUSINESS;
       customAttributes = clientDetails.entity.customAttributes;
       name = clientDetails.entity.legalName;
+      significantParties = clientDetails.entity.controlPersons.map(
+        ({ firstName, lastName }) => `${firstName} ${lastName}`
+      );
     } else {
       this.logger.error(
         'Finclusive client details did not have individual or entity',
@@ -248,13 +258,14 @@ export class FinclusiveService {
       return;
     }
 
-    const job: CddJob = {
+    const job = {
       type,
       value: {
         ...jobInfo,
         notificationType,
         address,
         name,
+        significantParties,
       },
     };
 

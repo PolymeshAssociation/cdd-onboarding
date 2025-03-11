@@ -347,6 +347,41 @@ export class CddProcessor {
     });
   }
 
+  private async getFinclusiveSlackBody(
+    args: {
+      name: string;
+      statusName: string;
+      address: string;
+      significantParties: string[];
+      finclusiveId: string;
+    },
+    did?: string
+  ): Promise<{ header: string; fields: string[]; sections: string[] }> {
+    const { name, statusName, address, significantParties, finclusiveId } =
+      args;
+
+    const fields = [
+      `:office: *Legal Name*\n ${name}`,
+      `:information_source: *Status* \n ${statusName}`,
+      `:man_in_tuxedo: *Significant Parties* \n ${significantParties.join(
+        ','
+      )}`,
+      `:link: *Finclusive ID* \n ${finclusiveId}`,
+    ];
+
+    const sections = [`:briefcase: *Wallet Address* \n \`${address}\``];
+
+    if (did) {
+      sections.push(`:id: *Identity* \n \`${did}\``);
+    }
+
+    return {
+      header: `Finclusive business application updates`,
+      fields,
+      sections,
+    };
+  }
+
   private async handleFinclusiveBusiness({
     value: finclusive,
   }: FinclusiveBusinessCddJob): Promise<void> {
@@ -357,18 +392,29 @@ export class CddProcessor {
       notificationType,
       address,
       name,
+      significantParties,
     } = finclusive;
 
     const jobId = { id, provider: 'finclusive' } as const;
 
-    const statusName = possibleStatuses
-      .find((s) => s.startsWith(`${status} - `))
-      ?.split(' - ')[1];
+    const statusName =
+      possibleStatuses
+        .find((s) => s.startsWith(`${status} - `))
+        ?.split(' - ')[1] || 'Unknown';
 
     this.logger.info('starting finclusive business job', {
       jobId,
       notificationType,
     });
+
+    const args = {
+      name,
+      statusName,
+      address,
+      significantParties,
+      finclusiveId: id,
+    };
+    let slackBody;
 
     if (notificationType === 'ClientComplianceStatusChange') {
       if (status === 2) {
@@ -376,18 +422,27 @@ export class CddProcessor {
           `handling finclusive business client compliance status - ${statusName}`,
           { jobId }
         );
-        await this.createCddClaim(jobId, address, 'finclusive');
+        const createdIdentity = await this.createCddClaim(
+          jobId,
+          address,
+          'finclusive'
+        );
         await this.clearAddressApplications(jobId, address);
+
+        slackBody = await this.getFinclusiveSlackBody(
+          args,
+          createdIdentity.did
+        );
       } else {
         this.logger.debug(
           `No handler for finclusive business client compliance status - ${statusName}. Sending slack notification`,
           { jobId }
         );
-        await this.slackMessageService.sendMessage({
-          header: 'Finclusive business application updates',
-          body: `:warning: Finclusive Business CDD application from *${name}* was *${statusName?.toUpperCase()}*.\n`,
-        });
+
+        slackBody = await this.getFinclusiveSlackBody(args);
       }
+
+      await this.slackMessageService.sendSectionedMessage(slackBody);
     } else {
       this.logger.info(
         `Finclusive business callback with notificationType ${notificationType} does not have a handler. No action will be taken. Finclusive ID: ${id}, new status: ${statusName}`
@@ -418,7 +473,7 @@ export class CddProcessor {
     jobId: JobIdentifier,
     address: string,
     signer: 'jumio' | 'netki' | 'mock' | 'finclusive'
-  ): Promise<void> {
+  ): Promise<Identity> {
     this.logger.info('attempting CDD creation', { jobId, address });
 
     const signingAccount = this.signerLookup.findAddress(signer);
@@ -453,24 +508,31 @@ export class CddProcessor {
       throw error;
     };
 
-    const registerIdentityTx = await this.polymesh.identities.registerIdentity(
-      {
-        targetAccount: address,
-        createCdd: true,
-      },
-      {
-        signingAccount,
-      }
-    );
+    let createdIdentity: Identity;
 
-    const createdIdentity = await registerIdentityTx
-      .run()
-      .catch(async (error) => existingCddRecovery(error));
+    try {
+      const registerIdentityTx =
+        await this.polymesh.identities.registerIdentity(
+          {
+            targetAccount: address,
+            createCdd: true,
+          },
+          {
+            signingAccount,
+          }
+        );
 
-    this.logger.info('created CDD claim', {
-      jobId,
-      address,
-      did: createdIdentity.did,
-    });
+      createdIdentity = await registerIdentityTx.run();
+
+      this.logger.info('created CDD claim', {
+        jobId,
+        address,
+        did: createdIdentity?.did,
+      });
+    } catch (error: unknown) {
+      createdIdentity = await existingCddRecovery(error as Error);
+    }
+
+    return createdIdentity;
   }
 }

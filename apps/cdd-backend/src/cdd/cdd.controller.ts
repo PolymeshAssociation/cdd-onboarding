@@ -6,6 +6,7 @@ import {
   EmailDetailsDto,
   AddressApplicationsResponse,
   AddressApplicationsParamsDto,
+  BusinessProviderLinkDto,
 } from '@cdd-onboarding/cdd-types';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
@@ -42,6 +43,16 @@ export class CddController {
     @Body() body: ProviderLinkDto
   ): Promise<ProviderLinkResponse> {
     const link = await this.cddService.getProviderLink(body);
+
+    return new ProviderLinkResponse(link);
+  }
+
+  @Post('/business-provider-link')
+  @UseGuards(HCaptchaGuard)
+  async providerLinkForBusiness(
+    @Body() body: BusinessProviderLinkDto
+  ): Promise<ProviderLinkResponse> {
+    const link = await this.cddService.getProviderLinkForBusiness(body);
 
     return new ProviderLinkResponse(link);
   }

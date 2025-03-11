@@ -1,6 +1,7 @@
 import {
   AddressApplicationsResponse,
   ApplicationInfo,
+  BusinessProviderLinkDto,
   EmailDetailsDto,
   ProviderLinkDto,
   VerifyAddressResponse,
@@ -17,10 +18,11 @@ import crypto from 'node:crypto';
 import { Logger } from 'winston';
 import { AppRedisService } from '../app-redis/app-redis.service';
 import { CddApplicationModel } from '../app-redis/models/cdd-application.model';
+import { FinclusiveService } from '../finclusive/finclusive.service';
+import { FinclusiveAccessCodeTypeEnum } from '../finclusive/types';
 import { JumioService } from '../jumio/jumio.service';
 import { MailchimpService } from '../mailchimp/mailchimp.service';
 import { NetkiService } from '../netki/netki.service';
-import { FinclusiveService } from '../finclusive/finclusive.service';
 
 @Injectable()
 export class CddService {
@@ -94,6 +96,48 @@ export class CddService {
       externalId = accessCode.id;
     } else if (provider === 'finclusive') {
       const accessCode = await this.finclusiveService.generateLink();
+
+      url = accessCode.url;
+      externalId = accessCode.value;
+    } else if (provider === 'mock') {
+      url = 'mock-cdd/';
+      externalId = 'n/a';
+    } else {
+      this.logger.error(`unimplemented provider received: ${provider}`);
+      throw new InternalServerErrorException();
+    }
+
+    const application: CddApplicationModel = {
+      id,
+      address,
+      url,
+      externalId,
+      provider,
+      timestamp: new Date().toISOString(),
+    };
+
+    await this.redisService.setApplication(address, application);
+
+    return application.url;
+  }
+
+  public async getProviderLinkForBusiness({
+    address,
+    provider,
+  }: BusinessProviderLinkDto): Promise<string> {
+    const verify = await this.verifyAddress(address);
+    if (!verify.valid) {
+      throw new BadRequestException(
+        `Address: ${address} cannot be onboarded. Perhaps it is already linked to an Identity`
+      );
+    }
+
+    const id = crypto.randomUUID();
+    let url, externalId;
+    if (provider === 'finclusive-kyb') {
+      const accessCode = await this.finclusiveService.generateLink(
+        FinclusiveAccessCodeTypeEnum.ENTITY
+      );
 
       url = accessCode.url;
       externalId = accessCode.value;
