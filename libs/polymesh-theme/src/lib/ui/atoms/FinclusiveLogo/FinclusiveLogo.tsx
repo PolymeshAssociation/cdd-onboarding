@@ -2,7 +2,7 @@ import { createIcon } from '@chakra-ui/react';
 
 export const FinclusiveLogo = createIcon({
   displayName: 'FinclusiveLogo',
-  viewBox: '0 0 169 45',
+  viewBox: '0 0 148 22',
   path: (
     <>
       <path

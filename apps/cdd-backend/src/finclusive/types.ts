@@ -84,3 +84,9 @@ export interface FinclusiveClientDetails {
   individual: FinclusiveIndividualClientDetails | null;
   entity: FinclusiveEntityClientDetails | null;
 }
+
+export const FinclusiveExpiryInHours = {
+  [FinclusiveAccessCodeTypeEnum.INDIVIDUAL]: 1,
+  [FinclusiveAccessCodeTypeEnum.ENTITY]: 24,
+  [FinclusiveAccessCodeTypeEnum.BOTH]: 24,
+} as const;

@@ -19,6 +19,7 @@ import {
   FinclusiveCallbackDto,
   FinclusiveClientDetails,
   FinclusiveCustomAttribute,
+  FinclusiveExpiryInHours,
 } from './types';
 
 @Injectable()
@@ -131,8 +132,10 @@ export class FinclusiveService {
 
     const headers = this.headers;
 
+    const expiryInHours = FinclusiveExpiryInHours[type];
+
     const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 1);
+    expiresAt.setHours(expiresAt.getHours() + expiryInHours);
 
     const body = {
       description: '',
