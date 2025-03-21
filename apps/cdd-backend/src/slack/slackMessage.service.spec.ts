@@ -1,12 +1,12 @@
+import { WebClient } from '@slack/web-api';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Logger } from 'winston';
 import { ConfigService } from '@nestjs/config';
 import { SlackMessageService } from './slackMessage.service';
-import { App as SlackApp } from '@slack/bolt';
 
 describe('SlackMessageService', () => {
   let service: SlackMessageService;
-  let slackApp: DeepMocked<SlackApp>;
+  let slackClient: DeepMocked<WebClient>;
   let configService: DeepMocked<ConfigService>;
   let logger: DeepMocked<Logger>;
 
@@ -15,11 +15,9 @@ describe('SlackMessageService', () => {
   const mockBody = 'Test Body';
 
   beforeEach(() => {
-    slackApp = createMock<SlackApp>({
-      client: {
-        chat: {
-          postMessage: jest.fn(),
-        },
+    slackClient = createMock<WebClient>({
+      chat: {
+        postMessage: jest.fn(),
       },
     });
     configService = createMock<ConfigService>();
@@ -27,14 +25,14 @@ describe('SlackMessageService', () => {
 
     configService.getOrThrow.mockReturnValue(mockChannel);
 
-    service = new SlackMessageService(slackApp, configService, logger);
+    service = new SlackMessageService(slackClient, configService, logger);
   });
 
   describe('sendMessage', () => {
     it('should send a message to Slack', async () => {
       await service.sendMessage({ header: mockHeader, body: mockBody });
 
-      expect(slackApp.client.chat.postMessage).toHaveBeenCalledWith({
+      expect(slackClient.chat.postMessage).toHaveBeenCalledWith({
         channel: mockChannel,
         text: mockHeader,
         blocks: [
@@ -50,7 +48,7 @@ describe('SlackMessageService', () => {
     });
 
     it('should log an error if Slack message fails', async () => {
-      (slackApp.client.chat.postMessage as jest.Mock).mockRejectedValue(
+      (slackClient.chat.postMessage as jest.Mock).mockRejectedValue(
         new Error('Slack API Error')
       );
 
