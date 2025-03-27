@@ -179,8 +179,8 @@ export class FinclusiveService {
 
     const url = new URL(`${this.oauthUrl}/oauth2/v2.0/token`);
     url.searchParams.set('client_id', this.clientId);
-    url.searchParams.set('username', encodeURI(this.userAuth.username));
-    url.searchParams.set('password', encodeURI(this.userAuth.password));
+    url.searchParams.set('username', this.userAuth.username);
+    url.searchParams.set('password', this.userAuth.password);
     url.searchParams.set('p', this.partnerId);
     url.searchParams.set('scope', `openid ${this.clientId} offline_access`);
     url.searchParams.set('grant_type', 'password');
