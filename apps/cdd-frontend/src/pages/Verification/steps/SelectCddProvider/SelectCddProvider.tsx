@@ -1,21 +1,20 @@
+import { Box, CircularProgress, Flex } from '@chakra-ui/react';
 import React, { useContext, useEffect } from 'react';
-import { CircularProgress, Flex, Box } from '@chakra-ui/react';
 
-import { VerificationState } from '../index.d';
 import {
   StepFormContext,
   StepFormNavigation,
 } from '@polymeshassociation/polymesh-theme/ui/organisms';
+import { VerificationState } from '../index.d';
 
-import useGetProviderLinkMutation from '../../../../hooks/useGetProviderLinkMutation';
 import config from '../../../../config/constants';
+import useGetProviderLinkMutation from '../../../../hooks/useGetProviderLinkMutation';
 
+import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaComponent';
 import ErrorLoadingProviderLink from './ErrorLoadingProviderLink';
 import ProviderLogoCard from './ProviderLogoCard';
-import HCaptchaComponent from '../../../../components/HCaptcha/HCaptchaComponent';
 
 import { useCaptcha } from '../../../../hooks';
-import { ProviderEnum } from '../../../../components/ResultPage/types';
 
 type SelectCddProviderProps = {
   setState: React.Dispatch<React.SetStateAction<VerificationState>>;
@@ -51,25 +50,33 @@ export const SelectCddProvider: React.FC<SelectCddProviderProps> = ({
     }
   };
 
+  const enabledProviders = config.PROVIDERS_ENABLED;
+
   return (
     <>
       {isError && <ErrorLoadingProviderLink isError={isError} />}
       <Flex gap="2rem" w="100%" direction={{ base: 'column', md: 'row' }}>
-        <ProviderLogoCard
-          provider="jumio"
-          onSelectProvider={onSelectProvider}
-          isSelected={state.provider === 'jumio'}
-        />
-        <ProviderLogoCard
-          provider="netki"
-          onSelectProvider={onSelectProvider}
-          isSelected={state.provider === 'netki'}
-        />
-        <ProviderLogoCard
-          provider="finclusive"
-          onSelectProvider={onSelectProvider}
-          isSelected={state.provider === 'finclusive'}
-        />
+        {enabledProviders.includes('jumio') && (
+          <ProviderLogoCard
+            provider="jumio"
+            onSelectProvider={onSelectProvider}
+            isSelected={state.provider === 'jumio'}
+          />
+        )}
+        {enabledProviders.includes('netki') && (
+          <ProviderLogoCard
+            provider="netki"
+            onSelectProvider={onSelectProvider}
+            isSelected={state.provider === 'netki'}
+          />
+        )}
+        {enabledProviders.includes('finclusive') && (
+          <ProviderLogoCard
+            provider="finclusive"
+            onSelectProvider={onSelectProvider}
+            isSelected={state.provider === 'finclusive'}
+          />
+        )}
         {config.MOCK_ENABLED && (
           <ProviderLogoCard
             provider="mock"
