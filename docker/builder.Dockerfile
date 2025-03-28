@@ -33,12 +33,6 @@ RUN yarn install \
         --no-progress && \
     ./node_modules/nx/bin/nx.js build cdd-backend --configuration=production && \
     ./node_modules/nx/bin/nx.js build cdd-backend:buildWorker --configuration=production && \
-    { \
-        sed -n 's/^\(.*\)=.*$/\1=__\1__/p' .env.sample.web > .env && \
-        ./node_modules/nx/bin/nx.js build cdd-frontend --configuration=production && \
-        sed 's/^\(.*\)=.*$/\1/' .env > /app/env.var.list && \
-        rm .env; \
-    } && \
     yarn remove $(cat package.json | jq -r '.devDependencies | keys | join(" ")') && \
     rm -r /home/node/.cache/
 

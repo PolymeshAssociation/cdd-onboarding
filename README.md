@@ -44,14 +44,6 @@ See the corresponding .env.sample files for configuration. Both Netki and Jumio 
 
 These specify the correct `--entryFile` to `nest start`
 
-## Frontend
-
-The frontend is React with Chakra UI
-
-To serve the frontend use:
-
-`nx run cdd-frontend:serve`
-
 ## UI Storybook
 
 This repository also hosts polymesh-theme library for chakra-ui with some custom components.
