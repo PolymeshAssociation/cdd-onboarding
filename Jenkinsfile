@@ -133,12 +133,6 @@ node {
                         script: '''#!/bin/bash
                                 docker build --build-arg "BUILDER_CONTAINER_TAG=${GIT_COMMIT}" -f docker/worker.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" .
                                 ''')
-                },
-                ui: {
-                    sh (label: 'Build `web.Dockerfile`',
-                        script: '''#!/bin/bash
-                                docker build --build-arg "BUILDER_CONTAINER_TAG=${GIT_COMMIT}" -f docker/web.Dockerfile -t "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-ui:${GIT_COMMIT}" .
-                                ''')
                 }
             }
 
@@ -151,7 +145,6 @@ node {
 
                             docker push "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-server:${GIT_COMMIT}" || true
                             docker push "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-worker:${GIT_COMMIT}" || true
-                            docker push "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_PREFIX}-ui:${GIT_COMMIT}" || true
                             ''')
             }
 
