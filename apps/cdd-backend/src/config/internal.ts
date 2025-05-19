@@ -21,3 +21,11 @@ export const allowedApiKeysZ = z
     'A comma separated list of api keys that authorize KYB applications'
   )
   .default([]);
+
+export const callbackApiKeysZ = z
+  .string()
+  .array()
+  .describe(
+    'A comma separated list of api keys that authorize callback requests'
+  )
+  .default([]);

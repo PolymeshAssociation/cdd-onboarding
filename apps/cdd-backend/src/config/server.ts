@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { allowedApiKeysZ, allowedBasicAuthZ, allowedIpsZ } from './internal';
+import {
+  allowedApiKeysZ,
+  allowedBasicAuthZ,
+  allowedIpsZ,
+  callbackApiKeysZ,
+} from './internal';
 
 const configZ = z
   .object({
@@ -125,6 +130,7 @@ const configZ = z
           .default('140647882')
           .describe('Finclusive customer ID'),
         allowedIps: allowedIpsZ,
+        callbackApiKeys: callbackApiKeysZ,
       })
       .describe('Finclusive related config'),
 
@@ -193,6 +199,9 @@ export const serverEnvConfig = (): ServerConfig => {
       webformUrl: process.env.FINCLUSIVE_WEBFORM_URL,
       allowedIps: process.env.FINCLUSIVE_ALLOWED_IPS?.split(',').map((ip) =>
         ip.trim()
+      ),
+      callbackApiKeys: process.env.FINCLUSIVE_CALLBACK_API_KEYS?.split(',').map(
+        (key) => key.trim()
       ),
     },
     hCaptcha: {

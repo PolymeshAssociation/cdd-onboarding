@@ -10,6 +10,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IpFilterGuard } from '../common/ip-filter.guard';
 import { FinclusiveService } from './finclusive.service';
 import { FinclusiveCallbackDto } from './types';
+import { CallbackApiKeyGuard } from '../common/callback-api-key.guard';
 
 @Controller('finclusive')
 @ApiTags('finclusive')
@@ -17,7 +18,7 @@ export class FinclusiveController {
   constructor(private readonly service: FinclusiveService) {}
 
   @Post('/callback')
-  @UseGuards(IpFilterGuard)
+  @UseGuards(IpFilterGuard, CallbackApiKeyGuard)
   @ApiResponse({
     status: HttpStatus.CREATED,
   })

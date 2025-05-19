@@ -8,7 +8,8 @@ export const mockQueue = {
 export const mockHttpContext = (
   remoteAddress: string,
   header: string,
-  body: Record<string, unknown>
+  body: Record<string, unknown>,
+  query?: Record<string, unknown>
 ): ExecutionContext =>
   createMock<ExecutionContext>({
     switchToHttp: () => ({
@@ -18,6 +19,7 @@ export const mockHttpContext = (
           remoteAddress,
         },
         body,
+        query,
       }),
     }),
   });

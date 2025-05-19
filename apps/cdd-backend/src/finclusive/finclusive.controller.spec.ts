@@ -6,6 +6,7 @@ import { FinclusiveCallbackDto } from './types';
 
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { CALLBACK_API_KEYS_PROVIDER } from '../common/callback-api-key.guard';
 import { ALLOWED_IPS_PROVIDER } from '../common/ip-filter.guard';
 import mockRequest from '../test-utils/finclusive-http/webhook-cdd-status.json';
 import { FinclusiveService } from './finclusive.service';
@@ -25,6 +26,10 @@ describe('FinclusiveController', () => {
         {
           provide: ALLOWED_IPS_PROVIDER,
           useValue: [],
+        },
+        {
+          provide: CALLBACK_API_KEYS_PROVIDER,
+          useValue: ['some-api-key'],
         },
         {
           provide: WINSTON_MODULE_PROVIDER,
