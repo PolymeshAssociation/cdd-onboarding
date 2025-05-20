@@ -1,4 +1,6 @@
+import { createMock } from '@golevelup/ts-jest';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Logger } from 'winston';
 import { mockHttpContext } from '../test-utils/mocks';
 import { CallbackApiKeyGuard } from './callback-api-key.guard';
 
@@ -7,7 +9,7 @@ describe('CallbackApiKeyGuard', () => {
   const validApiKeys = ['valid-key-1', 'valid-key-2'];
 
   beforeEach(() => {
-    guard = new CallbackApiKeyGuard(validApiKeys);
+    guard = new CallbackApiKeyGuard(validApiKeys, createMock<Logger>());
   });
 
   it('should be defined', () => {
