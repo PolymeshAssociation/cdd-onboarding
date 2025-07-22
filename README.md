@@ -1,8 +1,10 @@
 # CDD Onboarding
 
-This project handles Polymesh Customer Due Diligence (CDD) claims, which are required to onboard and interact with the chain.
+This project handles Polymesh Customer Due Diligence (CDD) claims, which are required to onboard to Polymesh.
 
-CDD claims ensure every participant of the Polymesh chain has completed some form of Know your customer / Know your business (KYC/KYB) process. Every address needs to be associated to a CDD claim before it can receive the POLYX token or other Assets.
+Every identity and asset related transaction that is executed on-chain in Polymesh must be associated with an identity that has a valid CDD claim. To be valid a CDD claim must be issued by one of a group of permissioned identities representing professional KYC companies.
+
+To on-board into Polymesh, a user must go through a simple due diligence process with a Polymesh CDD service provider - that CDD service provider will then create the users identity and attach a CDD claim.
 
 ## Running Locally
 
